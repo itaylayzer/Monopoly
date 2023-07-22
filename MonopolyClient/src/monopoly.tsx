@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Socket } from "socket.io-client";
 import { Player, PlayerJSON } from "./assets/player";
 import "./monopoly.css";
-import MonopolyNav, {MonopolyNavRef} from "./components/nav";
+import MonopolyNav, { MonopolyNavRef } from "./components/nav";
 import MonopolyGame, { MonopolyGameRef } from "./components/game";
 function App({ socket, name }: { socket: Socket; name: string }) {
     const [clients, SetClients] = useState<Map<string, Player>>(new Map());
@@ -13,7 +13,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
     const navRef = useRef<MonopolyNavRef>(null);
 
     useEffect(() => {
-        console.log('called')
+        console.log("called");
         //#region socket handeling
         socket.on(
             "initials",
@@ -65,17 +65,21 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 SetCurrent(args.turnId);
             }
         );
-            socket.on("message",(message:{from:string, message:string})=>{
-                navRef.current?.addMessage(message);
-            })
+        socket.on("message", (message: { from: string; message: string }) => {
+            navRef.current?.addMessage(message);
+        });
         socket.on(
             "dice_roll_result",
             (args: {
                 listOfNums: [number, number, number];
                 turnId: string;
             }) => {
+
+                const sumTimes = args.listOfNums[0] + args.listOfNums[1];
+
                 engineRef.current?.diceResults({
                     l: [args.listOfNums[0], args.listOfNums[1]],
+                    time:0.5 * 1000 * sumTimes,
                     onDone: () => {
                         if (socket.id !== args.turnId) return;
                         socket.emit(
@@ -85,8 +89,29 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     },
                 });
 
+                
+                var i = 0;
                 const x = clients.get(args.turnId) as Player;
-                x.position = args.listOfNums[2];
+                x.position += 1;
+                const movingAnim = ()=>{
+                    const element = document.querySelector(
+                        `div.player[player-id="${args.turnId}"]`
+                    ) as HTMLDivElement;
+                    const x = clients.get(args.turnId) as Player;
+                    if (i < sumTimes) {
+                        i +=1;
+                        x.position += 1;
+
+                        if (i == sumTimes - 1) {
+                            x.position = args.listOfNums[2];
+                            element.style.animation =
+                                "part 0.9s cubic-bezier(0,.7,.57,1)";
+                        }
+                        else setTimeout(movingAnim, 0.5 * 1000);
+                    }
+                    
+                }
+                setTimeout(movingAnim, 0.5 * 1000);
             }
         );
         //#endregion
@@ -96,7 +121,8 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
     return gameStarted ? (
         <main>
-            <MonopolyNav ref={navRef}
+            <MonopolyNav
+                ref={navRef}
                 name={name}
                 socket={socket}
                 players={Array.from(clients.values())}

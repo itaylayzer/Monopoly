@@ -8,19 +8,16 @@ interface MonopolyGameProps {
     socket: Socket;
 }
 export interface MonopolyGameRef {
-    diceResults: (args: { l: [number, number]; onDone: () => void }) => void;
+    diceResults: (args: { l: [number, number]; time:number, onDone: () => void }) => void;
 }
 
 // Create the component with forwardRef
 const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
     (prop, ref) => {
         const [showDice, SetShowDice] = useState<boolean>(false);
-
+        const [sended, SetSended] = useState<boolean>();
         useImperativeHandle(ref, () => ({
-            diceResults: (args: {
-                l: [number, number];
-                onDone: () => void;
-            }) => {
+            diceResults: (args) => {
                 const element = document.getElementById(
                     "dice-panel"
                 ) as HTMLDivElement;
@@ -31,7 +28,8 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     SetShowDice(false);
                     args.onDone();
                     element.innerHTML = "";
-                }, 3000);
+                    SetSended(false);
+                }, args.time);
             },
         }));
 
@@ -516,11 +514,12 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 <div
                     className="roll-panel"
                     aria-disabled={false}
-                    style={prop.myTurn ? {} : { bottom: "-15%" }}
+                    style={prop.myTurn && !sended ? {} : { bottom: "-15%" }}
                     onClick={async (e) => {
                         if (e.currentTarget.ariaDisabled === "true") return;
                         else {
                             prop.socket.emit("roll_dice");
+                            SetSended(true);
                         }
                     }}
                 >
