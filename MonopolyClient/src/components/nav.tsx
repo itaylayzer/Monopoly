@@ -1,24 +1,49 @@
 import PlayersIcon from "../../public/players.png";
 import ChatIcon from "../../public/chat.png";
+import NChatIcon from "../../public/chat_new.png";
 import LeaveIcon from "../../public/leave1.png";
 import PropretiesIcon from "../../public/proprety.png";
 import SettingsIcon from "../../public/settings.png";
 import MonopolyIcon from "../../public/monopoly-icon/icon.png";
-import { useEffect, useState } from "react";
-import { GlobalPlayer } from "../assets/player";
+import { forwardRef, useState, useImperativeHandle } from "react";
+import { Player } from "../assets/player";
 import { Socket } from "socket.io-client";
 
-export default function MonopolyNav(args: {
+interface MonopolyNavProps {
     name: string;
     socket: Socket;
-    players: Array<GlobalPlayer>;
-}) {
+    players: Array<Player>;
+}
+export interface MonopolyNavRef {
+    addMessage:(arg:{from:string, message:string})=>void;
+}
+
+const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => {
+
     const [tabIndex, SetTab] = useState<number>(0);
     const [messages, SetMessages] = useState<
         Array<{ from: string; message: string }>
     >([]);
 
-   
+    useImperativeHandle(ref, () => ({
+        addMessage(arg) {
+            SetMessages((old)=>[...old, arg]);
+            if (tabIndex !== 2){
+                const iconElement = (document.getElementById('chatIconChange') as HTMLDivElement);
+                const imageElement = iconElement.querySelector('img') as HTMLImageElement;
+                imageElement.style.animation = "spin3 2s cubic-bezier(.68,.05,.49,.95) infinite";
+                imageElement.src = NChatIcon;
+                iconElement.onclick =  ()=>{
+                    imageElement.src = ChatIcon;
+                    imageElement.style.animation = "";
+                    SetTab(2)
+                    iconElement.onclick = ()=>{
+                        SetTab(2)
+                    }
+                }
+            }
+        },
+    }));
     return (
         <nav className="main">
             <nav className="header">
@@ -51,6 +76,7 @@ export default function MonopolyNav(args: {
                         onClick={() => SetTab(2)}
                         data-tooltip-hover="chat"
                         className="button"
+                        id="chatIconChange"
                     >
                         <img src={ChatIcon} alt="" />
                     </div>
@@ -85,7 +111,7 @@ export default function MonopolyNav(args: {
                         <div className="main-chat">
                             <div className="messages">
                                 {messages.map((v, i) => (
-                                    <div className="message">
+                                    <div key={i} className="message">
                                         <p>{v.from}:</p>
                                         <p>{v.message}</p>
                                     </div>
@@ -102,11 +128,8 @@ export default function MonopolyNav(args: {
                                     ) {
                                         //send the message
                                         const message = e.currentTarget.value;
-                                        SetMessages((old) => [
-                                            ...old,
-                                            { from: args.name, message },
-                                        ]);
-                                        args.socket.emit("message", message);
+                                        
+                                        prop.socket.emit("message", message);
                                         e.currentTarget.value = "";
                                     }
                                 }}
@@ -127,17 +150,17 @@ export default function MonopolyNav(args: {
                 ) : tabIndex == 0 ? (
                     <>
                         <h3 style={{ textAlign: "center" }}>Players</h3>
-                        {args.players.map((v, i) => (
+                        {prop.players.map((v, i) => (
                             <div key={i} className="playerInfo" onClick={()=>{
-                                const element = document.querySelector(`div.player#${v.id}`) as HTMLDivElement;
+                                const element = document.querySelector(`div.player[player-id="${v.id}"]`) as HTMLDivElement;
                                 element.style.animation = "spin2 1s cubic-bezier(.21, 1.57, .55, 1) infinite"
                                 setTimeout(()=>{
                                     element.style.animation = "";
                                 },1 * 1000);
                             }}>
-                                <p>{v.name}</p>
-                                <p>{v.money}</p>
-                                <p>{v.propcount}</p>
+                                <p>{v.username}</p>
+                                <p>{v.balance}</p>
+                                <p>{v.properties.length}</p>
                             </div>
                         ))}
                     </>
@@ -147,4 +170,5 @@ export default function MonopolyNav(args: {
             </nav>
         </nav>
     );
-}
+});
+export default MonopolyNav;

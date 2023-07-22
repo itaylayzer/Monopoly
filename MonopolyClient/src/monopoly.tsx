@@ -1,54 +1,47 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Socket } from "socket.io-client";
-import { GlobalPlayer, Player, PlayerJSON } from "./assets/player";
+import { Player, PlayerJSON } from "./assets/player";
 import "./monopoly.css";
-import MonopolyNav from "./components/nav";
-import MonopolyGame from "./components/game";
+import MonopolyNav, {MonopolyNavRef} from "./components/nav";
+import MonopolyGame, { MonopolyGameRef } from "./components/game";
 function App({ socket, name }: { socket: Socket; name: string }) {
-    const [localPlayer, SetLocalPlayer] = useState<Player>();
-    const [turnId, SetTurn] = useState<string>("");
-    const [clients, SetClients] = useState<Map<string, GlobalPlayer>>(
-        new Map()
-    );
+    const [clients, SetClients] = useState<Map<string, Player>>(new Map());
+    const [currentId, SetCurrent] = useState<string>("");
     const [gameStarted, SetGameStarted] = useState<boolean>(false);
     const [imReady, SetReady] = useState<boolean>(false);
+    const engineRef = useRef<MonopolyGameRef>(null);
+    const navRef = useRef<MonopolyNavRef>(null);
 
     useEffect(() => {
+        console.log('called')
+        //#region socket handeling
         socket.on(
             "initials",
             (args: { turn_id: string; other_players: Array<PlayerJSON> }) => {
-                SetTurn(args.turn_id);
+                SetCurrent(args.turn_id.toString());
                 for (const x of args.other_players) {
-                    if (x.id === socket.id) {
-                        SetLocalPlayer(
-                            new Player(socket.id, name).recieveJson(x)
-                        );
-                    } else {
-                        SetClients(
-                            clients.set(
-                                x.id,
-                                new GlobalPlayer(x.id, x.username).recieveJson(
-                                    x
-                                )
-                            )
-                        );
-                    }
+                    SetClients(
+                        clients.set(
+                            x.id,
+                            new Player(x.id, x.username).recieveJson(x)
+                        )
+                    );
                 }
             }
         );
+
         socket.on("new-player", (args: PlayerJSON) => {
             SetClients(
                 new Map(
                     clients.set(
                         args.id,
-                        new GlobalPlayer(args.id, args.username).recieveJson(
-                            args
-                        )
+                        new Player(args.id, args.username).recieveJson(args)
                     )
                 )
             );
         });
-        socket.on("start-game", (args) => {
+
+        socket.on("start-game", () => {
             SetGameStarted(true);
         });
 
@@ -56,20 +49,66 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             clients.delete(disconnectedId);
             SetClients(new Map(clients));
         });
+        socket.on(
+            "turn-finished",
+            (args: { from: string; turnId: string; pJson: PlayerJSON }) => {
+                console.log(
+                    `just finished: ${
+                        args.turnId
+                    } ${currentId} which is my id? ${args.turnId == socket.id}`
+                );
+                const x = clients.get(args.from);
+                if (args.from !== socket.id && x) {
+                    x.recieveJson(args.pJson);
+                    SetClients(new Map(clients.set(args.from, x)));
+                }
+                SetCurrent(args.turnId);
+            }
+        );
+            socket.on("message",(message:{from:string, message:string})=>{
+                navRef.current?.addMessage(message);
+            })
+        socket.on(
+            "dice_roll_result",
+            (args: {
+                listOfNums: [number, number, number];
+                turnId: string;
+            }) => {
+                engineRef.current?.diceResults({
+                    l: [args.listOfNums[0], args.listOfNums[1]],
+                    onDone: () => {
+                        if (socket.id !== args.turnId) return;
+                        socket.emit(
+                            "finish-turn",
+                            (clients.get(socket.id) as Player).toJson()
+                        );
+                    },
+                });
+
+                const x = clients.get(args.turnId) as Player;
+                x.position = args.listOfNums[2];
+            }
+        );
+        //#endregion
+
         socket.emit("name", name);
-    }, []);
+    }, [socket]);
 
     return gameStarted ? (
         <main>
-            <MonopolyNav name={name} socket={socket}
-                players={Array.from(clients.values()).concat(
-                    localPlayer as GlobalPlayer
-                )}
+            <MonopolyNav ref={navRef}
+                name={name}
+                socket={socket}
+                players={Array.from(clients.values())}
             />
             <div className="game">
-                <MonopolyGame players={Array.from(clients.values()).concat(
-                    localPlayer as GlobalPlayer
-                )} myTurn={true}/>
+                {currentId} <br /> {socket.id}
+                <MonopolyGame
+                    ref={engineRef}
+                    socket={socket}
+                    players={Array.from(clients.values())}
+                    myTurn={currentId === socket.id}
+                />
             </div>
         </main>
     ) : (
@@ -80,11 +119,10 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 {Array.from(clients.values()).map((v, i) => {
                     return (
                         <p className="lobby-players" key={i}>
-                            {v.name}
+                            {v.username}
                         </p>
                     );
                 })}
-                <p className="lobby-players">{name}</p>
             </div>
             {imReady
                 ? "You Are Ready to start the MATCH!"

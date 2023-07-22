@@ -1,13 +1,14 @@
 export class Player {
-    private id: string;
-    private username: string;
-    private icon:number;
-    private position: number;
-    private balance: number;
-    private properties: Array<any>;
-    private isInJail: boolean;
-    private jailTurnsRemaining: number;
-    constructor(_id: string, _name: string, _icon:number) {
+
+    public id: string;
+    public username: string;
+    public icon: number;
+    public position: number;
+    public balance: number;
+    public properties: Array<any>;
+    public isInJail: boolean;
+    public jailTurnsRemaining: number;
+    constructor(_id: string, _name: string, _icon: number) {
         this.id = _id; // Unique identifier for the player
         this.username = _name; // Player's username or name
         this.icon = _icon;
@@ -19,18 +20,35 @@ export class Player {
         this.jailTurnsRemaining = 0; // Number of turns remaining in jail (if applicable)
     }
 
-    to_json(){
+    to_json() {
         return {
-            id:this.id,
-            username:this.username,
-            icon:this.icon,
-            position:this.position,
-            balance:this.balance,
-            properties:this.properties,
-            isInJail:this.isInJail,
-            jailTurnsRemaining:this.jailTurnsRemaining
+            id: this.id,
+            username: this.username,
+            icon: this.icon,
+            position: this.position,
+            balance: this.balance,
+            properties: this.properties,
+            isInJail: this.isInJail,
+            jailTurnsRemaining: this.jailTurnsRemaining,
+        };
+    }
+
+    from_json(json: {
+        id: string;
+        username: string;
+        icon: number;
+        position: number;
+        balance: number;
+        properties: any[];
+        isInJail: boolean;
+        jailTurnsRemaining: number;
+    }) {
+        if (this.id == json.id) {
+            this.position = json.position;
+            this.balance = json.balance;
+            this.properties = json.properties;
+            this.isInJail = json.isInJail;
+            this.jailTurnsRemaining = json.jailTurnsRemaining;
         }
     }
-   
 }
-

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import Monopoly from "./monopoly.tsx";
 import "./index.css";
@@ -42,7 +42,5 @@ function App() {
 
 document.title = "Monopoly";
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-    <React.StrictMode>
-        <App />
-    </React.StrictMode>
+    <App />
 );

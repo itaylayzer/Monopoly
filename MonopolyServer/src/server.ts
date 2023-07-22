@@ -18,6 +18,7 @@ const Clients = new Map<string, Client>();
 //#region Game Variables!
 let currentId: string = "";
 let gameStarted: boolean = false;
+let messages:Array<{from:string, message:string}> = [];
 //#endregion
 // Io
 const io = new Server(httpServer, {
@@ -39,6 +40,16 @@ function EmitExcepts(id: string, event: string, args: any) {
     }
 }
 //#endregion
+type PlayerJSON = {
+    id: string;
+    username: string;
+    icon: number;
+    position: number;
+    balance: number;
+    properties: Array<any>;
+    isInJail: boolean;
+    jailTurnsRemaining: number;
+};
 
 //#endregion
 //#region Game Logic
@@ -61,18 +72,51 @@ io.on("connection", (socket: Socket) => {
             ) {
                 currentId = socket.id;
             }
+            console.log(`current id ${currentId}`);
+            Clients.set(socket.id, {
+                player: player,
+                socket: socket,
+                ready: false,
+            });
             const other_players = [];
             for (const x of Clients.values()) {
                 other_players.push(x.player.to_json());
             }
             socket.emit("initials", { turn_id: currentId, other_players });
             EmitExcepts(socket.id, "new-player", player.to_json());
-            Clients.set(socket.id, {
-                player: player,
-                socket: socket,
-                ready: false,
-            });
+
             // handle all events from here on!
+            // game sockets
+
+            socket.on("roll_dice",()=>{
+                const first = Math.floor(Math.random() * 6) + 1;
+                const second = Math.floor(Math.random() * 6) + 1;
+                const sum = first + second;
+                player.position = (player.position + sum) % 40;
+                // Clients.get(currentId).player = player;
+                console.log(Clients.get(currentId).player == player);
+                EmitAll("dice_roll_result",{listOfNums:[first, second, player.position],turnId:currentId})
+            })
+            socket.on("finish-turn", (playerInfo: PlayerJSON) => {
+                player.from_json(playerInfo);
+
+                if (currentId != socket.id) return;
+
+                const arr = Array.from(Clients.keys());
+                var i = arr.indexOf(socket.id);
+                i = (i + 1) % arr.length;
+                currentId = arr[i];
+                console.log(`turn-finished ${JSON.stringify(player.to_json())}`);
+                EmitAll("turn-finished", {
+                    from: socket.id,
+                    turnId: currentId,
+                    pJson: player.to_json(),
+                });
+            });
+
+            socket.on("message",(message:string)=>{
+                EmitAll("message" ,{from:player.username, message:message})
+            })
         });
         socket.on("ready", (args: boolean) => {
             const client = Clients.get(socket.id);
@@ -82,7 +126,7 @@ io.on("connection", (socket: Socket) => {
             // Check if everyone Ready!
 
             const readys = Array.from(Clients.values()).map((v) => v.ready);
-            console.log(JSON.stringify(readys));
+            // console.log(JSON.stringify(readys));
 
             if (!readys.includes(false)) {
                 console.log("starting game");
@@ -90,6 +134,7 @@ io.on("connection", (socket: Socket) => {
                 EmitAll("start-game", {});
             }
         });
+        
     } else {
         socket.disconnect();
     }
@@ -101,6 +146,7 @@ io.on("connection", (socket: Socket) => {
 
         if (Array.from(Clients.keys()).length === 0) {
             gameStarted = false;
+            messages = [];
             console.log("ending game. open to new players");
         }
     });
