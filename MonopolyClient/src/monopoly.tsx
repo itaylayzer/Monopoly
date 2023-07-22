@@ -79,39 +79,52 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
                 engineRef.current?.diceResults({
                     l: [args.listOfNums[0], args.listOfNums[1]],
-                    time:0.5 * 1000 * sumTimes,
-                    onDone: () => {
+                    time: 0.35 * 1000 * sumTimes + 2000 + 800,
+                    onDone: (finish) => {
                         if (socket.id !== args.turnId) return;
-                        socket.emit(
-                            "finish-turn",
-                            (clients.get(socket.id) as Player).toJson()
-                        );
+
+                        const location = clients.get(socket.id)?.position ?? -1;
+                        engineRef.current?.setStreet({location, onResponse:(b)=>{
+                            console.log(`gathered ${b}`);
+                            finish();
+                            socket.emit(
+                                "finish-turn",
+                                (clients.get(socket.id) as Player).toJson()
+                            );
+                        }})
                     },
                 });
 
-                
-                var i = 0;
-                const x = clients.get(args.turnId) as Player;
-                x.position += 1;
-                const movingAnim = ()=>{
-                    const element = document.querySelector(
-                        `div.player[player-id="${args.turnId}"]`
-                    ) as HTMLDivElement;
+                setTimeout(()=>{
+                    var i = 0;
                     const x = clients.get(args.turnId) as Player;
-                    if (i < sumTimes) {
-                        i +=1;
-                        x.position += 1;
-
-                        if (i == sumTimes - 1) {
-                            x.position = args.listOfNums[2];
-                            element.style.animation =
-                                "part 0.9s cubic-bezier(0,.7,.57,1)";
+                    x.position += 1;
+                    const movingAnim = ()=>{
+                        const element = document.querySelector(
+                            `div.player[player-id="${args.turnId}"]`
+                        ) as HTMLDivElement;
+                        const x = clients.get(args.turnId) as Player;
+                        if (i < sumTimes) {
+                            i +=1;
+                            x.position = (x.position + 1) % 40;
+    
+                            if (i == sumTimes - 1) {
+                                x.position = args.listOfNums[2];
+                                element.style.animation =
+                                    "part 0.9s cubic-bezier(0,.7,.57,1)";
+                                    setTimeout(()=>{element.style.animation=""},900);
+                            }
+                            else {
+                                element.style.animation =
+                                    "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
+                                setTimeout(movingAnim, 0.35 * 1000);
+                            } 
                         }
-                        else setTimeout(movingAnim, 0.5 * 1000);
+                        
                     }
-                    
-                }
-                setTimeout(movingAnim, 0.5 * 1000);
+                    setTimeout(movingAnim,  0.35 * 1000);
+                }, 2000)
+                
             }
         );
         //#endregion
@@ -122,13 +135,13 @@ function App({ socket, name }: { socket: Socket; name: string }) {
     return gameStarted ? (
         <main>
             <MonopolyNav
+            currentTurn={currentId}
                 ref={navRef}
                 name={name}
                 socket={socket}
                 players={Array.from(clients.values())}
             />
             <div className="game">
-                {currentId} <br /> {socket.id}
                 <MonopolyGame
                     ref={engineRef}
                     socket={socket}

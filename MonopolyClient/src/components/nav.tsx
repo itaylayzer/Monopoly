@@ -5,6 +5,7 @@ import LeaveIcon from "../../public/leave1.png";
 import PropretiesIcon from "../../public/proprety.png";
 import SettingsIcon from "../../public/settings.png";
 import MonopolyIcon from "../../public/monopoly-icon/icon.png";
+import DiceIcon from "../../public/monopoly-icon/roll.png";
 import { forwardRef, useState, useImperativeHandle } from "react";
 import { Player } from "../assets/player";
 import { Socket } from "socket.io-client";
@@ -13,6 +14,7 @@ interface MonopolyNavProps {
     name: string;
     socket: Socket;
     players: Array<Player>;
+    currentTurn:string;
 }
 export interface MonopolyNavRef {
     addMessage:(arg:{from:string, message:string})=>void;
@@ -152,6 +154,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                         <h3 style={{ textAlign: "center" }}>Players</h3>
                         {prop.players.map((v, i) => (
                             <div key={i} className="playerInfo" onClick={()=>{
+
                                 const element = document.querySelector(`div.player[player-id="${v.id}"]`) as HTMLDivElement;
                                 element.style.animation = "spin2 1s cubic-bezier(.21, 1.57, .55, 1) infinite"
                                 setTimeout(()=>{
@@ -159,6 +162,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                                 },1 * 1000);
                             }}>
                                 <p>{v.username}</p>
+                                {v.id === prop.currentTurn ? (<img src={DiceIcon}/>) : (<></>)}
                                 <p>{v.balance}</p>
                                 <p>{v.properties.length}</p>
                             </div>

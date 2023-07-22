@@ -2,20 +2,47 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import RollIcon from "../../public/monopoly-icon/roll.png";
 import { Player } from "../assets/player";
 import { Socket } from "socket.io-client";
+import StreetCard, { StreetDisplayInfo, UtilitiesDisplayInfo } from "./streetCard";
+import monopolyJSON from "../assets/monopoly.json";
 interface MonopolyGameProps {
     players: Array<Player>;
     myTurn: boolean;
     socket: Socket;
 }
 export interface MonopolyGameRef {
-    diceResults: (args: { l: [number, number]; time:number, onDone: () => void }) => void;
+    diceResults: (args: {
+        l: [number, number];
+        time: number;
+        onDone: (finish: () => void) => void;
+    }) => void;
+    setStreet: (args: {
+        location: number;
+        onResponse: (b: boolean) => void;
+    }) => void;
 }
 
 // Create the component with forwardRef
 const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
     (prop, ref) => {
+        const propretyMap = new Map(
+            monopolyJSON.properties.map((obj) => {
+                return [(obj.posistion ?? 0) - 1, obj];
+            })
+        );
+
         const [showDice, SetShowDice] = useState<boolean>(false);
         const [sended, SetSended] = useState<boolean>();
+        const [currentStreet, SetStreet] = useState<StreetDisplayInfo | UtilitiesDisplayInfo>();
+        const [oldStreet, SetOldStreet] = useState<StreetDisplayInfo | UtilitiesDisplayInfo>({
+            cardCost: -1,
+            hotelsCost: -1,
+            housesCost: -1,
+            multpliedrent: [-1, -1, -1, -1, -1],
+            rent: -1,
+            rentWithColorSet: -1,
+            title: "deafult",
+        } as StreetDisplayInfo);
+
         useImperativeHandle(ref, () => ({
             diceResults: (args) => {
                 const element = document.getElementById(
@@ -26,10 +53,74 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 SetShowDice(true);
                 setTimeout(() => {
                     SetShowDice(false);
-                    args.onDone();
-                    element.innerHTML = "";
-                    SetSended(false);
+                    args.onDone(() => {
+                        element.innerHTML = "";
+                        SetSended(false);
+                    });
                 }, args.time);
+            },
+            setStreet: (args) => {
+                // find data based on location
+
+                const x = propretyMap.get(args.location);
+                if (x && args.location !== -1)  {
+
+                    if (x.group === "Special"){
+                        args.onResponse(false);
+                        SetStreet(undefined);
+                    }
+                else if (x.group === "Utilities"){
+
+                }
+                    else 
+                    {
+                        const streetInfo = {
+                            cardCost: x.price ?? -1,
+                            hotelsCost: x.ohousecost ?? -1,
+                            housesCost: x.housecost ?? -1,
+                            rent: x.rent ?? -1,
+                            multpliedrent: x.multpliedrent
+                                ? [
+                                      x.multpliedrent[0] ?? -1,
+                                      x.multpliedrent[1] ?? -1,
+                                      x.multpliedrent[2] ?? -1,
+                                      x.multpliedrent[3] ?? -1,
+                                      x.multpliedrent[4] ?? -1,
+                                  ]
+                                : [-1, -1, -1, -1, -1],
+                            rentWithColorSet: x.rent ? x.rent * 2 : -1,
+                            title: x.name ?? "error",
+                            group: x.group
+                        } as StreetDisplayInfo;
+                        SetStreet(streetInfo);
+                        SetOldStreet(streetInfo);
+                    }
+                    
+                } else {
+                    alert(
+                        "error of loading the street has occoured, please continue the game!"
+                    );
+                    args.onResponse(false);
+                    SetStreet(undefined);
+                }
+
+                // trigger yes and no functining!
+                (
+                    document.querySelector(
+                        "button#card-response-yes"
+                    ) as HTMLButtonElement
+                ).onclick = () => {
+                    args.onResponse(true);
+                    SetStreet(undefined);
+                };
+                (
+                    document.querySelector(
+                        "button#card-response-no"
+                    ) as HTMLButtonElement
+                ).onclick = () => {
+                    args.onResponse(false);
+                    SetStreet(undefined);
+                };
             },
         }));
 
@@ -89,6 +180,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
         return (
             <>
+                {JSON.stringify(Array.from(new Map(Array.from(propretyMap.values()).map(v=>[v.group,1])).keys()))};
                 <div id="dice-panel" data-show={showDice}>
                     <img src={RollIcon} />
                     <p>ITS YOUR TURN TO ROLL THE DICE</p> <img src={RollIcon} />
@@ -510,7 +602,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         }}
                     ></div>
                 </div>
-
                 <div
                     className="roll-panel"
                     aria-disabled={false}
@@ -525,6 +616,28 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 >
                     <img src={RollIcon} />
                     <p>ITS YOUR TURN TO ROLL THE DICE</p> <img src={RollIcon} />
+                </div>
+                <div
+                    style={
+                        currentStreet === undefined
+                            ? {
+                                  transform:
+                                      "translateY(-50%) translateX(-500%)",
+                              }
+                            : {}
+                    }
+                    className="card-display-actions"
+                >
+                    <h3>would you like to buy this card?</h3>
+                    <StreetCard
+                        args ={oldStreet}
+                    />
+                    <div>
+                        <center>
+                            <button id="card-response-yes">YES</button>
+                            <button id="card-response-no">NO</button>
+                        </center>
+                    </div>
                 </div>
             </>
         );
