@@ -98,6 +98,7 @@ io.on("connection", (socket: Socket) => {
                 EmitAll("dice_roll_result",{listOfNums:[first, second, player.position],turnId:currentId})
             })
             socket.on("finish-turn", (playerInfo: PlayerJSON) => {
+                
                 player.from_json(playerInfo);
 
                 if (currentId != socket.id) return;

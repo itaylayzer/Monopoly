@@ -1,8 +1,13 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import RollIcon from "../../public/monopoly-icon/roll.png";
+import C1Icon from "../../public/cubes/c1.png";
 import { Player } from "../assets/player";
 import { Socket } from "socket.io-client";
-import StreetCard, { StreetDisplayInfo, UtilitiesDisplayInfo } from "./streetCard";
+import StreetCard, {
+    StreetDisplayInfo,
+    UtilitiesDisplayInfo,
+    RailroadDisplayInfo,
+} from "./streetCard";
 import monopolyJSON from "../assets/monopoly.json";
 interface MonopolyGameProps {
     players: Array<Player>;
@@ -26,14 +31,17 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
     (prop, ref) => {
         const propretyMap = new Map(
             monopolyJSON.properties.map((obj) => {
-                return [(obj.posistion ?? 0) - 1, obj];
+                return [obj.posistion ?? 0, obj];
             })
         );
 
         const [showDice, SetShowDice] = useState<boolean>(false);
-        const [sended, SetSended] = useState<boolean>();
-        const [currentStreet, SetStreet] = useState<StreetDisplayInfo | UtilitiesDisplayInfo>();
-        const [oldStreet, SetOldStreet] = useState<StreetDisplayInfo | UtilitiesDisplayInfo>({
+        const [sended, SetSended] = useState<boolean>(false);
+        const [showStreet, ShowStreet] = useState<{}>(false);
+        const [rotation, SetRotation] = useState<number>(0);
+        const [scale, SetScale] = useState<number>(1);
+
+        const [streetDisplay, SetStreetDisplay] = useState<{}>({
             cardCost: -1,
             hotelsCost: -1,
             housesCost: -1,
@@ -41,15 +49,55 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             rent: -1,
             rentWithColorSet: -1,
             title: "deafult",
-        } as StreetDisplayInfo);
+            type: "electricity",
+        } as UtilitiesDisplayInfo);
 
+        const [streetType, SetStreetType] = useState<
+            "Street" | "Utilities" | "Railroad"
+        >("Utilities");
+
+        function diceAnimation(a:number,b:number){
+
+            const element = document.getElementById("dice-panel") as HTMLDivElement;
+
+            var bb = true;
+            var t = -1;
+
+            function randomCube(){
+                var l = C1Icon.substring(0, C1Icon.length - 5)
+                const numA = Math.floor(Math.random() * 6) + 1;
+                const numB = Math.floor(Math.random() * 6) + 1;
+                element.innerHTML = `
+                <img src="${l}${numA}.png" />
+                <img src="${l}${numB}.png" />
+                
+                `
+            }
+            function anim(){
+                if (bb){
+                    randomCube();
+                    t+=1
+                    setTimeout(anim, 2 ** t * 10 );
+                }
+               else {
+                var l = C1Icon.substring(0, C1Icon.length - 5)
+                element.innerHTML = `
+                <img src="${l}${a}.png" />
+                <img src="${l}${b}.png" />
+                `
+               }
+            }
+            setTimeout(() => {
+                bb = false;
+            }, 1000);
+
+            setTimeout(anim, 1.3 ** t * 100);
+        }
         useImperativeHandle(ref, () => ({
             diceResults: (args) => {
-                const element = document.getElementById(
-                    "dice-panel"
-                ) as HTMLDivElement;
-                element.innerHTML = `
-        <p>[ ${args.l[0]} | ${args.l[1]} ]</p>`;
+                
+                const element = document.getElementById("dice-panel") as HTMLDivElement;
+                diceAnimation(...args.l);
                 SetShowDice(true);
                 setTimeout(() => {
                     SetShowDice(false);
@@ -63,17 +111,36 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 // find data based on location
 
                 const x = propretyMap.get(args.location);
-                if (x && args.location !== -1)  {
-
-                    if (x.group === "Special"){
+                if (
+                    x &&
+                    args.location !== -1 &&
+                    args.location < 40 &&
+                    args.location >= 0
+                ) {
+                    if (x.group === "Special") {
                         args.onResponse(false);
-                        SetStreet(undefined);
-                    }
-                else if (x.group === "Utilities"){
-
-                }
-                    else 
-                    {
+                        ShowStreet(false);
+                    } else if (x.group === "Utilities") {
+                        SetStreetType("Utilities");
+                        const streetInfo = {
+                            cardCost: x.price ?? -1,
+                            title: x.name ?? "error",
+                            type: x.id.includes("water")
+                                ? "water"
+                                : "electricity",
+                        } as UtilitiesDisplayInfo;
+                        SetStreetDisplay(streetInfo);
+                        ShowStreet(true);
+                    } else if (x.group === "Railroad") {
+                        SetStreetType("Railroad");
+                        const streetInfo = {
+                            cardCost: x.price ?? -1,
+                            title: x.name ?? "error",
+                        } as UtilitiesDisplayInfo;
+                        SetStreetDisplay(streetInfo);
+                        ShowStreet(true);
+                    } else {
+                        SetStreetType("Street");
                         const streetInfo = {
                             cardCost: x.price ?? -1,
                             hotelsCost: x.ohousecost ?? -1,
@@ -90,18 +157,17 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                 : [-1, -1, -1, -1, -1],
                             rentWithColorSet: x.rent ? x.rent * 2 : -1,
                             title: x.name ?? "error",
-                            group: x.group
+                            group: x.group,
                         } as StreetDisplayInfo;
-                        SetStreet(streetInfo);
-                        SetOldStreet(streetInfo);
+                        SetStreetDisplay(streetInfo);
+                        ShowStreet(true);
                     }
-                    
                 } else {
                     alert(
                         "error of loading the street has occoured, please continue the game!"
                     );
                     args.onResponse(false);
-                    SetStreet(undefined);
+                    ShowStreet(false);
                 }
 
                 // trigger yes and no functining!
@@ -111,7 +177,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     ) as HTMLButtonElement
                 ).onclick = () => {
                     args.onResponse(true);
-                    SetStreet(undefined);
+                    ShowStreet(false);
                 };
                 (
                     document.querySelector(
@@ -119,7 +185,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     ) as HTMLButtonElement
                 ).onclick = () => {
                     args.onResponse(false);
-                    SetStreet(undefined);
+                    ShowStreet(false);
                 };
             },
         }));
@@ -161,7 +227,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             x.position.toString()
                         );
                         element.setAttribute("data-tooltip-hover", x.username);
-
                         const image = document.createElement("img");
                         image.src = `/public/players/p${icon}.png`;
 
@@ -176,16 +241,28 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 requestAnimationFrame(animate);
             }
             requestAnimationFrame(animate);
+
+            (document.getElementById('locations') as HTMLDivElement).onwheel=(e)=>{
+                
+
+                if ( e.shiftKey){
+                    SetScale((old)=>old+e.deltaY / 1000);
+                }
+                else{
+                    SetRotation((old)=>old+e.deltaY / 5);
+                }
+            }
         }, []);
 
         return (
             <>
-                {JSON.stringify(Array.from(new Map(Array.from(propretyMap.values()).map(v=>[v.group,1])).keys()))};
+                {rotation}
+                ;
                 <div id="dice-panel" data-show={showDice}>
                     <img src={RollIcon} />
                     <p>ITS YOUR TURN TO ROLL THE DICE</p> <img src={RollIcon} />
                 </div>
-                <div className="board" id="locations">
+                <div className="board" style={{transform:`translateX(-50%) translateY(-50%) rotate(${rotation}deg) scale(${scale})`}} id="locations">
                     <div
                         data-position="39"
                         className="street"
@@ -619,7 +696,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 </div>
                 <div
                     style={
-                        currentStreet === undefined
+                        !showStreet
                             ? {
                                   transform:
                                       "translateY(-50%) translateX(-500%)",
@@ -629,9 +706,19 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     className="card-display-actions"
                 >
                     <h3>would you like to buy this card?</h3>
-                    <StreetCard
-                        args ={oldStreet}
-                    />
+                    {streetType === "Railroad" ? (
+                        <StreetCard
+                            railroad={streetDisplay as RailroadDisplayInfo}
+                        />
+                    ) : streetType === "Utilities" ? (
+                        <StreetCard
+                            utility={streetDisplay as UtilitiesDisplayInfo}
+                        />
+                    ) : (
+                        <StreetCard
+                            street={streetDisplay as StreetDisplayInfo}
+                        />
+                    )}
                     <div>
                         <center>
                             <button id="card-response-yes">YES</button>

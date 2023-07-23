@@ -4,6 +4,9 @@ import { Player, PlayerJSON } from "./assets/player";
 import "./monopoly.css";
 import MonopolyNav, { MonopolyNavRef } from "./components/nav";
 import MonopolyGame, { MonopolyGameRef } from "./components/game";
+
+import monopolyJSON from "./assets/monopoly.json";
+
 function App({ socket, name }: { socket: Socket; name: string }) {
     const [clients, SetClients] = useState<Map<string, Player>>(new Map());
     const [currentId, SetCurrent] = useState<string>("");
@@ -12,6 +15,12 @@ function App({ socket, name }: { socket: Socket; name: string }) {
     const engineRef = useRef<MonopolyGameRef>(null);
     const navRef = useRef<MonopolyNavRef>(null);
 
+    const propretyMap = new Map(
+        monopolyJSON.properties.map((obj) => {
+            return [obj.posistion ?? 0, obj];
+        })
+    );
+    
     useEffect(() => {
         console.log("called");
         //#region socket handeling
@@ -63,6 +72,8 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     SetClients(new Map(clients.set(args.from, x)));
                 }
                 SetCurrent(args.turnId);
+
+                navRef.current?.reRenderPlayerList();
             }
         );
         socket.on("message", (message: { from: string; message: string }) => {
@@ -85,7 +96,12 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
                         const location = clients.get(socket.id)?.position ?? -1;
                         engineRef.current?.setStreet({location, onResponse:(b)=>{
-                            console.log(`gathered ${b}`);
+                            const localPlayer = (clients.get(socket.id) as Player);
+                            if (b){
+                                localPlayer.properties.push({posistion:localPlayer.position,hotels:0,houses:0, group:propretyMap.get(localPlayer.position)?.group ?? ""})
+                            }
+                            SetClients(new Map(clients.set(socket.id, localPlayer)));
+                            console.log(localPlayer.properties)
                             finish();
                             socket.emit(
                                 "finish-turn",
@@ -97,12 +113,15 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
                 setTimeout(()=>{
                     var i = 0;
+                    const element = document.querySelector(
+                        `div.player[player-id="${args.turnId}"]`
+                    ) as HTMLDivElement;
                     const x = clients.get(args.turnId) as Player;
                     x.position += 1;
+                    element.style.animation =
+                                    "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
                     const movingAnim = ()=>{
-                        const element = document.querySelector(
-                            `div.player[player-id="${args.turnId}"]`
-                        ) as HTMLDivElement;
+                       
                         const x = clients.get(args.turnId) as Player;
                         if (i < sumTimes) {
                             i +=1;
@@ -131,6 +150,10 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
         socket.emit("name", name);
     }, [socket]);
+
+    useEffect(()=>{
+        navRef.current?.reRenderPlayerList();
+    },[clients])
 
     return gameStarted ? (
         <main>

@@ -5,7 +5,7 @@ export class Player {
 
     public position: number;
     public balance: number;
-    public properties: Array<any>;
+    public properties: Array<{posistion:number, houses:number, hotels:number, group:string}>;
     public isInJail: boolean;
     public jailTurnsRemaining: number;
 
