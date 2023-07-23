@@ -13,6 +13,7 @@ interface MonopolyGameProps {
     players: Array<Player>;
     myTurn: boolean;
     socket: Socket;
+    clickedOnBoard: (a: number) => void;
 }
 export interface MonopolyGameRef {
     diceResults: (args: {
@@ -56,36 +57,36 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             "Street" | "Utilities" | "Railroad"
         >("Utilities");
 
-        function diceAnimation(a:number,b:number){
-
-            const element = document.getElementById("dice-panel") as HTMLDivElement;
+        function diceAnimation(a: number, b: number) {
+            const element = document.getElementById(
+                "dice-panel"
+            ) as HTMLDivElement;
 
             var bb = true;
             var t = -1;
 
-            function randomCube(){
-                var l = C1Icon.substring(0, C1Icon.length - 5)
+            function randomCube() {
+                var l = C1Icon.substring(0, C1Icon.length - 5);
                 const numA = Math.floor(Math.random() * 6) + 1;
                 const numB = Math.floor(Math.random() * 6) + 1;
                 element.innerHTML = `
                 <img src="${l}${numA}.png" />
                 <img src="${l}${numB}.png" />
                 
-                `
+                `;
             }
-            function anim(){
-                if (bb){
+            function anim() {
+                if (bb) {
                     randomCube();
-                    t+=1
-                    setTimeout(anim, 2 ** t * 10 );
-                }
-               else {
-                var l = C1Icon.substring(0, C1Icon.length - 5)
-                element.innerHTML = `
+                    t += 1;
+                    setTimeout(anim, 2 ** t * 10);
+                } else {
+                    var l = C1Icon.substring(0, C1Icon.length - 5);
+                    element.innerHTML = `
                 <img src="${l}${a}.png" />
                 <img src="${l}${b}.png" />
-                `
-               }
+                `;
+                }
             }
             setTimeout(() => {
                 bb = false;
@@ -95,8 +96,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
         }
         useImperativeHandle(ref, () => ({
             diceResults: (args) => {
-                
-                const element = document.getElementById("dice-panel") as HTMLDivElement;
+                const element = document.getElementById(
+                    "dice-panel"
+                ) as HTMLDivElement;
                 diceAnimation(...args.l);
                 SetShowDice(true);
                 setTimeout(() => {
@@ -242,27 +244,57 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             }
             requestAnimationFrame(animate);
 
-            (document.getElementById('locations') as HTMLDivElement).onwheel=(e)=>{
-                
+            // Rotation and Scale with mouse
+            (document.getElementById("locations") as HTMLDivElement).onwheel = (
+                e
+            ) => {
+                if (e.shiftKey) {
+                    SetScale((old) => old + e.deltaY / 1000);
+                } else {
+                    SetRotation((old) => old + (e.deltaY * 22.5) / 100);
+                }
+            };
+            // Clicking Street
+            const safe = Array.from(propretyMap.values()).filter(
+                (v) => v.group != "Special"
+            );
+            for (const x of safe) {
+                const element = (
+                    document.getElementById("locations") as HTMLDivElement
+                ).querySelector(
+                    `div.street[data-position="${x.posistion}"]`
+                ) as HTMLDivElement;
 
-                if ( e.shiftKey){
-                    SetScale((old)=>old+e.deltaY / 1000);
-                }
-                else{
-                    SetRotation((old)=>old+e.deltaY / 5);
-                }
+                element.onclick = (e) => {
+                    prop.clickedOnBoard(x.posistion);
+                };
+
+                element.onmousemove = (e) => {
+                    element.style.cursor = "pointer";
+                    element.style.backgroundColor = "rgba(0,0,0,15%)";
+                };
+                element.onmouseleave = (e) => {
+                    element.style.cursor = "unset";
+                    element.style.scale = "1";
+                    element.style.backgroundColor = "rgba(0,0,0,0%)";
+                };
             }
         }, []);
 
         return (
             <>
-                {rotation}
-                ;
+                {rotation};
                 <div id="dice-panel" data-show={showDice}>
                     <img src={RollIcon} />
                     <p>ITS YOUR TURN TO ROLL THE DICE</p> <img src={RollIcon} />
                 </div>
-                <div className="board" style={{transform:`translateX(-50%) translateY(-50%) rotate(${rotation}deg) scale(${scale})`}} id="locations">
+                <div
+                    className="board"
+                    style={{
+                        transform: `translateX(-50%) translateY(-50%) rotate(${rotation}deg) scale(${scale})`,
+                    }}
+                    id="locations"
+                >
                     <div
                         data-position="39"
                         className="street"

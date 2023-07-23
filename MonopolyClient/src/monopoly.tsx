@@ -166,6 +166,9 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             />
             <div className="game">
                 <MonopolyGame
+                clickedOnBoard={(a)=>{
+                    navRef.current?.clickedOnBoard(a);
+                }}
                     ref={engineRef}
                     socket={socket}
                     players={Array.from(clients.values())}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import HouseIcon from "../../public/monopoly-icon/h.png";
 import HotelIcon from "../../public/monopoly-icon/ho.png";
 import { translateGroup } from "./streetCard";
@@ -7,146 +7,180 @@ import monopolyJSON from "../assets/monopoly.json";
 import { Socket } from "socket.io-client";
 import { Player } from "../assets/player";
 
-export default function propretyTab(props: {
+interface PropretyTabProps {
     socket: Socket;
     players: Array<Player>;
-}) {
-    const propretyMap = new Map(
-        monopolyJSON.properties.map((obj) => {
-            return [obj.posistion ?? 0, obj];
-        })
-    );
+}
+export interface PropretyTabRef {
+    clickedOnBoard: (a: number) => void;
+}
 
-    const localPlayer = props.players.filter(
-        (v) => v.id === props.socket.id
-    )[0];
-
-    const [currentCardPosition, SetCardPos] = useState<number>(-1);
-    const [searchString, SetSearch] = useState<string>("");
-
-    const [searchList, SetSearchList] = useState<Array<number>>([]);
-    const [currentLookCard, SetLookCard] = useState<number>(-1);
-    function searchResults() {
-        SetLookCard(-1);
-        SetCardPos(-1);
-        const safe = Array.from(propretyMap.values()).filter(
-            (v) => v.group != "Special"
-        );
-        const lyricalSearch: Array<[string, number]> = safe.map((v) => [
-            v.name,
-            v.posistion,
-        ]);
-        const numricalSearch: Array<string> = safe.map((v) =>
-            v.posistion.toString()
+const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>(
+    (props, ref) => {
+        const propretyMap = new Map(
+            monopolyJSON.properties.map((obj) => {
+                return [obj.posistion ?? 0, obj];
+            })
         );
 
-        const s: Array<number> = [];
+        const localPlayer = props.players.filter(
+            (v) => v.id === props.socket.id
+        )[0];
 
-        for (const x of numricalSearch) {
-            if (x.includes(searchString)) {
-                s.push(parseInt(x));
+        useImperativeHandle(ref, () => ({
+            clickedOnBoard(a) {
+                SetLookCard(-1);
+                SetSearch("");
+                SetSearchList([]);
+                SetCardPos(a);
+            },
+        }));
+
+        const [currentCardPosition, SetCardPos] = useState<number>(-1);
+        const [searchString, SetSearch] = useState<string>("");
+
+        const [searchList, SetSearchList] = useState<Array<number>>([]);
+        const [currentLookCard, SetLookCard] = useState<number>(-1);
+        function searchResults() {
+            SetLookCard(-1);
+            SetCardPos(-1);
+            const safe = Array.from(propretyMap.values()).filter(
+                (v) => v.group != "Special"
+            );
+            const lyricalSearch: Array<[string, number]> = safe.map((v) => [
+                v.name,
+                v.posistion,
+            ]);
+            const numricalSearch: Array<string> = safe.map((v) =>
+                v.posistion.toString()
+            );
+
+            const s: Array<number> = [];
+
+            for (const x of numricalSearch) {
+                if (x.includes(searchString)) {
+                    s.push(parseInt(x));
+                }
             }
-        }
 
-        for (const y of lyricalSearch) {
-            if (y[0].includes(searchString)) {
-                s.push(y[1]);
+            for (const y of lyricalSearch) {
+                if (y[0].includes(searchString)) {
+                    s.push(y[1]);
+                }
             }
+            SetSearchList(s);
         }
-        SetSearchList(s);
-    }
-    useEffect(searchResults, [searchString]);
-    return (
-        <>
-            <h3 style={{ textAlign: "center" }}>Propreties</h3>
-            <input
-                type="text"
-                onChange={(e) => SetSearch(e.currentTarget.value)}
-                placeholder="Search for global cards..."
-            />
+        useEffect(searchResults, [searchString]);
+        return (
+            <>
+                <h3 style={{ textAlign: "center" }}>Propreties</h3>
+                <input
+                    type="text"
+                    onChange={(e) => SetSearch(e.currentTarget.value)}
+                    placeholder="Search for global cards..."
+                />
 
-            <div style={{ overflowY: "auto" , position: "relative",
-                            flexGrow: 1,
-                            cursor: "pointer", }} >
-                {searchString.length > 0 ? (
-                    searchList.map((v, i) => (
-                        <>
-                            {currentLookCard === v ? (
-                                <center>
-                                    <CardViewer 
-                                    key={i}
-                                    style={{cursor:"pointer", marginBottom:25, marginTop:10}}
-                                        posistion={v}
-                                        OnClick={() => {
-                                            SetLookCard(-1);
-                                        }}
-                                    />
-                                </center>
-                            ) : (
-                                <div
-                                    key={i}
-                                    onClick={() => SetLookCard(v)}
-                                    className="proprety-nav"
-                                   
-                                >
-                                    <i className="box" style={{
-                                        backgroundColor: translateGroup(
-                                            propretyMap.get(v)?.group ?? ""
-                                        ),
-                                    }}></i>
-                                    <h3>{propretyMap.get(v)?.name ?? ""}</h3>
-                                </div>
-                            )}
-                        </>
-                    ))
-                ) : currentCardPosition === -1 ? (
-                    localPlayer.properties.map((v, i) => (
-                        <div
-                            key={i}
-                            onClick={() => SetCardPos(v.posistion)}
-                            className="proprety-nav"
-                        >
-                            <i className="box" style={{
+                <div
+                    style={{
+                        overflowY: "auto",
+                        position: "relative",
+                        flexGrow: 1,
+                        cursor: "pointer",
+                    }}
+                >
+                    {searchString.length > 0 ? (
+                        searchList.map((v, i) => (
+                            <>
+                                {currentLookCard === v ? (
+                                    <center>
+                                        <CardViewer
+                                            key={i}
+                                            style={{
+                                                cursor: "pointer",
+                                                marginBottom: 25,
+                                                marginTop: 10,
+                                            }}
+                                            posistion={v}
+                                            OnClick={() => {
+                                                SetLookCard(-1);
+                                            }}
+                                        />
+                                    </center>
+                                ) : (
+                                    <div
+                                        key={i}
+                                        onClick={() => SetLookCard(v)}
+                                        className="proprety-nav"
+                                    >
+                                        <i
+                                            className="box"
+                                            style={{
+                                                backgroundColor: translateGroup(
+                                                    propretyMap.get(v)?.group ??
+                                                        ""
+                                                ),
+                                            }}
+                                        ></i>
+                                        <h3>
+                                            {propretyMap.get(v)?.name ?? ""}
+                                        </h3>
+                                    </div>
+                                )}
+                            </>
+                        ))
+                    ) : currentCardPosition === -1 ? (
+                        localPlayer.properties.map((v, i) => (
+                            <div
+                                key={i}
+                                onClick={() => SetCardPos(v.posistion)}
+                                className="proprety-nav"
+                            >
+                                <i
+                                    className="box"
+                                    style={{
                                         backgroundColor: translateGroup(
                                             v.group
                                         ),
-                                    }}></i>
-                            <h3>{propretyMap.get(v.posistion)?.name ?? ""}</h3>
-                            <div>
-                                <p>0</p>
-                                <img src={HouseIcon} alt="" />
-                                <p>0</p>
-                                <img src={HotelIcon} alt="" />
+                                    }}
+                                ></i>
+                                <h3>
+                                    {propretyMap.get(v.posistion)?.name ?? ""}
+                                </h3>
+                                <div>
+                                    <p>0</p>
+                                    <img src={HouseIcon} alt="" />
+                                    <p>0</p>
+                                    <img src={HotelIcon} alt="" />
+                                </div>
                             </div>
-                        </div>
-                    ))
-                ) : (
-                    <div
-                        
-                    >
-                        <center
-                            style={{
-                                transform:
-                                    "scale(1) translateY(-50%) translateX(-50%)",
-                                position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                            }}
-                        >
-                            <CardViewer
+                        ))
+                    ) : (
+                        <div>
+                            <center
                                 style={{
-                                    transform: "scale(1.2)",
-                                    filter: "drop-shadow(5px 5px 0px rgba(255,255,255,20%))",
+                                    transform:
+                                        "scale(1) translateY(-50%) translateX(-50%)",
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: "50%",
                                 }}
-                                posistion={currentCardPosition}
-                                OnClick={() => {
-                                    SetCardPos(-1);
-                                }}
-                            />
-                        </center>
-                    </div>
-                )}
-            </div>
-        </>
-    );
-}
+                            >
+                                <CardViewer
+                                    style={{
+                                        transform: "scale(1.2)",
+                                        filter: "drop-shadow(5px 5px 0px rgba(255,255,255,20%))",
+                                    }}
+                                    posistion={currentCardPosition}
+                                    OnClick={() => {
+                                        SetCardPos(-1);
+                                    }}
+                                />
+                            </center>
+                        </div>
+                    )}
+                </div>
+            </>
+        );
+    }
+);
+export default propretyTab;

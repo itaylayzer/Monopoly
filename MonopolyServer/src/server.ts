@@ -18,7 +18,7 @@ const Clients = new Map<string, Client>();
 //#region Game Variables!
 let currentId: string = "";
 let gameStarted: boolean = false;
-let messages:Array<{from:string, message:string}> = [];
+let messages: Array<{ from: string; message: string }> = [];
 //#endregion
 // Io
 const io = new Server(httpServer, {
@@ -88,17 +88,19 @@ io.on("connection", (socket: Socket) => {
             // handle all events from here on!
             // game sockets
 
-            socket.on("roll_dice",()=>{
+            socket.on("roll_dice", () => {
                 const first = Math.floor(Math.random() * 6) + 1;
                 const second = Math.floor(Math.random() * 6) + 1;
                 const sum = first + second;
                 player.position = (player.position + sum) % 40;
                 // Clients.get(currentId).player = player;
                 console.log(Clients.get(currentId).player == player);
-                EmitAll("dice_roll_result",{listOfNums:[first, second, player.position],turnId:currentId})
-            })
+                EmitAll("dice_roll_result", {
+                    listOfNums: [first, second, player.position],
+                    turnId: currentId,
+                });
+            });
             socket.on("finish-turn", (playerInfo: PlayerJSON) => {
-                
                 player.from_json(playerInfo);
 
                 if (currentId != socket.id) return;
@@ -107,7 +109,9 @@ io.on("connection", (socket: Socket) => {
                 var i = arr.indexOf(socket.id);
                 i = (i + 1) % arr.length;
                 currentId = arr[i];
-                console.log(`turn-finished ${JSON.stringify(player.to_json())}`);
+                console.log(
+                    `turn-finished ${JSON.stringify(player.to_json())}`
+                );
                 EmitAll("turn-finished", {
                     from: socket.id,
                     turnId: currentId,
@@ -115,9 +119,9 @@ io.on("connection", (socket: Socket) => {
                 });
             });
 
-            socket.on("message",(message:string)=>{
-                EmitAll("message" ,{from:player.username, message:message})
-            })
+            socket.on("message", (message: string) => {
+                EmitAll("message", { from: player.username, message: message });
+            });
         });
         socket.on("ready", (args: boolean) => {
             const client = Clients.get(socket.id);
@@ -135,7 +139,6 @@ io.on("connection", (socket: Socket) => {
                 EmitAll("start-game", {});
             }
         });
-        
     } else {
         socket.disconnect();
     }

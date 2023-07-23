@@ -6,11 +6,16 @@ import PropretiesIcon from "../../public/proprety.png";
 import SettingsIcon from "../../public/settings.png";
 import MonopolyIcon from "../../public/monopoly-icon/icon.png";
 import DiceIcon from "../../public/monopoly-icon/roll.png";
-import { forwardRef, useState, useImperativeHandle, useEffect } from "react";
+import {
+    forwardRef,
+    useState,
+    useImperativeHandle,
+    useEffect,
+    useRef,
+} from "react";
 import { Player } from "../assets/player";
 import { Socket } from "socket.io-client";
-import PropretyTab from "./propretyTab";
-
+import PropretyTab, { PropretyTabRef } from "./propretyTab";
 
 interface MonopolyNavProps {
     name: string;
@@ -21,17 +26,15 @@ interface MonopolyNavProps {
 export interface MonopolyNavRef {
     addMessage: (arg: { from: string; message: string }) => void;
     reRenderPlayerList: () => void;
+    clickedOnBoard: (a: number) => void;
 }
 
 const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
     (prop, ref) => {
-       
-
         const [tabIndex, SetTab] = useState<number>(0);
         const [messages, SetMessages] = useState<
             Array<{ from: string; message: string }>
         >([]);
-
 
         function reRenderPlayerList() {
             SetDisplays(prop.players);
@@ -64,10 +67,15 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                 }
             },
             reRenderPlayerList,
+            clickedOnBoard: (a) => {
+                SetTab(1);
+                requestAnimationFrame(() => {
+                    propretyRef.current?.clickedOnBoard(a);
+                });
+            },
         }));
 
-        
-
+        const propretyRef = useRef<PropretyTabRef>(null);
         useEffect(reRenderPlayerList, [
             prop.players.map((v) => v.properties),
             prop.players.map((v) => v.balance),
@@ -130,7 +138,11 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
 
                 <nav className="content" data-index={tabIndex}>
                     {tabIndex == 1 ? (
-                        <PropretyTab players={displayPlayers} socket={prop.socket}/>
+                        <PropretyTab
+                            ref={propretyRef}
+                            players={displayPlayers}
+                            socket={prop.socket}
+                        />
                     ) : tabIndex == 2 ? (
                         <>
                             <h3 style={{ textAlign: "center" }}>Chat</h3>
