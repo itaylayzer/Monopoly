@@ -122,6 +122,17 @@ io.on("connection", (socket: Socket) => {
             socket.on("message", (message: string) => {
                 EmitAll("message", { from: player.username, message: message });
             });
+
+            socket.on("pay",(args:{balance:number, from:string, to:string})=>{
+                const p = Clients.get(args.to).player;
+                p.balance += args.balance;
+                EmitAll("member_updating",{
+                    playerId:args.to,
+                    animation:"recieveMoney",
+                    additional_props:[args.from],
+                    pJson: p.to_json()
+                });
+            })
         });
         socket.on("ready", (args: boolean) => {
             const client = Clients.get(socket.id);

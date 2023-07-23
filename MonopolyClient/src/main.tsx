@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ReactDOM from "react-dom/client";
 import Monopoly from "./monopoly.tsx";
 import "./index.css";

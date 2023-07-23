@@ -9,6 +9,7 @@ import StreetCard, {
     RailroadDisplayInfo,
 } from "./streetCard";
 import monopolyJSON from "../assets/monopoly.json";
+import ChacneCard, { ChanceDisplayInfo } from "./specialCards";
 interface MonopolyGameProps {
     players: Array<Player>;
     myTurn: boolean;
@@ -23,9 +24,15 @@ export interface MonopolyGameRef {
     }) => void;
     setStreet: (args: {
         location: number;
-        onResponse: (b: boolean) => void;
+        onResponse: (
+            action: "nothing" | "buy" | "someones" | "special_action",
+            info: object
+        ) => void;
     }) => void;
 }
+
+export interface g_SpecialAction {}
+export type g_Buy = 0 | 1 | 2 | 3 | 4 | "h";
 
 // Create the component with forwardRef
 const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
@@ -38,10 +45,12 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
         const [showDice, SetShowDice] = useState<boolean>(false);
         const [sended, SetSended] = useState<boolean>(false);
-        const [showStreet, ShowStreet] = useState<{}>(false);
+        const [showStreet, ShowStreet] = useState<boolean>(true);
+        const [advnacedStreet, SetAdvancedStreet] = useState<boolean>(false);
         const [rotation, SetRotation] = useState<number>(0);
         const [scale, SetScale] = useState<number>(1);
 
+        /*
         const [streetDisplay, SetStreetDisplay] = useState<{}>({
             cardCost: -1,
             hotelsCost: -1,
@@ -51,11 +60,16 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             rentWithColorSet: -1,
             title: "deafult",
             type: "electricity",
-        } as UtilitiesDisplayInfo);
+        } as UtilitiesDisplayInfo);*/
+
+        const [streetDisplay, SetStreetDisplay] = useState<{}>({
+            title: "deafult",
+            action: "pay",
+        } as ChanceDisplayInfo);
 
         const [streetType, SetStreetType] = useState<
-            "Street" | "Utilities" | "Railroad"
-        >("Utilities");
+            "Street" | "Utilities" | "Railroad" | "Chance" | "CommunityChest"
+        >("CommunityChest");
 
         function diceAnimation(a: number, b: number) {
             const element = document.getElementById(
@@ -111,8 +125,13 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             },
             setStreet: (args) => {
                 // find data based on location
-
+                // TODO: Check if the players already owns the proprety, and what can he buy more for the place.
+                // TODO: Special cards like chance and comunity chest.
+                const localPlayer = prop.players.filter(
+                    (v) => v.id === prop.socket.id
+                )[0];
                 const x = propretyMap.get(args.location);
+
                 if (
                     x &&
                     args.location !== -1 &&
@@ -120,8 +139,30 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     args.location >= 0
                 ) {
                     if (x.group === "Special") {
-                        args.onResponse(false);
-                        ShowStreet(false);
+                        if (x.id === "communitychest" || x.id === "chance") {
+                            const arr =
+                                x.id === "communitychest"
+                                    ? monopolyJSON.communitychest
+                                    : monopolyJSON.chance;
+                            const randomElement =
+                                arr[Math.floor(Math.random() * arr.length)];
+                            alert(JSON.stringify(randomElement));
+
+                            SetStreetType(
+                                x.id === "chance" ? "Chance" : "CommunityChest"
+                            );
+                            SetStreetDisplay({
+                                title: randomElement.title,
+                                action:
+                                    randomElement.action +
+                                    (randomElement.amount?.toString() ?? ""),
+                            } as ChanceDisplayInfo);
+                            ShowStreet(true);
+                            setTimeout(() => {
+                                args.onResponse("nothing", {});
+                                ShowStreet(false);
+                            }, 3000);
+                        }
                     } else if (x.group === "Utilities") {
                         SetStreetType("Utilities");
                         const streetInfo = {
@@ -132,6 +173,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                 : "electricity",
                         } as UtilitiesDisplayInfo;
                         SetStreetDisplay(streetInfo);
+                        SetAdvancedStreet(false);
                         ShowStreet(true);
                     } else if (x.group === "Railroad") {
                         SetStreetType("Railroad");
@@ -142,6 +184,31 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         SetStreetDisplay(streetInfo);
                         ShowStreet(true);
                     } else {
+                        if (localPlayer.balance - (x?.price ?? 0) < 0) {
+                            ShowStreet(false);
+                            args.onResponse("nothing", {});
+                            return;
+                        }
+
+                        var belong_to_others = false;
+                        for (const _p of prop.players) {
+                            for (const _prp of _p.properties) {
+                                if (_prp.posistion === args.location)
+                                    belong_to_others = true;
+                            }
+                        }
+
+                        if (belong_to_others) {
+                            args.onResponse("someones", {});
+                            ShowStreet(false);
+                            return;
+                        }
+                        var belong_to_me = false;
+                        for (const _prp of localPlayer.properties) {
+                            if (_prp.posistion === args.location)
+                                belong_to_me = true;
+                        }
+
                         SetStreetType("Street");
                         const streetInfo = {
                             cardCost: x.price ?? -1,
@@ -162,33 +229,45 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             group: x.group,
                         } as StreetDisplayInfo;
                         SetStreetDisplay(streetInfo);
+                        belong_to_me
+                            ? SetAdvancedStreet(true)
+                            : SetAdvancedStreet(false);
                         ShowStreet(true);
                     }
                 } else {
                     alert(
                         "error of loading the street has occoured, please continue the game!"
                     );
-                    args.onResponse(false);
+                    args.onResponse("nothing", {});
                     ShowStreet(false);
                 }
 
                 // trigger yes and no functining!
-                (
-                    document.querySelector(
-                        "button#card-response-yes"
-                    ) as HTMLButtonElement
-                ).onclick = () => {
-                    args.onResponse(true);
-                    ShowStreet(false);
-                };
-                (
-                    document.querySelector(
-                        "button#card-response-no"
-                    ) as HTMLButtonElement
-                ).onclick = () => {
-                    args.onResponse(false);
-                    ShowStreet(false);
-                };
+                function searchForButtons(){
+                    const b = (
+                        document.querySelector(
+                            "button#card-response-yes"
+                        )
+                    )
+                    if (b){
+                        (b as HTMLButtonElement).onclick = () => {
+                            args.onResponse("buy", {});
+                            ShowStreet(false);
+                        };
+                        (
+                            document.querySelector(
+                                "button#card-response-no"
+                            ) as HTMLButtonElement
+                        ).onclick = () => {
+                            args.onResponse("nothing", {});
+                            ShowStreet(false);
+                        };
+                    }
+                    else {
+                        requestAnimationFrame(searchForButtons);
+                    }
+                }
+                requestAnimationFrame(searchForButtons);
             },
         }));
 
@@ -265,15 +344,15 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     `div.street[data-position="${x.posistion}"]`
                 ) as HTMLDivElement;
 
-                element.onclick = (e) => {
+                element.onclick = () => {
                     prop.clickedOnBoard(x.posistion);
                 };
 
-                element.onmousemove = (e) => {
+                element.onmousemove = () => {
                     element.style.cursor = "pointer";
                     element.style.backgroundColor = "rgba(0,0,0,15%)";
                 };
-                element.onmouseleave = (e) => {
+                element.onmouseleave = () => {
                     element.style.cursor = "unset";
                     element.style.scale = "1";
                     element.style.backgroundColor = "rgba(0,0,0,0%)";
@@ -727,6 +806,12 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     <p>ITS YOUR TURN TO ROLL THE DICE</p> <img src={RollIcon} />
                 </div>
                 <div
+                    className={
+                        streetType === "Chance" ||
+                        streetType === "CommunityChest"
+                            ? "chance-display-actions"
+                            : "card-display-actions"
+                    }
                     style={
                         !showStreet
                             ? {
@@ -735,28 +820,50 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                               }
                             : {}
                     }
-                    className="card-display-actions"
                 >
-                    <h3>would you like to buy this card?</h3>
-                    {streetType === "Railroad" ? (
-                        <StreetCard
-                            railroad={streetDisplay as RailroadDisplayInfo}
-                        />
-                    ) : streetType === "Utilities" ? (
-                        <StreetCard
-                            utility={streetDisplay as UtilitiesDisplayInfo}
-                        />
+                    {streetType === "Chance" ||
+                    streetType === "CommunityChest" ? (
+                        <>
+                            {streetType === "Chance" ? (
+                                <ChacneCard
+                                    chance={streetDisplay as ChanceDisplayInfo}
+                                />
+                            ) : streetType === "CommunityChest" ? (
+                                <ChacneCard
+                                    chance={streetDisplay as ChanceDisplayInfo}
+                                />
+                            ) : (
+                                <></>
+                            )}
+                        </>
                     ) : (
-                        <StreetCard
-                            street={streetDisplay as StreetDisplayInfo}
-                        />
+                        <>
+                            <h3>would you like to buy this card?</h3>
+                            {streetType === "Railroad" ? (
+                                <StreetCard
+                                    railroad={
+                                        streetDisplay as RailroadDisplayInfo
+                                    }
+                                />
+                            ) : streetType === "Utilities" ? (
+                                <StreetCard
+                                    utility={
+                                        streetDisplay as UtilitiesDisplayInfo
+                                    }
+                                />
+                            ) : (
+                                <StreetCard
+                                    street={streetDisplay as StreetDisplayInfo}
+                                />
+                            )}
+                            <div>
+                                <center>
+                                    <button id="card-response-yes">YES</button>
+                                    <button id="card-response-no">NO</button>
+                                </center>
+                            </div>
+                        </>
                     )}
-                    <div>
-                        <center>
-                            <button id="card-response-yes">YES</button>
-                            <button id="card-response-no">NO</button>
-                        </center>
-                    </div>
                 </div>
             </>
         );

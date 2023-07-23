@@ -753,7 +753,7 @@ div.street-card div:nth-child(1)[data-clear] {
 
 div.street-card div:nth-child(1)[data-clear] img[data-type="rail"] {
     margin: auto;
-    width: 200px;
+    width: 175px;
     transform: scale(0.8);
 }
 
@@ -808,6 +808,7 @@ div.street-card div:nth-child(2) ol li p p {
 
 div.street-card div:nth-child(2) ol li p:nth-child(1) {
     flex-grow: 1;
+    text-align: left;
 }
 
 div.street-card div:nth-child(2) ol li p:nth-child(2) {
@@ -817,6 +818,47 @@ div.street-card div:nth-child(2) ol li p:nth-child(2) {
 div.street-card h4 {
     text-align: center;
     margin-block: auto;
+}
+
+div.chance-display-actions{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: whitesmoke;
+    transform: translateY(-50%) translateX(-50%);
+    z-index: 0;
+    transition: transform 1s cubic-bezier(0.04, 1.56, 0.37, 0.89);
+    box-shadow: 0px 0px 5px black;
+}
+
+div.chance-card {
+    min-width: 400px;
+    max-width: 400px;
+    box-sizing: border-box;
+    aspect-ratio: 120/75;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    color: black;
+}
+div.chance-card div{
+    flex-grow: 1;
+}
+div.chance-card div:nth-child(2){
+    flex-grow: 0;
+}
+div.chance-card h3 {
+    color:black;
+    margin:0;
+    text-align: center;
+}
+div.chance-card p{
+    color:black;
+    margin:0;
+    text-align: center;
+}
+div.chance-card * {
+    font-family: "Josefin Sans";
 }
 
 @keyframes part {

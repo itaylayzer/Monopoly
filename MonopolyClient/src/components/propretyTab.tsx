@@ -64,7 +64,7 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>(
             }
 
             for (const y of lyricalSearch) {
-                if (y[0].includes(searchString)) {
+                if (y[0].toLowerCase().includes(searchString.toLowerCase())) {
                     s.push(y[1]);
                 }
             }
@@ -147,10 +147,17 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>(
                                     {propretyMap.get(v.posistion)?.name ?? ""}
                                 </h3>
                                 <div>
-                                    <p>0</p>
-                                    <img src={HouseIcon} alt="" />
-                                    <p>0</p>
-                                    <img src={HotelIcon} alt="" />
+                                    {v.count == "h" ? (
+                                        <img src={HotelIcon} alt="" />
+                                    ) : typeof v.count === "number" &&
+                                      v.count > 0 ? (
+                                        <>
+                                            <p>{v.count}</p>
+                                            <img src={HouseIcon} alt="" />
+                                        </>
+                                    ) : (
+                                        <></>
+                                    )}
                                 </div>
                             </div>
                         ))

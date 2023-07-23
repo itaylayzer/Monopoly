@@ -627,6 +627,19 @@
             "name": "Chance",
             "id": "chance",
             "group": "Special",
+            "posistion": 7,
+            "rel": {
+                "Square": "Chance",
+                "Probability % (Jail Short)": 0.865,
+                "Rank": 40,
+                "Probability % (Jail Long)": 0.8152
+            },
+            "averageProbability": 0.8401000000000001
+        },
+        {
+            "name": "Chance",
+            "id": "chance",
+            "group": "Special",
             "posistion": 22,
             "rel": {
                 "Square": "Chance",

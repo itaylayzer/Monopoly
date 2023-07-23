@@ -20,7 +20,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             return [obj.posistion ?? 0, obj];
         })
     );
-    
+
     useEffect(() => {
         console.log("called");
         //#region socket handeling
@@ -85,65 +85,187 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 listOfNums: [number, number, number];
                 turnId: string;
             }) => {
-
                 const sumTimes = args.listOfNums[0] + args.listOfNums[1];
-
+                const localPlayer = clients.get(
+                    socket.id
+                ) as Player;
                 engineRef.current?.diceResults({
                     l: [args.listOfNums[0], args.listOfNums[1]],
-                    time: 0.35 * 1000 * sumTimes + 2000 + 800,
+                    time: localPlayer.isInJail ? 2000 : 0.35 * 1000 * sumTimes + 2000 + 800,
                     onDone: (finish) => {
                         if (socket.id !== args.turnId) return;
 
                         const location = clients.get(socket.id)?.position ?? -1;
-                        engineRef.current?.setStreet({location, onResponse:(b)=>{
-                            const localPlayer = (clients.get(socket.id) as Player);
-                            if (b){
-                                localPlayer.properties.push({posistion:localPlayer.position,hotels:0,houses:0, group:propretyMap.get(localPlayer.position)?.group ?? ""})
-                            }
-                            SetClients(new Map(clients.set(socket.id, localPlayer)));
-                            console.log(localPlayer.properties)
-                            finish();
-                            socket.emit(
-                                "finish-turn",
-                                (clients.get(socket.id) as Player).toJson()
-                            );
-                        }})
+                        engineRef.current?.setStreet({
+                            location,
+                            onResponse: (b, info) => {
+                                const proprety = propretyMap.get(location);
+                                
+                                
+                                if (b === "buy") {
+                                    localPlayer.balance -= proprety?.price ?? 0;
+                                    localPlayer.properties.push({
+                                        posistion: localPlayer.position,
+                                        count: 0,
+                                        group:
+                                            propretyMap.get(
+                                                localPlayer.position
+                                            )?.group ?? "",
+                                    });
+                                } else if (b === "someones") {
+                                    const players = Array.from(
+                                        clients.values()
+                                    );
+                                    for (const p of players) {
+                                        for (const prp of p.properties) {
+                                            if (prp.posistion === location) {
+                                                var payment_ammount = 0;
+                                                if (prp.count === 0) {
+                                                    payment_ammount =
+                                                        proprety?.rent ?? 0;
+                                                }
+                                                if (
+                                                    typeof prp.count ===
+                                                        "number" &&
+                                                    prp.count > 0
+                                                ) {
+                                                    payment_ammount =
+                                                        (proprety?.multpliedrent ?? [
+                                                            0, 0, 0, 0,
+                                                        ])[prp.count] ?? 0;
+                                                }
+                                                if (prp.count === "h") {
+                                                    payment_ammount =
+                                                        (proprety?.multpliedrent ?? [
+                                                            0, 0, 0, 0, 0,
+                                                        ])[4] ?? 0;
+                                                }
+
+                                                localPlayer.balance -=
+                                                    payment_ammount;
+                                                socket.emit("pay", {
+                                                    balance: payment_ammount,
+                                                    from: socket.id,
+                                                    to: p.id,
+                                                });
+                                                console.log(
+                                                    `local player has payed ${payment_ammount} to ${p.id} for the posistion ${prp.posistion}`
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (b === "nothing") {
+                                    if ((proprety?.id ?? "")=="gotojail"){
+                                        localPlayer.isInJail = true;
+                                        localPlayer.jailTurnsRemaining = 3;
+                                        localPlayer.position = 10;   
+                                    }
+                                    if (proprety?.id === "incometax") {
+                                        localPlayer.balance -= 200;
+                                    }
+                                    if (proprety?.id === "luxerytax") {
+                                        localPlayer.balance -= 100;
+                                    }
+                                }
+                                SetClients(
+                                    new Map(clients.set(socket.id, localPlayer))
+                                );
+                                console.log(localPlayer.properties);
+                                finish();
+                                socket.emit(
+                                    "finish-turn",
+                                    (clients.get(socket.id) as Player).toJson()
+                                );
+                            },
+                        });
                     },
                 });
 
-                setTimeout(()=>{
+                function playerMove(){
+                    var firstPosition = 0;
+                var addedMoney = false;
+                setTimeout(() => {
                     var i = 0;
                     const element = document.querySelector(
                         `div.player[player-id="${args.turnId}"]`
                     ) as HTMLDivElement;
                     const x = clients.get(args.turnId) as Player;
+                    firstPosition = x.position;
                     x.position += 1;
                     element.style.animation =
-                                    "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
-                    const movingAnim = ()=>{
-                       
+                        "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
+                    const movingAnim = () => {
                         const x = clients.get(args.turnId) as Player;
                         if (i < sumTimes) {
-                            i +=1;
+                            i += 1;
                             x.position = (x.position + 1) % 40;
-    
+                            if (x.position == 0) {
+                                x.balance += 200;
+                                addedMoney = true;
+                            }
                             if (i == sumTimes - 1) {
                                 x.position = args.listOfNums[2];
                                 element.style.animation =
                                     "part 0.9s cubic-bezier(0,.7,.57,1)";
-                                    setTimeout(()=>{element.style.animation=""},900);
-                            }
-                            else {
+                                setTimeout(() => {
+                                    element.style.animation = "";
+                                }, 900);
+
+                                if (!addedMoney && firstPosition > x.position) {
+                                    x.balance += 200;
+                                    addedMoney = true;
+                                }
+                            } else {
                                 element.style.animation =
                                     "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
                                 setTimeout(movingAnim, 0.35 * 1000);
-                            } 
+                            }
                         }
-                        
+                    };
+                    setTimeout(movingAnim, 0.35 * 1000);
+                }, 2000);
+                }
+
+                if (localPlayer.isInJail){
+                    
+                    if (args.listOfNums[0] == args.listOfNums[1]){
+                        localPlayer.isInJail = false;
                     }
-                    setTimeout(movingAnim,  0.35 * 1000);
-                }, 2000)
+                    else{
+                        localPlayer.jailTurnsRemaining -= 0;
+                        if (localPlayer.jailTurnsRemaining === 0){
+                            localPlayer.isInJail = false;
+                        }
+                    }
+                }
+                else {
+                    playerMove();
+                }
                 
+            }
+        );
+
+        socket.on(
+            "member_updating",
+            (args: {
+                playerId: string;
+                animation: "recieveMoney";
+                additional_props: any[];
+                pJson: PlayerJSON;
+            }) => {
+                const p = clients.get(args.playerId);
+                p?.recieveJson(args.pJson);
+
+                if (socket.id === args.playerId) {
+                    console.warn(
+                        `SERVER ANIMATION WAS REQUESTED ${
+                            args.animation
+                        } with the additionalPROPS ${JSON.stringify(
+                            args.additional_props
+                        )}`
+                    );
+                }
             }
         );
         //#endregion
@@ -151,14 +273,14 @@ function App({ socket, name }: { socket: Socket; name: string }) {
         socket.emit("name", name);
     }, [socket]);
 
-    useEffect(()=>{
+    useEffect(() => {
         navRef.current?.reRenderPlayerList();
-    },[clients])
+    }, [clients]);
 
     return gameStarted ? (
         <main>
             <MonopolyNav
-            currentTurn={currentId}
+                currentTurn={currentId}
                 ref={navRef}
                 name={name}
                 socket={socket}
@@ -166,9 +288,9 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             />
             <div className="game">
                 <MonopolyGame
-                clickedOnBoard={(a)=>{
-                    navRef.current?.clickedOnBoard(a);
-                }}
+                    clickedOnBoard={(a) => {
+                        navRef.current?.clickedOnBoard(a);
+                    }}
                     ref={engineRef}
                     socket={socket}
                     players={Array.from(clients.values())}
