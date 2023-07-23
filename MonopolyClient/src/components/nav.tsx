@@ -5,7 +5,7 @@ import LeaveIcon from "../../public/leave1.png";
 import PropretiesIcon from "../../public/proprety.png";
 import SettingsIcon from "../../public/settings.png";
 import MonopolyIcon from "../../public/monopoly-icon/icon.png";
-import DiceIcon from "../../public/monopoly-icon/roll.png";
+
 import {
     forwardRef,
     useState,
@@ -16,6 +16,7 @@ import {
 import { Player } from "../assets/player";
 import { Socket } from "socket.io-client";
 import PropretyTab, { PropretyTabRef } from "./propretyTab";
+import PlayersTab, { PlayersTabRef } from "./playersTab";
 
 interface MonopolyNavProps {
     name: string;
@@ -76,6 +77,8 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
         }));
 
         const propretyRef = useRef<PropretyTabRef>(null);
+        const playersRef = useRef<PlayersTabRef>(null);
+
         useEffect(reRenderPlayerList, [
             prop.players.map((v) => v.properties),
             prop.players.map((v) => v.balance),
@@ -190,34 +193,20 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                             </p>
                         </>
                     ) : tabIndex == 0 ? (
-                        <>
-                            <h3 style={{ textAlign: "center" }}>Players</h3>
-                            {displayPlayers.map((v, i) => (
-                                <div
-                                    key={i}
-                                    className="playerInfo"
-                                    onClick={() => {
-                                        const element = document.querySelector(
-                                            `div.player[player-id="${v.id}"]`
-                                        ) as HTMLDivElement;
-                                        element.style.animation =
-                                            "spin2 1s cubic-bezier(.21, 1.57, .55, 1) infinite";
-                                        setTimeout(() => {
-                                            element.style.animation = "";
-                                        }, 1 * 1000);
-                                    }}
-                                >
-                                    <p>{v.username}</p>
-                                    {v.id === prop.currentTurn ? (
-                                        <img src={DiceIcon} />
-                                    ) : (
-                                        <></>
-                                    )}
-                                    <p>{v.balance}</p>
-                                    <p>{v.properties.length}</p>
-                                </div>
-                            ))}
-                        </>
+                        <PlayersTab
+                            ref={playersRef}
+                            clickedOnPlayer={(position) => {
+                                SetTab(1);
+                                requestAnimationFrame(() => {
+                                    propretyRef.current?.clickedOnBoard(
+                                        position
+                                    );
+                                });
+                            }}
+                            players={displayPlayers}
+                            socket={prop.socket}
+                            currentTurn={prop.currentTurn}
+                        />
                     ) : (
                         <></>
                     )}

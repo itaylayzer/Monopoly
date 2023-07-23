@@ -105,6 +105,9 @@ io.on("connection", (socket: Socket) => {
 
                 if (currentId != socket.id) return;
 
+                // TODO: win-game by 1 row | 3 monopols | 4 rainwails
+                // TODO: player-death -> deleting every proprety
+
                 const arr = Array.from(Clients.keys());
                 var i = arr.indexOf(socket.id);
                 i = (i + 1) % arr.length;

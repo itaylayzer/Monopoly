@@ -64,7 +64,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
         const [streetDisplay, SetStreetDisplay] = useState<{}>({
             title: "deafult",
-            action: "pay",
         } as ChanceDisplayInfo);
 
         const [streetType, SetStreetType] = useState<
@@ -152,9 +151,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             );
                             SetStreetDisplay({
                                 title: randomElement.title,
-                                action:
-                                    randomElement.action +
-                                    (randomElement.amount?.toString() ?? ""),
                             } as ChanceDisplayInfo);
                             ShowStreet(true);
                             setTimeout(() => {

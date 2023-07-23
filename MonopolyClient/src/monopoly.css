@@ -220,6 +220,41 @@ main nav.content {
     padding-inline: 15 px;
 }
 
+main nav.content[data-index="0"] {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    color: white;
+
+
+}
+
+main nav.content[data-index="0"] div.container__top {
+    height: 60%;
+    overflow-y: hidden;
+    display: block;
+}
+
+
+main nav.content[data-index="0"] div.resizer {
+    background-color: #cbd5e0;
+    cursor: ns-resize;
+    width: 100%;
+    height: 3px;
+    border-radius: 500px;
+    margin: 1px;
+    box-sizing: border-box;
+    display: block;
+}
+
+main nav.content[data-index="0"] div.container__bottom {
+    /* Take the remaining width */
+    flex-grow: 1;
+    display: block;
+    overflow-y: hidden;
+}
+
 main nav.content[data-index="1"],
 main nav.content[data-index="2"] {
     display: flex;
@@ -241,26 +276,28 @@ main nav.content div.proprety-nav {
     user-select: none;
     cursor: pointer;
 }
-main nav.content div.proprety-nav:first-child{
-    margin-top:10px;
+
+main nav.content div.proprety-nav:first-child {
+    margin-top: 10px;
 }
 
 main nav.content div.proprety-nav:last-child {
     margin-bottom: 0px;
 }
 
-main nav.content div.proprety-nav i.box{
+main nav.content div.proprety-nav i.box {
     width: 4px;
-    height:20px;
+    height: 20px;
     z-index: 2;
     background-color: whitesmoke;
 }
+
 main nav.content div.proprety-nav h3 {
     margin: 0;
     z-index: 4;
     font-size: 16px;
-    padding-left:4px ;
-    margin-block:auto;
+    padding-left: 4px;
+    margin-block: auto;
     display: inline-block;
     flex-grow: 1;
 }
@@ -270,7 +307,7 @@ main nav.content div.proprety-nav div:nth-child(3) {
     padding-inline: 20px;
     margin: 0;
     margin-bottom: 10px;
-    margin-block:auto;
+    margin-block: auto;
 }
 
 main nav.content div.proprety-nav div:nth-child(3) p {
@@ -280,7 +317,7 @@ main nav.content div.proprety-nav div:nth-child(3) p {
     padding: 0;
     font-family: consolas;
     margin-right: 10px;
-    margin-block:auto;
+    margin-block: auto;
 }
 
 main nav.content div.proprety-nav div:nth-child(3) img {
@@ -288,11 +325,11 @@ main nav.content div.proprety-nav div:nth-child(3) img {
     margin: 0;
     height: 16px;
     padding: 0;
-    margin-block:auto;
+    margin-block: auto;
     margin-right: 20px;
 }
 
-main nav.content div.proprety-nav div:nth-child(3) img:last-child{
+main nav.content div.proprety-nav div:nth-child(3) img:last-child {
     margin-right: 2px;
 }
 
@@ -421,6 +458,15 @@ h3 {
     font-size: 30px;
 }
 
+h3[data-clickable="true"] {
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
+}
+
+h3[data-clickable="true"]:hover {
+    transform: scale(0.9);
+}
+
 div.message {
     padding: 5px 50px 5px 10px;
     margin-bottom: 5px;
@@ -461,14 +507,14 @@ div.board {
     background-size: cover;
     box-shadow: 0px 0px 0px 3px black;
     z-index: 0;
-    transition:transform .1s ease-out;
+    transition: transform .1s ease-out;
 }
 
 div.board div.street {
     transform: translateX(-50%) translateY(-50%);
     position: absolute;
     z-index: 1;
-    transition:background-color .1s ease-out;
+    transition: background-color .1s ease-out;
 }
 
 div.roll-panel {
@@ -661,12 +707,14 @@ div.card-display-actions h3 {
     display: block;
     font-size: auto;
     margin-top: 20px;
-    color:rgb(40,40,40);
-    margin-bottom:5px;
+    color: rgb(40, 40, 40);
+    margin-bottom: 5px;
 }
-div.card-display-actions div.street-card{
+
+div.card-display-actions div.street-card {
     box-shadow: 0px 0px 0px 1.2px black;
 }
+
 div.card-display-actions div {
     display: block;
     margin-bottom: 12px;
@@ -713,9 +761,11 @@ div.street-card {
     padding-top: 15px;
     color: black;
 }
-div.street-card p{
-    color:black;
+
+div.street-card p {
+    color: black;
 }
+
 div.street-card * {
     font-family: "Josefin Sans";
 }
@@ -779,8 +829,9 @@ div.street-card div:nth-child(2) {
     flex-grow: 1;
     color: black;
 }
+
 div.street-card div:nth-child(2) p {
-    color:black;
+    color: black;
 }
 
 div.street-card div:nth-child(2) ol {
@@ -821,7 +872,7 @@ div.street-card h4 {
     margin-block: auto;
 }
 
-div.chance-display-actions{
+div.chance-display-actions {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -841,23 +892,44 @@ div.chance-card {
     display: flex;
     flex-direction: column;
     color: black;
+
+    background-position: center;
+    background-repeat: no-repeat;
+
 }
-div.chance-card div{
+
+div.chance-card[data-b-image="chance"] {
+    background-image: url("/public/special/chance.png");
+    background-size: 80px;
+}
+
+div.chance-card[data-b-image="chest"] {
+    background-image: url("/public/special/chest.png");
+    background-size: 200px;
+
+}
+
+div.chance-card div {
     flex-grow: 1;
 }
-div.chance-card div:nth-child(2){
+
+div.chance-card div:nth-child(2) {
     flex-grow: 0;
 }
+
 div.chance-card h3 {
-    color:black;
-    margin:0;
+    color: black;
+    margin: 0;
+    text-align: center;
+    background-color: white;
+}
+
+div.chance-card p {
+    color: black;
+    margin: 0;
     text-align: center;
 }
-div.chance-card p{
-    color:black;
-    margin:0;
-    text-align: center;
-}
+
 div.chance-card * {
     font-family: "Josefin Sans";
 }
