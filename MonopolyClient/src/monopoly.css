@@ -540,6 +540,7 @@ div.player {
 
 div.player img {
     width: 100%;
+    position: absolute;
 }
 
 div#dice-panel {

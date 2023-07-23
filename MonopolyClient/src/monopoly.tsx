@@ -22,7 +22,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
     );
 
     useEffect(() => {
-        console.log("called");
         //#region socket handeling
         socket.on(
             "initials",
@@ -86,12 +85,13 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 turnId: string;
             }) => {
                 const sumTimes = args.listOfNums[0] + args.listOfNums[1];
-                const localPlayer = clients.get(
-                    socket.id
-                ) as Player;
+                const localPlayer = clients.get(socket.id) as Player;
+                const xplayer = clients.get(args.turnId) as Player;
                 engineRef.current?.diceResults({
                     l: [args.listOfNums[0], args.listOfNums[1]],
-                    time: localPlayer.isInJail ? 2000 : 0.35 * 1000 * sumTimes + 2000 + 800,
+                    time: localPlayer.isInJail
+                        ? 2000
+                        : 0.35 * 1000 * sumTimes + 2000 + 800,
                     onDone: (finish) => {
                         if (socket.id !== args.turnId) return;
 
@@ -100,8 +100,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             location,
                             onResponse: (b, info) => {
                                 const proprety = propretyMap.get(location);
-                                
-                                
+
                                 if (b === "buy") {
                                     localPlayer.balance -= proprety?.price ?? 0;
                                     localPlayer.properties.push({
@@ -154,12 +153,11 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                             }
                                         }
                                     }
-                                }
-                                else if (b === "nothing") {
-                                    if ((proprety?.id ?? "")=="gotojail"){
+                                } else if (b === "nothing") {
+                                    if ((proprety?.id ?? "") == "gotojail") {
                                         localPlayer.isInJail = true;
                                         localPlayer.jailTurnsRemaining = 3;
-                                        localPlayer.position = 10;   
+                                        localPlayer.position = 10;
                                     }
                                     if (proprety?.id === "incometax") {
                                         localPlayer.balance -= 200;
@@ -168,10 +166,13 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                         localPlayer.balance -= 100;
                                     }
                                 }
+
                                 SetClients(
                                     new Map(clients.set(socket.id, localPlayer))
                                 );
-                                console.log(localPlayer.properties);
+                                console.log(
+                                    `player landed in ${location} and emitting finish-turn while his ballance is ${localPlayer.balance}`
+                                );
                                 finish();
                                 socket.emit(
                                     "finish-turn",
@@ -182,67 +183,82 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     },
                 });
 
-                function playerMove(){
+                function playerMove() {
                     var firstPosition = 0;
-                var addedMoney = false;
-                setTimeout(() => {
-                    var i = 0;
-                    const element = document.querySelector(
-                        `div.player[player-id="${args.turnId}"]`
-                    ) as HTMLDivElement;
-                    const x = clients.get(args.turnId) as Player;
-                    firstPosition = x.position;
-                    x.position += 1;
-                    element.style.animation =
-                        "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
-                    const movingAnim = () => {
-                        const x = clients.get(args.turnId) as Player;
-                        if (i < sumTimes) {
-                            i += 1;
-                            x.position = (x.position + 1) % 40;
-                            if (x.position == 0) {
-                                x.balance += 200;
-                                addedMoney = true;
-                            }
-                            if (i == sumTimes - 1) {
-                                x.position = args.listOfNums[2];
-                                element.style.animation =
-                                    "part 0.9s cubic-bezier(0,.7,.57,1)";
-                                setTimeout(() => {
-                                    element.style.animation = "";
-                                }, 900);
+                    var addedMoney = false;
+                    setTimeout(() => {
+                        var i = 0;
+                        const element = document.querySelector(
+                            `div.player[player-id="${args.turnId}"]`
+                        ) as HTMLDivElement;
 
-                                if (!addedMoney && firstPosition > x.position) {
-                                    x.balance += 200;
+                        firstPosition = xplayer.position;
+                        xplayer.position += 1;
+                        element.style.animation =
+                            "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
+                        const movingAnim = () => {
+                            if (i < sumTimes) {
+                                i += 1;
+                                xplayer.position = (xplayer.position + 1) % 40;
+                                if (xplayer.position == 0) {
+                                    xplayer.balance += 200;
                                     addedMoney = true;
+                                    SetClients(
+                                        new Map(
+                                            clients.set(args.turnId, xplayer)
+                                        )
+                                    );
                                 }
-                            } else {
-                                element.style.animation =
-                                    "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
-                                setTimeout(movingAnim, 0.35 * 1000);
+                                if (i == sumTimes - 1) {
+                                    xplayer.position = args.listOfNums[2];
+                                    element.style.animation =
+                                        "part 0.9s cubic-bezier(0,.7,.57,1)";
+                                    setTimeout(() => {
+                                        element.style.animation = "";
+                                    }, 900);
+
+                                    if (
+                                        !addedMoney &&
+                                        firstPosition > xplayer.position
+                                    ) {
+                                        xplayer.balance += 200;
+                                        addedMoney = true;
+
+                                        SetClients(
+                                            new Map(
+                                                clients.set(
+                                                    args.turnId,
+                                                    xplayer
+                                                )
+                                            )
+                                        );
+                                    }
+                                } else {
+                                    element.style.animation =
+                                        "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
+                                    setTimeout(movingAnim, 0.35 * 1000);
+                                }
                             }
-                        }
-                    };
-                    setTimeout(movingAnim, 0.35 * 1000);
-                }, 2000);
+                        };
+                        setTimeout(movingAnim, 0.35 * 1000);
+                    }, 2000);
                 }
 
-                if (localPlayer.isInJail){
-                    
-                    if (args.listOfNums[0] == args.listOfNums[1]){
-                        localPlayer.isInJail = false;
-                    }
-                    else{
-                        localPlayer.jailTurnsRemaining -= 0;
-                        if (localPlayer.jailTurnsRemaining === 0){
-                            localPlayer.isInJail = false;
+                if (xplayer.isInJail) {
+                   setTimeout(()=>{
+                    if (args.listOfNums[0] == args.listOfNums[1]) {
+                        xplayer.isInJail = false;
+                    } else if (xplayer.jailTurnsRemaining > 0) {
+                        xplayer.jailTurnsRemaining -= 1;
+                        if (xplayer.jailTurnsRemaining === 0) {
+                            xplayer.isInJail = false;
                         }
                     }
-                }
-                else {
+                    SetClients(new Map(clients.set(args.turnId, xplayer)));
+                   },1500)
+                } else {
                     playerMove();
                 }
-                
             }
         );
 
@@ -306,7 +322,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 {Array.from(clients.values()).map((v, i) => {
                     return (
                         <p className="lobby-players" key={i}>
-                            {v.username}
+                            {v.username} [{v.position}]
                         </p>
                     );
                 })}

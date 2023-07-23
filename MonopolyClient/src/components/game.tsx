@@ -146,7 +146,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                     : monopolyJSON.chance;
                             const randomElement =
                                 arr[Math.floor(Math.random() * arr.length)];
-                            alert(JSON.stringify(randomElement));
 
                             SetStreetType(
                                 x.id === "chance" ? "Chance" : "CommunityChest"
@@ -162,6 +161,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                 args.onResponse("nothing", {});
                                 ShowStreet(false);
                             }, 3000);
+                        } else {
+                            args.onResponse("nothing", {});
+                            ShowStreet(false);
                         }
                     } else if (x.group === "Utilities") {
                         SetStreetType("Utilities");
@@ -235,21 +237,16 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         ShowStreet(true);
                     }
                 } else {
-                    alert(
-                        "error of loading the street has occoured, please continue the game!"
-                    );
                     args.onResponse("nothing", {});
                     ShowStreet(false);
                 }
 
                 // trigger yes and no functining!
-                function searchForButtons(){
-                    const b = (
-                        document.querySelector(
-                            "button#card-response-yes"
-                        )
-                    )
-                    if (b){
+                function searchForButtons() {
+                    const b = document.querySelector(
+                        "button#card-response-yes"
+                    );
+                    if (b) {
                         (b as HTMLButtonElement).onclick = () => {
                             args.onResponse("buy", {});
                             ShowStreet(false);
@@ -262,8 +259,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             args.onResponse("nothing", {});
                             ShowStreet(false);
                         };
-                    }
-                    else {
+                    } else {
                         requestAnimationFrame(searchForButtons);
                     }
                 }
@@ -276,6 +272,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 for (const x of prop.players) {
                     const location = x.position;
                     const icon = x.icon + 1;
+                    const injail = x.isInJail;
 
                     const elementSearch = document.querySelector(
                         `div.player[player-id="${x.id}"]`
@@ -294,9 +291,35 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                     `div.street[data-position="${location}"]`
                                 )
                                 ?.appendChild(elementSearch);
-                        } else {
-                            // do nothing
-                            continue;
+                        } 
+                        if (
+                            !injail &&
+                            elementSearch.querySelector("img.jailIcon") != null
+                        ) {
+                            const jailIcon = elementSearch.querySelector(
+                                "img.jailIcon"
+                            ) as HTMLImageElement;
+                            elementSearch.removeChild(jailIcon);
+                        }
+
+                        if (
+                            injail &&
+                            elementSearch.querySelector("img.jailIcon") == null
+                        ) {
+                            while (elementSearch.firstChild) {
+                                elementSearch.removeChild(
+                                    elementSearch.firstChild
+                                );
+                            }
+
+                            const image = document.createElement("img");
+                            image.src = `/public/players/p${icon}.png`;
+                            elementSearch.appendChild(image);
+
+                            const jimage = document.createElement("img");
+                            jimage.src = `/public/players/jail.png`;
+                            jimage.className = "jailIcon";
+                            elementSearch.appendChild(jimage);
                         }
                     } else {
                         // Create
@@ -310,8 +333,14 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         element.setAttribute("data-tooltip-hover", x.username);
                         const image = document.createElement("img");
                         image.src = `/public/players/p${icon}.png`;
-
                         element.appendChild(image);
+                        if (injail) {
+                            const jimage = document.createElement("img");
+                            jimage.src = `/public/players/jail.png`;
+                            jimage.className = "jailIcon";
+                            element.appendChild(jimage);
+                        }
+
                         document
                             .querySelector(
                                 `div.street[data-position="${location}"]`

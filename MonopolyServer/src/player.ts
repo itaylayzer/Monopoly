@@ -13,11 +13,11 @@ export class Player {
         this.username = _name; // Player's username or name
         this.icon = _icon;
 
-        this.position = 0; // Current position on the game board (index of the cell)
+        this.position = 10; // Current position on the game board (index of the cell)
         this.balance = 1500; // Player's current balance or money
         this.properties = []; // Array to store the properties owned by the player
-        this.isInJail = false; // Flag to indicate if the player is in jail
-        this.jailTurnsRemaining = 0; // Number of turns remaining in jail (if applicable)
+        this.isInJail = true; // Flag to indicate if the player is in jail
+        this.jailTurnsRemaining = 1; // Number of turns remaining in jail (if applicable)
     }
 
     to_json() {
