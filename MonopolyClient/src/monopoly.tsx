@@ -12,6 +12,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
     const [currentId, SetCurrent] = useState<string>("");
     const [gameStarted, SetGameStarted] = useState<boolean>(false);
     const [imReady, SetReady] = useState<boolean>(false);
+
     const engineRef = useRef<MonopolyGameRef>(null);
     const navRef = useRef<MonopolyNavRef>(null);
 
@@ -92,7 +93,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     time: localPlayer.isInJail
                         ? 2000
                         : 0.35 * 1000 * sumTimes + 2000 + 800,
-                    onDone: (finish) => {
+                    onDone: () => {
                         if (socket.id !== args.turnId) return;
 
                         const location = clients.get(socket.id)?.position ?? -1;
@@ -110,6 +111,9 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                 engineRef.current?.setStreet({
                                     location,
                                     onResponse: (b, info) => {
+                                        console.log(
+                                            `recieved ${b} on location ${location} `
+                                        );
                                         if (b === "buy") {
                                             localPlayer.balance -=
                                                 proprety?.price ?? 0;
@@ -121,6 +125,39 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                         localPlayer.position
                                                     )?.group ?? "",
                                             });
+                                        } else if (b === "advance-buy") {
+                                            const propId = Array.from(
+                                                new Map(
+                                                    localPlayer.properties.map(
+                                                        (v, i) => [i, v]
+                                                    )
+                                                ).entries()
+                                            ).filter(
+                                                (v) =>
+                                                    v[1].posistion === location
+                                            )[0][0];
+
+                                            const _info = info as {
+                                                state: 1 | 2 | 3 | 4 | 5;
+                                                money: number;
+                                            };
+
+                                            localPlayer.properties[
+                                                propId
+                                            ].count =
+                                                _info.state === 5
+                                                    ? "h"
+                                                    : _info.state;
+
+                                            if (_info.state === 5) {
+                                                localPlayer.balance -=
+                                                    proprety.ohousecost ?? 0;
+                                            } else {
+                                                proprety.housecost;
+                                                localPlayer.balance -=
+                                                    (proprety.housecost ?? 0) *
+                                                    _info.money;
+                                            }
                                         } else if (b === "someones") {
                                             const players = Array.from(
                                                 clients.values()
@@ -198,7 +235,8 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                         console.log(
                                             `player landed in ${location} and emitting finish-turn while his ballance is ${localPlayer.balance}`
                                         );
-                                        finish();
+                                        engineRef.current?.freeDice();
+
                                         socket.emit(
                                             "finish-turn",
                                             (
@@ -345,7 +383,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     if (xplayer === undefined) return;
 
                     function addBalanceToOthers(amnout: number) {
-                        if (xplayer === undefined) return;
+                        if (xplayer === undefined) return 0;
                         const other_players = Array.from(
                             clients.values()
                         ).filter((v) => v.id !== xplayer.id);
@@ -353,6 +391,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             p.balance += amnout;
                             SetClients(new Map(clients.set(p.id, p)));
                         }
+                        return other_players.length;
                     }
 
                     function playerMoveGENERATOR(
@@ -455,6 +494,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                 time_till_finish = generatorResults.time;
                                 generatorResults.func();
                             }
+                            break;
 
                         case "addfunds":
                             xplayer.balance += c.amount ?? 0;
@@ -467,6 +507,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                         xplayer.getoutCards += 1;
                                         break;
                                     case "goto":
+                                        xplayer.position = 10;
                                         xplayer.isInJail = true;
                                         xplayer.jailTurnsRemaining = 3;
                                         break;
@@ -479,13 +520,13 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             break;
                         // amount
                         case "removefundstoplayers":
-                            xplayer.balance -= c.amount ?? 0;
-                            addBalanceToOthers(c.amount ?? 0);
+                            var l = addBalanceToOthers(c.amount ?? 0);
+                            xplayer.balance -= (c.amount ?? 0) * l;
                             break;
 
                         case "addfundsfromplayers":
-                            xplayer.balance += c.amount ?? 0;
-                            addBalanceToOthers(-(c.amount ?? 0));
+                            var l = addBalanceToOthers(-(c.amount ?? 0));
+                            xplayer.balance += (c.amount ?? 0) * l;
                             break;
 
                         case "movenearest":
@@ -532,10 +573,13 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     }
 
                     setTimeout(() => {
+                        console.log("it is TIME!");
+                        SetClients(new Map(clients.set(xplayer.id, xplayer)));
                         if (xplayer.id === socket.id) {
                             console.log(
                                 `player landed in ${location} and emitting finish-turn while his ballance is ${xplayer.balance}`
                             );
+                            engineRef.current?.freeDice();
                             socket.emit(
                                 "finish-turn",
                                 (clients.get(socket.id) as Player).toJson()

@@ -20,28 +20,37 @@ export interface MonopolyGameRef {
     diceResults: (args: {
         l: [number, number];
         time: number;
-        onDone: (finish: () => void) => void;
+        onDone: () => void;
     }) => void;
+    freeDice: () => void;
     setStreet: (args: {
         location: number;
         onResponse: (
-            action: "nothing" | "buy" | "someones" | "special_action",
+            action:
+                | "nothing"
+                | "buy"
+                | "someones"
+                | "special_action"
+                | "advance-buy",
             info: object
         ) => void;
     }) => void;
-    chorch:(element: {
-        title: string;
-        action: string;
-        tileid: string;
-        groupid?: undefined;
-        rentmultiplier?: undefined;
-        amount?: undefined;
-        subaction?: undefined;
-        count?: undefined;
-        buildings?: undefined;
-        hotels?: undefined;
-    },
-    is_chance:boolean,time:number)=>void;
+    chorch: (
+        element: {
+            title: string;
+            action: string;
+            tileid: string;
+            groupid?: undefined;
+            rentmultiplier?: undefined;
+            amount?: undefined;
+            subaction?: undefined;
+            count?: undefined;
+            buildings?: undefined;
+            hotels?: undefined;
+        },
+        is_chance: boolean,
+        time: number
+    ) => void;
 }
 
 export interface g_SpecialAction {}
@@ -59,11 +68,10 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
         const [showDice, SetShowDice] = useState<boolean>(false);
         const [sended, SetSended] = useState<boolean>(false);
         const [showStreet, ShowStreet] = useState<boolean>(true);
-        const [advnacedStreet, SetAdvancedStreet] = useState<boolean>(false);
+        const [advnacedStreet, SetAdvancedStreet] = useState<boolean>(true);
         const [rotation, SetRotation] = useState<number>(0);
         const [scale, SetScale] = useState<number>(1);
 
-        /*
         const [streetDisplay, SetStreetDisplay] = useState<{}>({
             cardCost: -1,
             hotelsCost: -1,
@@ -73,15 +81,11 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             rentWithColorSet: -1,
             title: "deafult",
             type: "electricity",
-        } as UtilitiesDisplayInfo);*/
-
-        const [streetDisplay, SetStreetDisplay] = useState<{}>({
-            title: "deafult",
-        } as ChanceDisplayInfo);
+        } as UtilitiesDisplayInfo);
 
         const [streetType, SetStreetType] = useState<
             "Street" | "Utilities" | "Railroad" | "Chance" | "CommunityChest"
-        >("CommunityChest");
+        >("Street");
 
         function diceAnimation(a: number, b: number) {
             const element = document.getElementById(
@@ -129,11 +133,15 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 SetShowDice(true);
                 setTimeout(() => {
                     SetShowDice(false);
-                    args.onDone(() => {
-                        element.innerHTML = "";
-                        SetSended(false);
-                    });
+                    args.onDone();
                 }, args.time);
+            },
+            freeDice: () => {
+                const element = document.getElementById(
+                    "dice-panel"
+                ) as HTMLDivElement;
+                element.innerHTML = "";
+                SetSended(false);
             },
             setStreet: (args) => {
                 // find data based on location
@@ -150,30 +158,45 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     args.location < 40 &&
                     args.location >= 0
                 ) {
+                    var belong_to_me = false;
+                    var count: 0 | 1 | 2 | 3 | 4 | "h" = 0;
+                    for (const _prp of localPlayer.properties) {
+                        if (!belong_to_me && _prp.posistion === args.location) {
+                            belong_to_me = true;
+                            count = _prp.count;
+                        }
+                    }
                     if (x.group === "Special") {
-                            args.onResponse("nothing", {});
-                            ShowStreet(false);
-                        
+                        args.onResponse("nothing", {});
+                        ShowStreet(false);
                     } else if (x.group === "Utilities") {
-                        SetStreetType("Utilities");
-                        const streetInfo = {
-                            cardCost: x.price ?? -1,
-                            title: x.name ?? "error",
-                            type: x.id.includes("water")
-                                ? "water"
-                                : "electricity",
-                        } as UtilitiesDisplayInfo;
-                        SetStreetDisplay(streetInfo);
-                        SetAdvancedStreet(false);
-                        ShowStreet(true);
+                        if (!belong_to_me) {
+                            SetStreetType("Utilities");
+                            const streetInfo = {
+                                cardCost: x.price ?? -1,
+                                title: x.name ?? "error",
+                                type: x.id.includes("water")
+                                    ? "water"
+                                    : "electricity",
+                            } as UtilitiesDisplayInfo;
+                            SetStreetDisplay(streetInfo);
+                            SetAdvancedStreet(false);
+                            ShowStreet(true);
+                        } else {
+                            args.onResponse("nothing", {});
+                        }
                     } else if (x.group === "Railroad") {
-                        SetStreetType("Railroad");
-                        const streetInfo = {
-                            cardCost: x.price ?? -1,
-                            title: x.name ?? "error",
-                        } as UtilitiesDisplayInfo;
-                        SetStreetDisplay(streetInfo);
-                        ShowStreet(true);
+                        if (!belong_to_me) {
+                            SetStreetType("Railroad");
+                            const streetInfo = {
+                                cardCost: x.price ?? -1,
+                                title: x.name ?? "error",
+                            } as UtilitiesDisplayInfo;
+                            SetStreetDisplay(streetInfo);
+                            ShowStreet(true);
+                        } else {
+                            args.onResponse("nothing", {});
+                        }
                     } else {
                         if (localPlayer.balance - (x?.price ?? 0) < 0) {
                             ShowStreet(false);
@@ -194,12 +217,17 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             ShowStreet(false);
                             return;
                         }
-                        var belong_to_me = false;
-                        for (const _prp of localPlayer.properties) {
-                            if (_prp.posistion === args.location)
-                                belong_to_me = true;
-                        }
 
+                        if (belong_to_me) {
+                            console.log(
+                                `this property belongs to me and its count is ${count}`
+                            );
+                        }
+                        if (belong_to_me && count === "h") {
+                            ShowStreet(false);
+                            args.onResponse("nothing", {});
+                            return;
+                        }
                         SetStreetType("Street");
                         const streetInfo = {
                             cardCost: x.price ?? -1,
@@ -230,34 +258,107 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     ShowStreet(false);
                 }
 
-                // trigger yes and no functining!
                 function searchForButtons() {
-                    const b = document.querySelector(
-                        "button#card-response-yes"
-                    );
-                    if (b) {
-                        (b as HTMLButtonElement).onclick = () => {
-                            args.onResponse("buy", {});
-                            ShowStreet(false);
-                        };
-                        (
-                            document.querySelector(
-                                "button#card-response-no"
-                            ) as HTMLButtonElement
-                        ).onclick = () => {
-                            args.onResponse("nothing", {});
-                            ShowStreet(false);
-                        };
+                    if (advnacedStreet) {
+                        const b = document.querySelector(
+                            "div#advanced-responses"
+                        );
+
+                        if (b) {
+                            console.log("found them!");
+                            const divB = b as HTMLDivElement;
+                            while (divB.firstChild) {
+                                divB.removeChild(divB.firstChild);
+                            }
+                            const propId = Array.from(
+                                new Map(
+                                    localPlayer.properties.map((v, i) => [i, v])
+                                ).entries()
+                            ).filter(
+                                (v) => v[1].posistion === args.location
+                            )[0][0];
+
+                            function transformCount(
+                                v: 0 | 2 | 1 | 3 | 4 | "h"
+                            ) {
+                                switch (v) {
+                                    case "h":
+                                        return 5;
+
+                                    default:
+                                        return v;
+                                }
+                            }
+                            console.log("count = 0");
+                            const count: number =  transformCount(localPlayer.properties[propId].count);
+                            for (let index = count + 1; index < 6; index++) {
+                                console.log(index);
+                                const myButton =
+                                    document.createElement("button");
+                                if (index === 5) {
+                                    myButton.innerHTML = `buy hotel`;
+                                    // dont let someone buy hotel of not have a set of 4 houses
+                                    myButton.disabled = index !== count + 1;
+                                    myButton.onclick = () => {
+                                        args.onResponse("advance-buy", {
+                                            state: index,
+                                            money: 1,
+                                        });
+                                    };
+                                } else {
+                                    myButton.innerHTML = `buy ${index} house${
+                                        index > 0 ? "s" : ""
+                                    }`;
+                                    myButton.onclick = () => {
+                                        args.onResponse("advance-buy", {
+                                            state: index,
+                                            money: index - count,
+                                        });
+                                    };
+                                }
+                                console.log(myButton);
+                                divB.appendChild(myButton);
+                            }
+                            // last button of cancel
+                            const continueButtons =
+                                document.createElement("button");
+                            continueButtons.innerHTML = "CONTINUE";
+                            continueButtons.onclick = () => {
+                                args.onResponse("nothing", {});
+                            };
+                            divB.appendChild(continueButtons);
+                            console.log("done");
+                        } else {
+                            requestAnimationFrame(searchForButtons);
+                        }
                     } else {
-                        requestAnimationFrame(searchForButtons);
+                        const b = document.querySelector(
+                            "button#card-response-yes"
+                        );
+
+                        if (b) {
+                            (b as HTMLButtonElement).onclick = () => {
+                                args.onResponse("buy", {});
+                                ShowStreet(false);
+                            };
+                            (
+                                document.querySelector(
+                                    "button#card-response-no"
+                                ) as HTMLButtonElement
+                            ).onclick = () => {
+                                args.onResponse("nothing", {});
+                                ShowStreet(false);
+                            };
+                        } else {
+                            requestAnimationFrame(searchForButtons);
+                        }
                     }
                 }
+                // trigger yes and no functining!
                 requestAnimationFrame(searchForButtons);
             },
             chorch(element, is_chance, time) {
-                SetStreetType(
-                    is_chance ? "Chance" : "CommunityChest"
-                );
+                SetStreetType(is_chance ? "Chance" : "CommunityChest");
                 SetStreetDisplay({
                     title: element.title,
                 } as ChanceDisplayInfo);
@@ -292,7 +393,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                     `div.street[data-position="${location}"]`
                                 )
                                 ?.appendChild(elementSearch);
-                        } 
+                        }
                         if (
                             !injail &&
                             elementSearch.querySelector("img.jailIcon") != null
@@ -392,511 +493,533 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
         return (
             <>
-            <div className="game">
-                {rotation};
-                <div id="dice-panel" data-show={showDice}>
-                    <img src={RollIcon} />
-                    <p>ITS YOUR TURN TO ROLL THE DICE</p> <img src={RollIcon} />
-                </div>
-                <div
-                    className="board"
-                    style={{
-                        transform: `translateX(-50%) translateY(-50%) rotate(${rotation}deg) scale(${scale})`,
-                    }}
-                    id="locations"
-                >
+                <div className="game">
+                    {rotation};
+                    <div id="dice-panel" data-show={showDice}>
+                        <img src={RollIcon} />
+                        <p>ITS YOUR TURN TO ROLL THE DICE</p>{" "}
+                        <img src={RollIcon} />
+                    </div>
                     <div
-                        data-position="39"
-                        className="street"
+                        className="board"
                         style={{
-                            width: 120,
-                            height: 75,
-                            top: "83%",
-                            left: "93.5%",
+                            transform: `translateX(-50%) translateY(-50%) rotate(${rotation}deg) scale(${scale})`,
                         }}
-                    ></div>
-                    <div
-                        data-position="38"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "74.25%",
-                            left: "93.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="37"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "66.5%",
-                            left: "93.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="36"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "58.25%",
-                            left: "93.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="35"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "50%",
-                            left: "93.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="34"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "41.75%",
-                            left: "93.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="33"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "33.5%",
-                            left: "93.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="32"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "25.5%",
-                            left: "93.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="31"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "17.25%",
-                            left: "93.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="30"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 120,
-                            top: "6.5%",
-                            left: "93.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="29"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "6.5%",
-                            left: "83%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="28"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "6.5%",
-                            left: "74.75%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="27"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "6.5%",
-                            left: "66.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="26"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "6.5%",
-                            left: "58.25%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="25"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "6.5%",
-                            left: "50%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="24"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "6.5%",
-                            left: "41.75%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="23"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "6.5%",
-                            left: "33.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="22"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "6.5%",
-                            left: "25.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="21"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "6.5%",
-                            left: "17.25%",
-                        }}
-                    ></div>
+                        id="locations"
+                    >
+                        <div
+                            data-position="39"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "83%",
+                                left: "93.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="38"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "74.25%",
+                                left: "93.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="37"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "66.5%",
+                                left: "93.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="36"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "58.25%",
+                                left: "93.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="35"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "50%",
+                                left: "93.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="34"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "41.75%",
+                                left: "93.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="33"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "33.5%",
+                                left: "93.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="32"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "25.5%",
+                                left: "93.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="31"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "17.25%",
+                                left: "93.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="30"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 120,
+                                top: "6.5%",
+                                left: "93.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="29"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "6.5%",
+                                left: "83%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="28"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "6.5%",
+                                left: "74.75%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="27"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "6.5%",
+                                left: "66.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="26"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "6.5%",
+                                left: "58.25%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="25"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "6.5%",
+                                left: "50%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="24"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "6.5%",
+                                left: "41.75%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="23"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "6.5%",
+                                left: "33.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="22"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "6.5%",
+                                left: "25.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="21"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "6.5%",
+                                left: "17.25%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="20"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 120,
-                            top: "6.5%",
-                            left: "6.5%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="20"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 120,
+                                top: "6.5%",
+                                left: "6.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="19"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "17.25%",
-                            left: "6.5%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="19"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "17.25%",
+                                left: "6.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="18"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "25.5%",
-                            left: "6.5%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="18"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "25.5%",
+                                left: "6.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="17"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "33.5%",
-                            left: "6.5%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="17"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "33.5%",
+                                left: "6.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="16"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "41.75%",
-                            left: "6.5%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="16"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "41.75%",
+                                left: "6.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="15"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "50%",
-                            left: "6.5%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="15"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "50%",
+                                left: "6.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="14"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "58.25%",
-                            left: "6.5%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="14"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "58.25%",
+                                left: "6.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="13"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "66.5%",
-                            left: "6.5%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="13"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "66.5%",
+                                left: "6.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="12"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "74.75%",
-                            left: "6.5%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="12"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "74.75%",
+                                left: "6.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="11"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 75,
-                            top: "83%",
-                            left: "6.5%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="11"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 75,
+                                top: "83%",
+                                left: "6.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        className="street"
-                        data-position="10"
-                        style={{
-                            width: 120,
-                            height: 120,
-                            top: "93.5%",
-                            left: "6.5%",
-                        }}
-                    ></div>
+                        <div
+                            className="street"
+                            data-position="10"
+                            style={{
+                                width: 120,
+                                height: 120,
+                                top: "93.5%",
+                                left: "6.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="9"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "93.5%",
-                            left: "17.25%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="9"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "93.5%",
+                                left: "17.25%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="8"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "93.5%",
-                            left: "25.5%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="8"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "93.5%",
+                                left: "25.5%",
+                            }}
+                        ></div>
 
-                    <div
-                        data-position="7"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "93.5%",
-                            left: "33.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="6"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "93.5%",
-                            left: "41.75%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="5"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "93.5%",
-                            left: "50%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="4"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "93.5%",
-                            left: "58.25%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="3"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "93.5%",
-                            left: "66.5%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="2"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "93.5%",
-                            left: "74.75%",
-                        }}
-                    ></div>
-                    <div
-                        data-position="1"
-                        className="street"
-                        style={{
-                            width: 75,
-                            height: 120,
-                            top: "93.5%",
-                            left: "83%",
-                        }}
-                    ></div>
+                        <div
+                            data-position="7"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "93.5%",
+                                left: "33.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="6"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "93.5%",
+                                left: "41.75%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="5"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "93.5%",
+                                left: "50%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="4"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "93.5%",
+                                left: "58.25%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="3"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "93.5%",
+                                left: "66.5%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="2"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "93.5%",
+                                left: "74.75%",
+                            }}
+                        ></div>
+                        <div
+                            data-position="1"
+                            className="street"
+                            style={{
+                                width: 75,
+                                height: 120,
+                                top: "93.5%",
+                                left: "83%",
+                            }}
+                        ></div>
 
+                        <div
+                            data-position="0"
+                            className="street"
+                            style={{
+                                width: 120,
+                                height: 120,
+                                top: "93.5%",
+                                left: "93.5%",
+                            }}
+                        ></div>
+                    </div>
                     <div
-                        data-position="0"
-                        className="street"
-                        style={{
-                            width: 120,
-                            height: 120,
-                            top: "93.5%",
-                            left: "93.5%",
+                        className="roll-panel"
+                        aria-disabled={false}
+                        style={prop.myTurn && !sended ? {} : { bottom: "-15%" }}
+                        onClick={async (e) => {
+                            if (e.currentTarget.ariaDisabled === "true") return;
+                            else {
+                                prop.socket.emit("roll_dice");
+                                SetSended(true);
+                            }
                         }}
-                    ></div>
-                </div>
-                <div
-                    className="roll-panel"
-                    aria-disabled={false}
-                    style={prop.myTurn && !sended ? {} : { bottom: "-15%" }}
-                    onClick={async (e) => {
-                        if (e.currentTarget.ariaDisabled === "true") return;
-                        else {
-                            prop.socket.emit("roll_dice");
-                            SetSended(true);
+                    >
+                        <img src={RollIcon} />
+                        <p>ITS YOUR TURN TO ROLL THE DICE</p>{" "}
+                        <img src={RollIcon} />
+                    </div>
+                    <div
+                        className={
+                            streetType === "Chance" ||
+                            streetType === "CommunityChest"
+                                ? "chance-display-actions"
+                                : "card-display-actions"
                         }
-                    }}
-                >
-                    <img src={RollIcon} />
-                    <p>ITS YOUR TURN TO ROLL THE DICE</p> <img src={RollIcon} />
+                        style={
+                            !showStreet
+                                ? {
+                                      transform:
+                                          "translateY(-50%) translateX(-500%)",
+                                  }
+                                : {}
+                        }
+                    >
+                        {streetType === "Chance" ||
+                        streetType === "CommunityChest" ? (
+                            <>
+                                {streetType === "Chance" ? (
+                                    <ChacneCard
+                                        chance={
+                                            streetDisplay as ChanceDisplayInfo
+                                        }
+                                    />
+                                ) : streetType === "CommunityChest" ? (
+                                    <ChacneCard
+                                        chance={
+                                            streetDisplay as ChanceDisplayInfo
+                                        }
+                                    />
+                                ) : (
+                                    <></>
+                                )}
+                            </>
+                        ) : (
+                            <>
+                                <h3>
+                                    {advnacedStreet
+                                        ? "would you like to buy this card?"
+                                        : "you can buy houses and hotels"}
+                                </h3>
+                                {streetType === "Railroad" ? (
+                                    <StreetCard
+                                        railroad={
+                                            streetDisplay as RailroadDisplayInfo
+                                        }
+                                    />
+                                ) : streetType === "Utilities" ? (
+                                    <StreetCard
+                                        utility={
+                                            streetDisplay as UtilitiesDisplayInfo
+                                        }
+                                    />
+                                ) : (
+                                    <StreetCard
+                                        street={
+                                            streetDisplay as StreetDisplayInfo
+                                        }
+                                    />
+                                )}
+                                <div>
+                                    <center>
+                                        {advnacedStreet ? (
+                                            <div id="advanced-responses"></div>
+                                        ) : (
+                                            <>
+                                                <button id="card-response-yes">
+                                                    YES
+                                                </button>
+                                                <button id="card-response-no">
+                                                    NO
+                                                </button>
+                                            </>
+                                        )}
+                                    </center>
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
-                <div
-                    className={
-                        streetType === "Chance" ||
-                        streetType === "CommunityChest"
-                            ? "chance-display-actions"
-                            : "card-display-actions"
-                    }
-                    style={
-                        !showStreet
-                            ? {
-                                  transform:
-                                      "translateY(-50%) translateX(-500%)",
-                              }
-                            : {}
-                    }
-                >
-                    {streetType === "Chance" ||
-                    streetType === "CommunityChest" ? (
-                        <>
-                            {streetType === "Chance" ? (
-                                <ChacneCard
-                                    chance={streetDisplay as ChanceDisplayInfo}
-                                />
-                            ) : streetType === "CommunityChest" ? (
-                                <ChacneCard
-                                    chance={streetDisplay as ChanceDisplayInfo}
-                                />
-                            ) : (
-                                <></>
-                            )}
-                        </>
-                    ) : (
-                        <>
-                            <h3>would you like to buy this card?</h3>
-                            {streetType === "Railroad" ? (
-                                <StreetCard
-                                    railroad={
-                                        streetDisplay as RailroadDisplayInfo
-                                    }
-                                />
-                            ) : streetType === "Utilities" ? (
-                                <StreetCard
-                                    utility={
-                                        streetDisplay as UtilitiesDisplayInfo
-                                    }
-                                />
-                            ) : (
-                                <StreetCard
-                                    street={streetDisplay as StreetDisplayInfo}
-                                />
-                            )}
-                            <div>
-                                <center>
-                                    <button id="card-response-yes">YES</button>
-                                    <button id="card-response-no">NO</button>
-                                </center>
-                            </div>
-                        </>
-                    )}
-                </div>
-            </div>
             </>
         );
     }
