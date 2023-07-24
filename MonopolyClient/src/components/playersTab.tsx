@@ -46,7 +46,6 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
         const rightSide = resizer.nextElementSibling as HTMLDivElement;
 
         // The current position of mouse
-        let x = 0;
         let y = 0;
         let topHeight = 0;
 
@@ -90,7 +89,6 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
         // Attach the handler
         resizer.addEventListener("mousedown", function (e) {
             // Get the current mouse position
-            x = e.clientX;
             y = e.clientY;
             topHeight = leftSide.getBoundingClientRect().height;
 

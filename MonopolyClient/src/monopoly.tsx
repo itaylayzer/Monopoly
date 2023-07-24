@@ -70,6 +70,22 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 if (args.from !== socket.id && x) {
                     x.recieveJson(args.pJson);
                     SetClients(new Map(clients.set(args.from, x)));
+
+                    if (args.pJson.balance < 0){
+                        clients.delete(args.pJson.id)
+
+                        // removing child
+                        const _element = document.querySelector(`div.player[player-id="${args.pJson.id}"]`);
+                        _element?.parentElement?.removeChild(_element);
+
+                        SetClients(new Map(clients));
+                    }
+                }
+                else if(args.from === socket.id && x) {
+                    if (x.balance < 0){
+                        const _element = document.querySelector(`div.player[player-id="${args.pJson.id}"]`);
+                        _element?.parentElement?.removeChild(_element);
+                    }
                 }
                 SetCurrent(args.turnId);
 
@@ -503,7 +519,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             if (c.subaction !== undefined) {
                                 switch (c.subaction) {
                                     case "getout":
-                                        // TODO: can save that kind of card!!
                                         xplayer.getoutCards += 1;
                                         break;
                                     case "goto":

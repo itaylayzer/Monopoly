@@ -67,8 +67,8 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
         const [showDice, SetShowDice] = useState<boolean>(false);
         const [sended, SetSended] = useState<boolean>(false);
-        const [showStreet, ShowStreet] = useState<boolean>(true);
-        const [advnacedStreet, SetAdvancedStreet] = useState<boolean>(true);
+        const [showStreet, ShowStreet] = useState<boolean>(false);
+        const [advnacedStreet, SetAdvancedStreet] = useState<boolean>(false);
         const [rotation, SetRotation] = useState<number>(0);
         const [scale, SetScale] = useState<number>(1);
 
@@ -126,9 +126,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
         }
         useImperativeHandle(ref, () => ({
             diceResults: (args) => {
-                const element = document.getElementById(
-                    "dice-panel"
-                ) as HTMLDivElement;
                 diceAnimation(...args.l);
                 SetShowDice(true);
                 setTimeout(() => {
@@ -145,119 +142,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             },
             setStreet: (args) => {
                 // find data based on location
-                // TODO: Check if the players already owns the proprety, and what can he buy more for the place.
-                // TODO: Special cards like chance and comunity chest.
-                const localPlayer = prop.players.filter(
-                    (v) => v.id === prop.socket.id
-                )[0];
-                const x = propretyMap.get(args.location);
-
-                if (
-                    x &&
-                    args.location !== -1 &&
-                    args.location < 40 &&
-                    args.location >= 0
-                ) {
-                    var belong_to_me = false;
-                    var count: 0 | 1 | 2 | 3 | 4 | "h" = 0;
-                    for (const _prp of localPlayer.properties) {
-                        if (!belong_to_me && _prp.posistion === args.location) {
-                            belong_to_me = true;
-                            count = _prp.count;
-                        }
-                    }
-                    if (x.group === "Special") {
-                        args.onResponse("nothing", {});
-                        ShowStreet(false);
-                    } else if (x.group === "Utilities") {
-                        if (!belong_to_me) {
-                            SetStreetType("Utilities");
-                            const streetInfo = {
-                                cardCost: x.price ?? -1,
-                                title: x.name ?? "error",
-                                type: x.id.includes("water")
-                                    ? "water"
-                                    : "electricity",
-                            } as UtilitiesDisplayInfo;
-                            SetStreetDisplay(streetInfo);
-                            SetAdvancedStreet(false);
-                            ShowStreet(true);
-                        } else {
-                            args.onResponse("nothing", {});
-                        }
-                    } else if (x.group === "Railroad") {
-                        if (!belong_to_me) {
-                            SetStreetType("Railroad");
-                            const streetInfo = {
-                                cardCost: x.price ?? -1,
-                                title: x.name ?? "error",
-                            } as UtilitiesDisplayInfo;
-                            SetStreetDisplay(streetInfo);
-                            ShowStreet(true);
-                        } else {
-                            args.onResponse("nothing", {});
-                        }
-                    } else {
-                        if (localPlayer.balance - (x?.price ?? 0) < 0) {
-                            ShowStreet(false);
-                            args.onResponse("nothing", {});
-                            return;
-                        }
-
-                        var belong_to_others = false;
-                        for (const _p of prop.players) {
-                            for (const _prp of _p.properties) {
-                                if (_prp.posistion === args.location)
-                                    belong_to_others = true;
-                            }
-                        }
-
-                        if (belong_to_others) {
-                            args.onResponse("someones", {});
-                            ShowStreet(false);
-                            return;
-                        }
-
-                        if (belong_to_me) {
-                            console.log(
-                                `this property belongs to me and its count is ${count}`
-                            );
-                        }
-                        if (belong_to_me && count === "h") {
-                            ShowStreet(false);
-                            args.onResponse("nothing", {});
-                            return;
-                        }
-                        SetStreetType("Street");
-                        const streetInfo = {
-                            cardCost: x.price ?? -1,
-                            hotelsCost: x.ohousecost ?? -1,
-                            housesCost: x.housecost ?? -1,
-                            rent: x.rent ?? -1,
-                            multpliedrent: x.multpliedrent
-                                ? [
-                                      x.multpliedrent[0] ?? -1,
-                                      x.multpliedrent[1] ?? -1,
-                                      x.multpliedrent[2] ?? -1,
-                                      x.multpliedrent[3] ?? -1,
-                                      x.multpliedrent[4] ?? -1,
-                                  ]
-                                : [-1, -1, -1, -1, -1],
-                            rentWithColorSet: x.rent ? x.rent * 2 : -1,
-                            title: x.name ?? "error",
-                            group: x.group,
-                        } as StreetDisplayInfo;
-                        SetStreetDisplay(streetInfo);
-                        belong_to_me
-                            ? SetAdvancedStreet(true)
-                            : SetAdvancedStreet(false);
-                        ShowStreet(true);
-                    }
-                } else {
-                    args.onResponse("nothing", {});
-                    ShowStreet(false);
-                }
-
                 function searchForButtons() {
                     if (advnacedStreet) {
                         const b = document.querySelector(
@@ -354,8 +238,122 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         }
                     }
                 }
-                // trigger yes and no functining!
-                requestAnimationFrame(searchForButtons);
+                const localPlayer = prop.players.filter(
+                    (v) => v.id === prop.socket.id
+                )[0];
+                const x = propretyMap.get(args.location);
+
+                if (
+                    x &&
+                    args.location !== -1 &&
+                    args.location < 40 &&
+                    args.location >= 0
+                ) {
+                    var belong_to_me = false;
+                    var count: 0 | 1 | 2 | 3 | 4 | "h" = 0;
+                    for (const _prp of localPlayer.properties) {
+                        if (!belong_to_me && _prp.posistion === args.location) {
+                            belong_to_me = true;
+                            count = _prp.count;
+                        }
+                    }
+                    if (x.group === "Special") {
+                        args.onResponse("nothing", {});
+                        ShowStreet(false);
+                    } else if (x.group === "Utilities") {
+                        if (!belong_to_me) {
+                            SetStreetType("Utilities");
+                            const streetInfo = {
+                                cardCost: x.price ?? -1,
+                                title: x.name ?? "error",
+                                type: x.id.includes("water")
+                                    ? "water"
+                                    : "electricity",
+                            } as UtilitiesDisplayInfo;
+                            SetStreetDisplay(streetInfo);
+                            SetAdvancedStreet(false);
+                            ShowStreet(true);
+                            requestAnimationFrame(searchForButtons);
+                        } else {
+                            args.onResponse("nothing", {});
+                        }
+                    } else if (x.group === "Railroad") {
+                        if (!belong_to_me) {
+                            SetStreetType("Railroad");
+                            const streetInfo = {
+                                cardCost: x.price ?? -1,
+                                title: x.name ?? "error",
+                            } as UtilitiesDisplayInfo;
+                            SetStreetDisplay(streetInfo);
+                            ShowStreet(true);
+                            requestAnimationFrame(searchForButtons);
+                        } else {
+                            args.onResponse("nothing", {});
+                        }
+                    } else {
+                        if (localPlayer.balance - (x?.price ?? 0) < 0) {
+                            ShowStreet(false);
+                            args.onResponse("nothing", {});
+                            return;
+                        }
+
+                        var belong_to_others = false;
+                        for (const _p of prop.players) {
+                            for (const _prp of _p.properties) {
+                                if (_prp.posistion === args.location)
+                                    belong_to_others = true;
+                            }
+                        }
+
+                        if (belong_to_others) {
+                            args.onResponse("someones", {});
+                            ShowStreet(false);
+                            return;
+                        }
+
+                        if (belong_to_me) {
+                            console.log(
+                                `this property belongs to me and its count is ${count}`
+                            );
+                        }
+                        if (belong_to_me && count === "h") {
+                            ShowStreet(false);
+                            args.onResponse("nothing", {});
+                            return;
+                        }
+                        SetStreetType("Street");
+                        const streetInfo = {
+                            cardCost: x.price ?? -1,
+                            hotelsCost: x.ohousecost ?? -1,
+                            housesCost: x.housecost ?? -1,
+                            rent: x.rent ?? -1,
+                            multpliedrent: x.multpliedrent
+                                ? [
+                                      x.multpliedrent[0] ?? -1,
+                                      x.multpliedrent[1] ?? -1,
+                                      x.multpliedrent[2] ?? -1,
+                                      x.multpliedrent[3] ?? -1,
+                                      x.multpliedrent[4] ?? -1,
+                                  ]
+                                : [-1, -1, -1, -1, -1],
+                            rentWithColorSet: x.rent ? x.rent * 2 : -1,
+                            title: x.name ?? "error",
+                            group: x.group,
+                        } as StreetDisplayInfo;
+                        SetStreetDisplay(streetInfo);
+                        belong_to_me
+                            ? SetAdvancedStreet(true)
+                            : SetAdvancedStreet(false);
+                        ShowStreet(true);
+                        requestAnimationFrame(searchForButtons);
+                    }
+                } else {
+                    args.onResponse("nothing", {});
+                    ShowStreet(false);
+                }
+                
+                
+                
             },
             chorch(element, is_chance, time) {
                 SetStreetType(is_chance ? "Chance" : "CommunityChest");
@@ -371,7 +369,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
         useEffect(() => {
             function animate() {
-                for (const x of prop.players) {
+                for (const x of prop.players.filter(v=>v.balance>=0)) {
                     const location = x.position;
                     const icon = x.icon + 1;
                     const injail = x.isInJail;

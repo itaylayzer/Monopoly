@@ -118,16 +118,20 @@ io.on("connection", (socket: Socket) => {
             });
             socket.on("finish-turn", (playerInfo: PlayerJSON) => {
                 player.from_json(playerInfo);
-
                 if (currentId != socket.id) return;
 
                 // TODO: win-game by 1 row | 3 monopols | 4 rainwails
                 // TODO: player-death -> deleting every proprety
-
-                const arr = Array.from(Clients.keys());
+                const arr = Array.from(Clients.values()).filter(v=>v.player.balance>0).map(v=>v.player.id);
                 var i = arr.indexOf(socket.id);
                 i = (i + 1) % arr.length;
+
                 currentId = arr[i];
+
+                if (arr.length === 1){
+                    console.log(`${arr[0]} fucking won!`)
+                }
+
                 console.log(
                     `turn-finished ${JSON.stringify(player.to_json())}`
                 );

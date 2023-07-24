@@ -8,11 +8,10 @@ for resizable split views i use htmldom.dev:
 https://htmldom.dev/create-resizable-split-views/
 
 Left To Do:
-[client] adnvace buying
 [client] advanced chance/chest cards  functiuallity
 jail update - ui and getout cards
-[client -> server] player-death
-[server -> clients ]  win-game by 1 row | 3 monopols | 4 rainwails
+[win/lose] show death / win uis
+Advanced Street - Houses and Hotels Part 2 -> update board ui about houses and so on!!
 
 finnally:
 update player tab part 2

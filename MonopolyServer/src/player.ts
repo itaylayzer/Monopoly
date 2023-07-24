@@ -13,7 +13,6 @@ export class Player {
         this.id = _id; // Unique identifier for the player
         this.username = _name; // Player's username or name
         this.icon = _icon;
-
         this.position = 0; // Current position on the game board (index of the cell)
         this.balance = 1500; // Player's current balance or money
         this.properties = []; // Array to store the properties owned by the player
