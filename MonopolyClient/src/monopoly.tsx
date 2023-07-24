@@ -66,24 +66,38 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     x.recieveJson(args.pJson);
                     SetClients(new Map(clients.set(args.from, x)));
 
-                    if (args.pJson.balance < 0){
-                        clients.delete(args.pJson.id)
+                    if (args.pJson.balance < 0) {
+                        clients.delete(args.pJson.id);
 
                         // removing child
-                        const _element = document.querySelector(`div.player[player-id="${args.pJson.id}"]`);
+                        const _element = document.querySelector(
+                            `div.player[player-id="${args.pJson.id}"]`
+                        );
                         _element?.parentElement?.removeChild(_element);
 
                         SetClients(new Map(clients));
                     }
-                }
-                else if(args.from === socket.id && x) {
-                    if (x.balance < 0){
-                        const _element = document.querySelector(`div.player[player-id="${args.pJson.id}"]`);
+                } else if (args.from === socket.id && x) {
+                    if (x.balance < 0) {
+                        const _element = document.querySelector(
+                            `div.player[player-id="${args.pJson.id}"]`
+                        );
                         _element?.parentElement?.removeChild(_element);
                     }
                 }
                 SetCurrent(args.turnId);
-
+                if (args.turnId === socket.id) {
+                    console.log("checking controllers")
+                    const x = clients.get(args.turnId);
+                    if (x && x.isInJail) {
+                        console.log("new controllers")
+                        engineRef.current?.showJailsButtons(
+                            (x?.getoutCards ?? -1) > 0
+                        );
+                    }else{
+                        console.log("no controllers??")
+                    }
+                }
                 navRef.current?.reRenderPlayerList();
             }
         );
@@ -125,7 +139,9 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                         if (b === "buy") {
                                             localPlayer.balance -=
                                                 proprety?.price ?? 0;
-                                            engineRef.current?.applyAnimation(1);
+                                            engineRef.current?.applyAnimation(
+                                                1
+                                            );
                                             localPlayer.properties.push({
                                                 posistion: localPlayer.position,
                                                 count: 0,
@@ -161,13 +177,17 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                             if (_info.state === 5) {
                                                 localPlayer.balance -=
                                                     proprety.ohousecost ?? 0;
-                                                    engineRef.current?.applyAnimation(1);
+                                                engineRef.current?.applyAnimation(
+                                                    1
+                                                );
                                             } else {
                                                 proprety.housecost;
                                                 localPlayer.balance -=
                                                     (proprety.housecost ?? 0) *
                                                     _info.money;
-                                                    engineRef.current?.applyAnimation(1);
+                                                engineRef.current?.applyAnimation(
+                                                    1
+                                                );
                                             }
                                         } else if (b === "someones") {
                                             const players = Array.from(
@@ -206,14 +226,18 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
                                                         localPlayer.balance -=
                                                             payment_ammount;
-                                                            engineRef.current?.applyAnimation(1);
+                                                        engineRef.current?.applyAnimation(
+                                                            1
+                                                        );
                                                         socket.emit("pay", {
                                                             balance:
                                                                 payment_ammount,
                                                             from: socket.id,
                                                             to: p.id,
                                                         });
-                                                        engineRef.current?.applyAnimation(1);
+                                                        engineRef.current?.applyAnimation(
+                                                            1
+                                                        );
                                                     }
                                                 }
                                             }
@@ -228,11 +252,15 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                             }
                                             if (proprety?.id === "incometax") {
                                                 localPlayer.balance -= 200;
-                                                engineRef.current?.applyAnimation(1);
+                                                engineRef.current?.applyAnimation(
+                                                    1
+                                                );
                                             }
                                             if (proprety?.id === "luxerytax") {
                                                 localPlayer.balance -= 100;
-                                                engineRef.current?.applyAnimation(1);
+                                                engineRef.current?.applyAnimation(
+                                                    1
+                                                );
                                             }
                                         }
 
@@ -277,7 +305,8 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                 xplayer.position = (xplayer.position + 1) % 40;
                                 if (xplayer.position == 0) {
                                     xplayer.balance += 200;
-                                    if (xplayer.id === socket.id) engineRef.current?.applyAnimation(2);
+                                    if (xplayer.id === socket.id)
+                                        engineRef.current?.applyAnimation(2);
                                     addedMoney = true;
                                     SetClients(
                                         new Map(
@@ -298,7 +327,10 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                         firstPosition > xplayer.position
                                     ) {
                                         xplayer.balance += 200;
-                                        if (xplayer.id === socket.id) engineRef.current?.applyAnimation(2);
+                                        if (xplayer.id === socket.id)
+                                            engineRef.current?.applyAnimation(
+                                                2
+                                            );
                                         addedMoney = true;
 
                                         SetClients(
@@ -325,6 +357,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     setTimeout(() => {
                         if (args.listOfNums[0] == args.listOfNums[1]) {
                             xplayer.isInJail = false;
+                            playerMove();
                         } else if (xplayer.jailTurnsRemaining > 0) {
                             xplayer.jailTurnsRemaining -= 1;
                             if (xplayer.jailTurnsRemaining === 0) {
@@ -338,7 +371,21 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 }
             }
         );
-
+        socket.on("unjail",(args:{to:string,
+            option:"card"|"pay"})=>{
+                const x = clients.get(args.to);
+                if (x){
+                    if (args.option === "card"){
+                        x.getoutCards -= 1;
+                    }
+                    else {
+                        x.balance -= 50;
+                    }
+                    x.isInJail = false;
+                    x.jailTurnsRemaining = 0;
+                    SetClients(new Map(clients.set(args.to,x)));
+                }
+            })
         socket.on(
             "member_updating",
             (args: {
@@ -385,7 +432,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     const c = args.element;
                     const xplayer = clients.get(args.turnId);
                     if (xplayer === undefined) return;
-                    console.log({c});
+                    console.log({ c });
                     function addBalanceToOthers(amnout: number) {
                         if (xplayer === undefined) return 0;
                         const other_players = Array.from(
@@ -423,7 +470,10 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                         (xplayer.position + 1) % 40;
                                     if (xplayer.position == 0) {
                                         xplayer.balance += 200;
-                                        if (xplayer.id === socket.id) engineRef.current?.applyAnimation(2);
+                                        if (xplayer.id === socket.id)
+                                            engineRef.current?.applyAnimation(
+                                                2
+                                            );
                                         addedMoney = true;
                                         SetClients(
                                             new Map(
@@ -447,7 +497,10 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                             firstPosition > xplayer.position
                                         ) {
                                             xplayer.balance += 200;
-                                            if (xplayer.id === socket.id) engineRef.current?.applyAnimation(2);
+                                            if (xplayer.id === socket.id)
+                                                engineRef.current?.applyAnimation(
+                                                    2
+                                                );
                                             addedMoney = true;
 
                                             SetClients(
@@ -478,9 +531,9 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     var time_till_finish = 0;
                     switch (c.action) {
                         case "move":
-                            console.log("got that move")
+                            console.log("got that move");
                             if (c.tileid) {
-                                console.log(`got that tileid ${c.tileid}`)
+                                console.log(`got that tileid ${c.tileid}`);
                                 const p = new Map(
                                     monopolyJSON.properties.map((obj) => {
                                         return [obj.id, obj];
@@ -488,8 +541,9 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                 );
                                 const targetPos = p.get(c.tileid)?.posistion;
                                 if (!targetPos) {
-                                    console.log(`didnot found ${c.tileid}`)
-                                    ;break};
+                                    console.log(`didnot found ${c.tileid}`);
+                                    break;
+                                }
                                 const generatorResults = playerMoveGENERATOR(
                                     targetPos,
                                     xplayer
@@ -508,7 +562,8 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
                         case "addfunds":
                             xplayer.balance += c.amount ?? 0;
-                            if (xplayer.id === socket.id) engineRef.current?.applyAnimation(2);
+                            if (xplayer.id === socket.id)
+                                engineRef.current?.applyAnimation(2);
                             break;
                         case "jail":
                             if (c.subaction !== undefined) {
@@ -527,19 +582,22 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
                         case "removefunds":
                             xplayer.balance -= c.amount ?? 0;
-                            if (xplayer.id === socket.id) engineRef.current?.applyAnimation(1);
+                            if (xplayer.id === socket.id)
+                                engineRef.current?.applyAnimation(1);
                             break;
                         // amount
                         case "removefundstoplayers":
                             var l = addBalanceToOthers(c.amount ?? 0);
                             xplayer.balance -= (c.amount ?? 0) * l;
-                            if (xplayer.id === socket.id) engineRef.current?.applyAnimation(1);
+                            if (xplayer.id === socket.id)
+                                engineRef.current?.applyAnimation(1);
                             break;
 
                         case "addfundsfromplayers":
                             var l = addBalanceToOthers(-(c.amount ?? 0));
                             xplayer.balance += (c.amount ?? 0) * l;
-                            if (xplayer.id === socket.id) engineRef.current?.applyAnimation(2);
+                            if (xplayer.id === socket.id)
+                                engineRef.current?.applyAnimation(2);
                             break;
 
                         case "movenearest":
@@ -570,9 +628,14 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             const arr = monopolyJSON.properties
                                 .filter((v) => v.group === p)
                                 .map((v) => v.posistion);
-
+                            console.log(arr);
+                            const ongoingLocation = findNextValue(
+                                arr,
+                                xplayer.position
+                            );
+                            console.log({ ongoingLocation });
                             const generatorResults = playerMoveGENERATOR(
-                                findNextValue(arr, xplayer.position),
+                                ongoingLocation,
                                 xplayer
                             );
                             time_till_finish = generatorResults.time;
@@ -599,7 +662,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             }
         );
         //#endregion
-
         socket.emit("name", name);
     }, [socket]);
 

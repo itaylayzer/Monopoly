@@ -18,7 +18,6 @@ export class Player {
         this.properties = []; // Array to store the properties owned by the player
         this.isInJail = false; // Flag to indicate if the player is in jail
         this.jailTurnsRemaining = 0; // Number of turns remaining in jail (if applicable)
-        this.getoutCards = 0;
     }
 
     to_json() {

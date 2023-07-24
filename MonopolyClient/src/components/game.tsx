@@ -1,6 +1,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import RollIcon from "../../public/monopoly-icon/roll.png";
 import C1Icon from "../../public/cubes/c1.png";
+import HouseIcon from "../../public/monopoly-icon/h.png";
+import HotelIcon from "../../public/monopoly-icon/ho.png";
 import { Player } from "../assets/player";
 import { Socket } from "socket.io-client";
 import StreetCard, {
@@ -52,6 +54,7 @@ export interface MonopolyGameRef {
         time: number
     ) => void;
     applyAnimation: (type: number) => void;
+    showJailsButtons: (is_card: boolean) => void;
 }
 
 export interface g_SpecialAction {}
@@ -125,6 +128,18 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
             requestAnimationFrame(anim);
         }
+        function applyAnimation(type: number) {
+            const element = document.querySelector("img#moneyAnimations");
+            if (element === null) return;
+            const imageElement = element as HTMLImageElement;
+            imageElement.setAttribute("data-anim", "0");
+            requestAnimationFrame(() => {
+                imageElement.setAttribute("data-anim", type.toString());
+                setTimeout(() => {
+                    imageElement.setAttribute("data-anim", "0");
+                }, 1000);
+            });
+        }
         useImperativeHandle(ref, () => ({
             diceResults: (args) => {
                 diceAnimation(...args.l);
@@ -143,50 +158,62 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             },
             setStreet: (args) => {
                 // find data based on location
-                function searchForButtons(advanced:boolean) {
-                    function func(){
+                function searchForButtons(advanced: boolean, location: number) {
+                    function func() {
                         if (advanced) {
                             const b = document.querySelector(
                                 "div#advanced-responses"
                             );
-    
+
                             if (b) {
-                                console.log("found them!");
+                                const _property = propretyMap.get(location);
+                                if (!_property) return;
                                 const divB = b as HTMLDivElement;
                                 while (divB.firstChild) {
                                     divB.removeChild(divB.firstChild);
                                 }
                                 const propId = Array.from(
                                     new Map(
-                                        localPlayer.properties.map((v, i) => [i, v])
+                                        localPlayer.properties.map((v, i) => [
+                                            i,
+                                            v,
+                                        ])
                                     ).entries()
                                 ).filter(
                                     (v) => v[1].posistion === args.location
                                 )[0][0];
-    
+
                                 function transformCount(
                                     v: 0 | 2 | 1 | 3 | 4 | "h"
                                 ) {
                                     switch (v) {
                                         case "h":
                                             return 5;
-    
+
                                         default:
                                             return v;
                                     }
                                 }
-                                console.log("count = 0");
                                 const count: number = transformCount(
                                     localPlayer.properties[propId].count
                                 );
-                                for (let index = count + 1; index < 6; index++) {
-                                    console.log(index);
+                                for (
+                                    let index = count + 1;
+                                    index < 6;
+                                    index++
+                                ) {
                                     const myButton =
                                         document.createElement("button");
                                     if (index === 5) {
                                         myButton.innerHTML = `buy hotel`;
                                         // dont let someone buy hotel of not have a set of 4 houses
-                                        myButton.disabled = index !== count + 1;
+                                        myButton.disabled =
+                                            index !== count + 1 ||
+                                            (_property.ohousecost ?? 0) >
+                                                (prop.players.filter(
+                                                    (v) =>
+                                                        v.id === prop.socket.id
+                                                )[0].balance ?? 0);
                                         myButton.onclick = () => {
                                             args.onResponse("advance-buy", {
                                                 state: index,
@@ -195,7 +222,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                         };
                                     } else {
                                         myButton.innerHTML = `buy ${index} house${
-                                            index > 0 ? "s" : ""
+                                            index > 1 ? "s" : ""
                                         }`;
                                         myButton.onclick = () => {
                                             args.onResponse("advance-buy", {
@@ -204,8 +231,13 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                             });
                                             ShowStreet(false);
                                         };
+                                        myButton.disabled =
+                                            (index - count) *
+                                                (_property.housecost ?? 0) >
+                                            (prop.players.filter(
+                                                (v) => v.id === prop.socket.id
+                                            )[0].balance ?? 0);
                                     }
-                                    console.log(myButton);
                                     divB.appendChild(myButton);
                                 }
                                 // last button of cancel
@@ -217,7 +249,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                     ShowStreet(false);
                                 };
                                 divB.appendChild(continueButtons);
-                                console.log("done");
                             } else {
                                 requestAnimationFrame(func);
                             }
@@ -225,7 +256,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             const b = document.querySelector(
                                 "button#card-response-yes"
                             );
-    
+
                             if (b) {
                                 (b as HTMLButtonElement).onclick = () => {
                                     args.onResponse("buy", {});
@@ -281,7 +312,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             SetStreetDisplay(streetInfo);
                             SetAdvancedStreet(false);
                             ShowStreet(true);
-                            requestAnimationFrame(searchForButtons(false));
+                            requestAnimationFrame(
+                                searchForButtons(false, args.location)
+                            );
                         } else {
                             args.onResponse("nothing", {});
                         }
@@ -294,24 +327,24 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             } as UtilitiesDisplayInfo;
                             SetStreetDisplay(streetInfo);
                             ShowStreet(true);
-                            requestAnimationFrame(searchForButtons(false));
+                            requestAnimationFrame(
+                                searchForButtons(false, args.location)
+                            );
                         } else {
                             args.onResponse("nothing", {});
                         }
                     } else {
-                        if (!belong_to_me && localPlayer.balance - (x?.price ?? 0) < 0) {
+                        if (
+                            !belong_to_me &&
+                            localPlayer.balance - (x?.price ?? 0) < 0
+                        ) {
                             ShowStreet(false);
                             args.onResponse("nothing", {});
                             return;
                         }
 
-                        
                         if (belong_to_me) {
-                            console.log(
-                                `this property belongs to me and its count is ${count}`
-                            );
-                        }
-                        else {
+                        } else {
                             var belong_to_others = false;
                             for (const _p of prop.players) {
                                 for (const _prp of _p.properties) {
@@ -319,13 +352,12 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                         belong_to_others = true;
                                 }
                             }
-    
+
                             if (belong_to_others) {
                                 args.onResponse("someones", {});
                                 ShowStreet(false);
                                 return;
                             }
-    
                         }
                         if (belong_to_me && count === "h") {
                             ShowStreet(false);
@@ -356,9 +388,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             ? SetAdvancedStreet(true)
                             : SetAdvancedStreet(false);
                         ShowStreet(true);
-                        requestAnimationFrame(searchForButtons(belong_to_me))
-                        
-                        
+                        requestAnimationFrame(
+                            searchForButtons(belong_to_me, args.location)
+                        );
                     }
                 } else {
                     args.onResponse("nothing", {});
@@ -376,16 +408,73 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 }, time);
             },
             applyAnimation(type) {
-                const element = document.querySelector("img#moneyAnimations");
-                if (element === null) return;
-                const imageElement = element as HTMLImageElement;
-                imageElement.setAttribute("data-anim", "0");
-                requestAnimationFrame(() => {
-                    imageElement.setAttribute("data-anim", type.toString());
+                applyAnimation(type);
+            },
+            showJailsButtons: (is_card: boolean) => {
+                const payElement = document.querySelector(
+                    `button.roll-button[data-button-type="pay"]`
+                ) as HTMLButtonElement;
+                const cardElement = document.querySelector(
+                    `button.roll-button[data-button-type="card"]`
+                ) as HTMLButtonElement;
+                const rollElement = document.querySelector(
+                    `button.roll-button[data-button-type="roll"]`
+                ) as HTMLButtonElement;
+
+                function returnToNormal() {
+                    payElement.onclick = () => {
+                        prop.socket.emit("roll_dice");
+                        SetSended(true);
+                    };
+                    SetSended(true);
+                    cardElement.onclick = () => {};
+                    cardElement.style.translate = "0px 0px";
+                    cardElement.setAttribute("aria-disabled", "true");
                     setTimeout(() => {
-                        imageElement.setAttribute("data-anim", "0");
-                    }, 1000);
-                });
+                        cardElement.setAttribute("aria-disabled", "true");
+                    }, 300);
+
+                    payElement.style.translate = "0px 0px";
+                    payElement.onclick = () => {};
+                    payElement.setAttribute("aria-disabled", "true");
+                    setTimeout(() => {
+                        payElement.setAttribute("aria-disabled", "true");
+                    }, 300);
+                }
+
+                payElement.setAttribute("aria-disabled", "false");
+                payElement.style.translate = "0px -80px";
+                payElement.onclick = () => {
+                    // handle paying
+                    applyAnimation(1);
+
+                    prop.socket.emit("unjail", "pay");
+                    prop.socket.emit("roll_dice");
+
+                    returnToNormal();
+                };
+
+                if (is_card) {
+                    const cardButton = cardElement as HTMLButtonElement;
+                    cardButton.setAttribute("aria-disabled", "false");
+                    cardButton.style.translate = "0px -160px";
+                    cardButton.style.backgroundColor = "gold";
+                    cardButton.onclick = () => {
+                        // take 1 card
+                        prop.socket.emit("unjail", "card");
+                        prop.socket.emit("roll_dice");
+
+                        returnToNormal();
+                    };
+
+                   
+                }
+                rollElement.onclick = () => {
+                    prop.socket.emit("roll_dice");
+
+                    returnToNormal();
+                    SetSended(true);
+                };
             },
         }));
 
@@ -470,6 +559,93 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             ?.appendChild(element);
                     }
                 }
+
+                function propertiesDisplay() {
+                    const folder = document.getElementById(
+                        "display-houses"
+                    ) as HTMLDivElement;
+                    // remove all older proprerties!
+                    const allStreets = Array.from(
+                        folder.querySelectorAll("div.street-houses")
+                    );
+                    for (const _st of allStreets) {
+                        const st = _st as HTMLDivElement;
+                        while (st.firstChild) {
+                            st.removeChild(st.firstChild);
+                        }
+                        st.onclick = () => {};
+                        st.style.cursor = "unset";
+                        st.style.backgroundColor = "rgba(0,0,0,0%)";
+                        st.setAttribute("data-tooltip-hover", "");
+                        st.style.zIndex = "unset";
+                    }
+                    for (const _player of prop.players) {
+                        for (const _prp of _player.properties) {
+                            const location = _prp.posistion;
+                            const state = _prp.count;
+
+                            const queryElement = folder.querySelector(
+                                `div.street-houses[data-position="${location}"`
+                            );
+                            if (queryElement != null) {
+                                // add new propertie
+                                const st = queryElement as HTMLDivElement;
+                                st.setAttribute(
+                                    "data-tooltip-hover",
+                                    _player.username
+                                );
+
+                                st.onclick = () => {
+                                    const element = document.querySelector(
+                                        `div.player[player-id="${_player.id}"]`
+                                    ) as HTMLDivElement;
+                                    element.style.animation =
+                                        "spin2 1s cubic-bezier(.21, 1.57, .55, 1) infinite";
+                                    setTimeout(() => {
+                                        element.style.animation = "";
+                                    }, 1 * 1000);
+                                };
+
+                                st.style.cursor = "pointer";
+
+                                st.style.zIndex = "5";
+                                switch (state) {
+                                    case 0:
+                                        st.style.backgroundColor =
+                                            "rgba(0,0,0,25%)";
+                                        break;
+
+                                    case 1:
+                                    case 2:
+                                    case 3:
+                                    case 4:
+                                        for (
+                                            let index = 0;
+                                            index < state;
+                                            index++
+                                        ) {
+                                            const image =
+                                                document.createElement("img");
+                                            image.src = HouseIcon;
+                                            st.appendChild(image);
+                                        }
+                                        break;
+                                    case "h":
+                                        const image =
+                                            document.createElement("img");
+                                        image.src = HotelIcon;
+                                        st.appendChild(image);
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                }
+                propertiesDisplay();
+
                 requestAnimationFrame(animate);
             }
             requestAnimationFrame(animate);
@@ -517,8 +693,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     {rotation};
                     <div id="dice-panel" data-show={showDice}>
                         <img src={RollIcon} />
-                        <p>ITS YOUR TURN TO ROLL THE DICE</p>{" "}
-                        <img src={RollIcon} />
+                        <p>ROLL THE DICE</p> <img src={RollIcon} />
                     </div>
                     <div
                         className="board"
@@ -527,437 +702,734 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         }}
                         id="locations"
                     >
-                        <div
-                            data-position="39"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "83%",
-                                left: "93.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="38"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "74.25%",
-                                left: "93.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="37"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "66.5%",
-                                left: "93.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="36"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "58.25%",
-                                left: "93.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="35"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "50%",
-                                left: "93.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="34"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "41.75%",
-                                left: "93.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="33"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "33.5%",
-                                left: "93.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="32"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "25.5%",
-                                left: "93.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="31"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "17.25%",
-                                left: "93.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="30"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 120,
-                                top: "6.5%",
-                                left: "93.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="29"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "6.5%",
-                                left: "83%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="28"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "6.5%",
-                                left: "74.75%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="27"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "6.5%",
-                                left: "66.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="26"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "6.5%",
-                                left: "58.25%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="25"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "6.5%",
-                                left: "50%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="24"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "6.5%",
-                                left: "41.75%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="23"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "6.5%",
-                                left: "33.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="22"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "6.5%",
-                                left: "25.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="21"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "6.5%",
-                                left: "17.25%",
-                            }}
-                        ></div>
+                        <div id="display-houses">
+                            <div
+                                data-position="39"
+                                data-rotate="4"
+                                className="street-houses"
+                                style={{
+                                    top: "83%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="37"
+                                data-rotate="4"
+                                className="street-houses"
+                                style={{
+                                    top: "66.5%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="35"
+                                data-rotate="4"
+                                className="street-houses"
+                                style={{
+                                    top: "50%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="34"
+                                data-rotate="4"
+                                className="street-houses"
+                                style={{
+                                    top: "41.75%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="32"
+                                data-rotate="4"
+                                className="street-houses"
+                                style={{
+                                    top: "25.5%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="31"
+                                data-rotate="4"
+                                className="street-houses"
+                                style={{
+                                    top: "17.25%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="29"
+                                data-rotate="3"
+                                className="street-houses"
+                                style={{
+                                    top: "6.5%",
+                                    left: "83%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="28"
+                                data-rotate="3"
+                                className="street-houses"
+                                style={{
+                                    top: "6.5%",
+                                    left: "74.75%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="27"
+                                data-rotate="3"
+                                className="street-houses"
+                                style={{
+                                    top: "6.5%",
+                                    left: "66.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="26"
+                                data-rotate="3"
+                                className="street-houses"
+                                style={{
+                                    top: "6.5%",
+                                    left: "58.25%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="25"
+                                data-rotate="3"
+                                className="street-houses"
+                                style={{
+                                    top: "6.5%",
+                                    left: "50%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="24"
+                                data-rotate="3"
+                                className="street-houses"
+                                style={{
+                                    top: "6.5%",
+                                    left: "41.75%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="23"
+                                data-rotate="3"
+                                className="street-houses"
+                                style={{
+                                    top: "6.5%",
+                                    left: "33.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="21"
+                                data-rotate="3"
+                                className="street-houses"
+                                style={{
+                                    top: "6.5%",
+                                    left: "17.25%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="20"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 120,
-                                top: "6.5%",
-                                left: "6.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="19"
+                                data-rotate="2"
+                                className="street-houses"
+                                style={{
+                                    top: "17.25%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="19"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "17.25%",
-                                left: "6.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="18"
+                                data-rotate="2"
+                                className="street-houses"
+                                style={{
+                                    top: "25.5%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="18"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "25.5%",
-                                left: "6.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="16"
+                                data-rotate="2"
+                                className="street-houses"
+                                style={{
+                                    top: "41.75%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="17"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "33.5%",
-                                left: "6.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="15"
+                                data-rotate="2"
+                                className="street-houses"
+                                style={{
+                                    top: "50%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="16"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "41.75%",
-                                left: "6.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="14"
+                                data-rotate="2"
+                                className="street-houses"
+                                style={{
+                                    top: "58.25%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="15"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "50%",
-                                left: "6.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="13"
+                                data-rotate="2"
+                                className="street-houses"
+                                style={{
+                                    top: "66.5%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="12"
+                                data-rotate="2"
+                                className="street-houses"
+                                style={{
+                                    top: "66.5%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="14"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "58.25%",
-                                left: "6.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="11"
+                                data-rotate="2"
+                                className="street-houses"
+                                style={{
+                                    top: "83%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="13"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "66.5%",
-                                left: "6.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="9"
+                                data-rotate="1"
+                                className="street-houses"
+                                style={{
+                                    top: "93.5%",
+                                    left: "17.25%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="12"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "74.75%",
-                                left: "6.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="8"
+                                data-rotate="1"
+                                className="street-houses"
+                                style={{
+                                    top: "93.5%",
+                                    left: "25.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="11"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 75,
-                                top: "83%",
-                                left: "6.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="6"
+                                data-rotate="1"
+                                className="street-houses"
+                                style={{
+                                    top: "93.5%",
+                                    left: "41.75%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="5"
+                                data-rotate="1"
+                                className="street-houses"
+                                style={{
+                                    top: "93.5%",
+                                    left: "50%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="3"
+                                data-rotate="1"
+                                className="street-houses"
+                                style={{
+                                    top: "93.5%",
+                                    left: "66.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="1"
+                                data-rotate="1"
+                                className="street-houses"
+                                style={{
+                                    top: "93.5%",
+                                    left: "83%",
+                                }}
+                            ></div>
+                        </div>
+                        <div id="display-streets">
+                            <div
+                                data-position="39"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "83%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="38"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "74.25%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="37"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "66.5%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="36"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "58.25%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="35"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "50%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="34"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "41.75%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="33"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "33.5%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="32"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "25.5%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="31"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "17.25%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="30"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 120,
+                                    top: "6.5%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="29"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "6.5%",
+                                    left: "83%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="28"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "6.5%",
+                                    left: "74.75%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="27"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "6.5%",
+                                    left: "66.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="26"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "6.5%",
+                                    left: "58.25%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="25"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "6.5%",
+                                    left: "50%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="24"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "6.5%",
+                                    left: "41.75%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="23"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "6.5%",
+                                    left: "33.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="22"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "6.5%",
+                                    left: "25.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="21"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "6.5%",
+                                    left: "17.25%",
+                                }}
+                            ></div>
 
-                        <div
-                            className="street"
-                            data-position="10"
-                            style={{
-                                width: 120,
-                                height: 120,
-                                top: "93.5%",
-                                left: "6.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="20"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 120,
+                                    top: "6.5%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="9"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "93.5%",
-                                left: "17.25%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="19"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "17.25%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="8"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "93.5%",
-                                left: "25.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="18"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "25.5%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="7"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "93.5%",
-                                left: "33.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="6"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "93.5%",
-                                left: "41.75%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="5"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "93.5%",
-                                left: "50%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="4"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "93.5%",
-                                left: "58.25%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="3"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "93.5%",
-                                left: "66.5%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="2"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "93.5%",
-                                left: "74.75%",
-                            }}
-                        ></div>
-                        <div
-                            data-position="1"
-                            className="street"
-                            style={{
-                                width: 75,
-                                height: 120,
-                                top: "93.5%",
-                                left: "83%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="17"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "33.5%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
 
-                        <div
-                            data-position="0"
-                            className="street"
-                            style={{
-                                width: 120,
-                                height: 120,
-                                top: "93.5%",
-                                left: "93.5%",
-                            }}
-                        ></div>
+                            <div
+                                data-position="16"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "41.75%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
+
+                            <div
+                                data-position="15"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "50%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
+
+                            <div
+                                data-position="14"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "58.25%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
+
+                            <div
+                                data-position="13"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "66.5%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
+
+                            <div
+                                data-position="12"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "74.75%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
+
+                            <div
+                                data-position="11"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 75,
+                                    top: "83%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
+
+                            <div
+                                className="street"
+                                data-position="10"
+                                style={{
+                                    width: 120,
+                                    height: 120,
+                                    top: "93.5%",
+                                    left: "6.5%",
+                                }}
+                            ></div>
+
+                            <div
+                                data-position="9"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "93.5%",
+                                    left: "17.25%",
+                                }}
+                            ></div>
+
+                            <div
+                                data-position="8"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "93.5%",
+                                    left: "25.5%",
+                                }}
+                            ></div>
+
+                            <div
+                                data-position="7"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "93.5%",
+                                    left: "33.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="6"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "93.5%",
+                                    left: "41.75%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="5"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "93.5%",
+                                    left: "50%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="4"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "93.5%",
+                                    left: "58.25%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="3"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "93.5%",
+                                    left: "66.5%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="2"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "93.5%",
+                                    left: "74.75%",
+                                }}
+                            ></div>
+                            <div
+                                data-position="1"
+                                className="street"
+                                style={{
+                                    width: 75,
+                                    height: 120,
+                                    top: "93.5%",
+                                    left: "83%",
+                                }}
+                            ></div>
+
+                            <div
+                                data-position="0"
+                                className="street"
+                                style={{
+                                    width: 120,
+                                    height: 120,
+                                    top: "93.5%",
+                                    left: "93.5%",
+                                }}
+                            ></div>
+                        </div>
                     </div>
-                    <div
-                        className="roll-panel"
-                        aria-disabled={false}
-                        style={prop.myTurn && !sended ? {} : { bottom: "-15%" }}
-                        onClick={async (e) => {
-                            if (e.currentTarget.ariaDisabled === "true") return;
-                            else {
-                                prop.socket.emit("roll_dice");
-                                SetSended(true);
+                    <div className="roll-panel">
+                        <button
+                            className="roll-button"
+                            data-button-type="card"
+                            aria-disabled={true}
+                            style={
+                                prop.myTurn && !sended
+                                    ? {}
+                                    : { translate: "0px 250px" }
                             }
-                        }}
-                    >
-                        <img src={RollIcon} />
-                        <p>ITS YOUR TURN TO ROLL THE DICE</p>{" "}
-                        <img src={RollIcon} />
+                        >
+                            <p>CARD</p>
+                        </button>
+                        <button
+                            className="roll-button"
+                            data-button-type="pay"
+                            aria-disabled={true}
+                            style={
+                                prop.myTurn && !sended
+                                    ? {}
+                                    : { translate: "0px 250px" }
+                            }
+                        >
+                            <p>PAY</p>
+                        </button>
+                        <button
+                            className="roll-button"
+                            data-button-type="roll"
+                            aria-disabled={false}
+                            style={
+                                prop.myTurn && !sended
+                                    ? {}
+                                    : { translate: "0px 250px" }
+                            }
+                            onClick={(e) => {
+                                if (e.currentTarget.ariaDisabled === "true")
+                                    return;
+                                else {
+                                    prop.socket.emit("roll_dice");
+                                    SetSended(true);
+                                }
+                            }}
+                        >
+                            <img src={RollIcon} />
+                            <p>ROLL THE DICE</p> <img src={RollIcon} />
+                        </button>
                     </div>
                     <div
                         className={

@@ -431,13 +431,14 @@ main nav.content div.playerInfo img {
     transform: translateY(1px);
 }
 
-main nav.content div.playerInfo p:nth-last-child(3) {
+main nav.content div.playerInfo p.orange {
     font-family: "consolas";
-    border: 2px solid rgba(255,215,0, 0.5);
-    background-color: rgba(255,215,0, 25%);
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    background-color: rgba(255, 215, 0, 25%);
     padding: 0px 5px;
     margin-right: 3px;
 }
+
 main nav.content div.playerInfo p:nth-last-child(2) {
     font-family: "consolas";
     border: 2px solid rgba(20, 185, 20, 50%);
@@ -517,10 +518,55 @@ div.board {
     transition: transform .1s ease-out;
 }
 
+div.board div#display-houses div.street-houses {
+    /* background-color: rgb(0,0,0,50%); */
+    position: absolute;
+    transform: translateX(-50%) translateY(-50%);
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+}
+
+div.board div#display-houses div.street-houses[data-rotate="1"] {
+    translate: 0px -45.5px;
+    width: 60px;
+    height: 12px;
+    rotate: 0deg;
+}
+
+div.board div#display-houses div.street-houses[data-rotate="2"] {
+    translate: 9.5px 24.5px;
+    width: 60px;
+    height: 12px;
+    rotate: 90deg;
+}
+
+div.board div#display-houses div.street-houses[data-rotate="3"] {
+    translate: -60.5px 34.5px;
+    width: 60px;
+    height: 12px;
+    rotate: 180deg;
+}
+
+div.board div#display-houses div.street-houses[data-rotate="4"] {
+    translate: -70.5px -35.5px;
+    width: 60px;
+    height: 12px;
+    rotate: 270deg;
+}
+
+div.board div#display-houses div.street-houses img {
+    z-index: 4;
+    display: block;
+    max-width: 20px;
+    align-self: center;
+    filter: drop-shadow(0px 0px 5px black);
+}
+
 div.board div.street {
     transform: translateX(-50%) translateY(-50%);
     position: absolute;
-    z-index: 1;
+    z-index: 2;
     transition: background-color .1s ease-out;
 }
 
@@ -528,54 +574,70 @@ div.roll-panel {
     position: absolute;
     bottom: 10%;
     height: 75px;
-    width: 35%;
     left: 50%;
+}
+
+div.roll-panel button{
+    position: absolute;
     transform: translateX(-50%);
     background-color: rgba(20, 20, 20, 100);
     color: white;
-    border-radius: 30px;
+    border-radius: 7px;
     font-size: 20px;
     text-align: center;
+    height:70px;
+    
     transition: transform 0.3s cubic-bezier(0.21, 1.57, 0.55, 1),
-        bottom 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
+    translate 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
     pointer-events: all;
+    width:300px;
 }
-
-div.roll-panel:hover {
+div.roll-panel button:hover {
     transform: scale(0.9) translateX(-55%);
     cursor: pointer;
 }
 
-div.roll-panel[aria-disabled="true"] {
+div.roll-panel button[aria-disabled="true"] {
     cursor: wait;
     filter: grayscale(1) blur(2px);
     animation: spin1 1s cubic-bezier(0.68, 0.05, 0.49, 0.95) infinite;
 }
 
-div.roll-panel[aria-disabled="true"]:hover {
+div.roll-panel button[aria-disabled="true"]:hover {
     transform: translateX(-50%);
 }
 
-div.roll-panel * {
+div.roll-panel button * {
     display: inline-block;
 }
 
-div.roll-panel p {
-    transform: translateY(10px);
+div.roll-panel button p {
+    font-family: "Josefin Sans";
+    transform: translateY(5px);
 }
-
-div.roll-panel img:nth-child(3) {
+div.roll-panel button.roll-button[aria-disabled="false"]:nth-child(1){
+    translate: 0px -160px;
+}
+div.roll-panel button.roll-button[aria-disabled="false"]:nth-child(2){
+    translate: 0px -80px;
+}
+div.roll-panel button.roll-button[aria-disabled="false"] img:nth-child(3) {
     position: absolute;
     top: 50%;
     transform: translateY(-50%) translateX(0%);
     width: 50px;
 }
 
-div.roll-panel img:nth-child(1) {
+div.roll-panel button.roll-button img:nth-child(1) {
     position: absolute;
     top: 50%;
     transform: translateY(-50%) translateX(-100%);
     width: 50px;
+}
+
+div.roll-panel button.roll-button[data-button-type][aria-disabled="true"]{
+    opacity: 0;
+    visibility: hidden;
 }
 
 div.player {
@@ -704,7 +766,7 @@ div.card-display-actions {
     background-color: whitesmoke;
     transform: translateY(-50%) translateX(-50%);
     z-index: 0;
-    transition: transform 1s cubic-bezier(0,.66,0,.98);
+    transition: transform 1s cubic-bezier(0, .66, 0, .98);
     box-shadow: 0px 0px 5px black;
 }
 
@@ -743,13 +805,19 @@ div.card-display-actions div button {
         color 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
 }
 
-div.card-display-actions div button:nth-child(1):hover {
+div.card-display-actions div button:hover {
     transform: scale(0.9);
     color: white;
     background-color: rgb(12, 51, 87);
 }
+div.card-display-actions div button:disabled:hover{
+    cursor:not-allowed;
+    transform: scale(1);
+    background-color: rgb(20,20,20);
+    color:white;
+}
 
-div.card-display-actions div button:hover {
+div.card-display-actions div button:hover:nth-last-child(1) {
     transform: scale(0.9);
     color: white;
     background-color: rgb(136, 13, 13);
@@ -1022,7 +1090,7 @@ p.stats img {
     }
 }
 
-img#moneyAnimations{
+img#moneyAnimations {
     position: absolute;
     bottom: 0%;
     right: 10%;
@@ -1030,13 +1098,14 @@ img#moneyAnimations{
     aspect-ratio: 1;
     translate: 0 70px;
 }
+
 img#moneyAnimations[data-anim="1"] {
     animation: moneyAnimations1 1s cubic-bezier(.25, 1.44, .55, 1.01),
         moneyAnimations2 1s ease-out infinite,
         moneyAnimations3 1s cubic-bezier(.61, .05, .96, .18);
     background-image: url("/public/animations/send2.png");
-    background-size:80px;
-    background-size:cover;
+    background-size: 80px;
+    background-size: cover;
 }
 
 img#moneyAnimations[data-anim="2"] {
@@ -1044,7 +1113,7 @@ img#moneyAnimations[data-anim="2"] {
         moneyAnimations22 1s ease-out,
         moneyAnimations3 1s cubic-bezier(.61, .05, .96, .18);
     background-image: url("/public/animations/recieve2.png");
-    background-size:80px;
+    background-size: 80px;
     background-position: center;
 }
 
@@ -1063,6 +1132,7 @@ img#moneyAnimations[data-anim="2"] {
     0% {
         transform: scale(2);
     }
+
     33% {
         transform: scale(1);
     }
@@ -1072,10 +1142,12 @@ img#moneyAnimations[data-anim="2"] {
     }
 
 }
-@keyframes moneyAnimations22{
+
+@keyframes moneyAnimations22 {
     0% {
         transform: scale(0.5);
     }
+
     33% {
         transform: scale(1);
     }

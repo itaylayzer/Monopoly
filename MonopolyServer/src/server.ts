@@ -89,17 +89,20 @@ io.on("connection", (socket: Socket) => {
 
             // handle all events from here on!
             // game sockets
-
+            socket.on("unjail",(option:"card"|"pay")=>{
+                EmitAll("unjail", {
+                    to:player.id,
+                    option
+                });
+            })
             socket.on("roll_dice", () => {
                 const first = Math.floor(Math.random() * 6) + 1;
                 const second = Math.floor(Math.random() * 6) + 1;
                 const sum = first + second;
-                player.position = (player.position + sum) % 40;
-                // Clients.get(currentId).player = player;
-                console.log(Clients.get(currentId).player == player);
+                const pos = (player.position + sum) % 40;
                 EmitAll("dice_roll_result", {
-                    listOfNums: [first, second, player.position],
-                    turnId: currentId,
+                    listOfNums: [first, second, pos],
+                    turnId: currentId
                 });
             });
             // chest or chance
@@ -132,9 +135,9 @@ io.on("connection", (socket: Socket) => {
                     console.log(`${arr[0]} fucking won!`)
                 }
 
-                console.log(
-                    `turn-finished ${JSON.stringify(player.to_json())}`
-                );
+                // console.log(
+                //     `turn-finished ${JSON.stringify(player.to_json())}`
+                // );
                 EmitAll("turn-finished", {
                     from: socket.id,
                     turnId: currentId,

@@ -22,7 +22,7 @@ function ChanceCard({ args }: { args: ChanceDisplayInfo }) {
         <div data-b-image={"chance"} className="chance-card">
             <div></div>
             <div>
-            <h3>{args.title}</h3>
+                <h3>{args.title}</h3>
             </div>
             <div></div>
         </div>
@@ -33,7 +33,7 @@ function CChestCard({ args }: { args: ChanceDisplayInfo }) {
         <div data-b-image={"chest"} className="chance-card">
             <div></div>
             <div>
-            <h3>{args.title}</h3>
+                <h3>{args.title}</h3>
             </div>
             <div></div>
         </div>
