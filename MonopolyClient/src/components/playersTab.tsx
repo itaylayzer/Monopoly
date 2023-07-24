@@ -6,14 +6,12 @@ import { translateGroup } from "./streetCard";
 import monopolyJSON from "../assets/monopoly.json";
 import HouseIcon from "../../public/monopoly-icon/h.png";
 import HotelIcon from "../../public/monopoly-icon/ho.png";
-import { PropretyTabRef } from "./propretyTab";
 
 interface PlayersTabProps {
     socket: Socket;
     players: Array<Player>;
     currentTurn: string;
-    clickedOnPlayer:(position:number)=>void
-
+    clickedOnPlayer: (position: number) => void;
 }
 export interface PlayersTabRef {
     clickdOnPlayer: (playerId: string) => void;
@@ -105,48 +103,60 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
     return (
         <>
             <div className="container__top" style={{}}>
-                <h3 data-clickable={current !== undefined} style={{ textAlign: "center" }} onClick={()=>{
-                    if (current === undefined) return;
-                    SetCurrentPlayer(undefined);
-                }}>Players</h3>
+                <h3
+                    data-clickable={current !== undefined}
+                    style={{ textAlign: "center" }}
+                    onClick={() => {
+                        if (current === undefined) return;
+                        SetCurrentPlayer(undefined);
+                    }}
+                >
+                    Players
+                </h3>
                 {current != undefined ? (
                     <>
                         <h4>Cards</h4>
                         <h4>Propreties</h4>
-                        {current.properties.length === 0 ? (<p>none</p>) : current.properties.map((v, i) => (
-                            <div
-                                key={i}
-                                onClick={() =>{SetCurrentPlayer(undefined);
-                                   props.clickedOnPlayer(v.posistion)
-                                }}
-                                className="proprety-nav"
-                            >
-                                <i
-                                    className="box"
-                                    style={{
-                                        backgroundColor: translateGroup(
-                                            v.group
-                                        ),
+                        {current.properties.length === 0 ? (
+                            <p>none</p>
+                        ) : (
+                            current.properties.map((v, i) => (
+                                <div
+                                    key={i}
+                                    onClick={() => {
+                                        SetCurrentPlayer(undefined);
+                                        props.clickedOnPlayer(v.posistion);
                                     }}
-                                ></i>
-                                <h3>
-                                    {propretyMap.get(v.posistion)?.name ?? ""}
-                                </h3>
-                                <div>
-                                    {v.count == "h" ? (
-                                        <img src={HotelIcon} alt="" />
-                                    ) : typeof v.count === "number" &&
-                                      v.count > 0 ? (
-                                        <>
-                                            <p>{v.count}</p>
-                                            <img src={HouseIcon} alt="" />
-                                        </>
-                                    ) : (
-                                        <></>
-                                    )}
+                                    className="proprety-nav"
+                                >
+                                    <i
+                                        className="box"
+                                        style={{
+                                            backgroundColor: translateGroup(
+                                                v.group
+                                            ),
+                                        }}
+                                    ></i>
+                                    <h3>
+                                        {propretyMap.get(v.posistion)?.name ??
+                                            ""}
+                                    </h3>
+                                    <div>
+                                        {v.count == "h" ? (
+                                            <img src={HotelIcon} alt="" />
+                                        ) : typeof v.count === "number" &&
+                                          v.count > 0 ? (
+                                            <>
+                                                <p>{v.count}</p>
+                                                <img src={HouseIcon} alt="" />
+                                            </>
+                                        ) : (
+                                            <></>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </>
                 ) : (
                     props.players.map((v, i) => (
@@ -182,7 +192,64 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
             <div className="resizer" id="dragMe" style={{}} />
 
             <div className="container__bottom" style={{}}>
-                <h3 style={{ textAlign: "center" }}>Stats</h3>
+                <h3 style={{ textAlign: "center" }}>{localPlayer.username}</h3>
+                <style></style>
+
+                <table>
+                    <tr>
+                        <td>Balance</td>
+                        <td>
+                            <p className="stats">
+                                {localPlayer.balance} <label>M</label>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Houses</td>
+                        <td>
+                            <p className="stats">
+                                {localPlayer.properties.length > 0
+                                    ? (
+                                          localPlayer.properties
+                                              .map((v) => v.count)
+                                              .filter(
+                                                  (v) => typeof v === "number"
+                                              ) as Array<number>
+                                      ).reduce((p: number, c: number) => p + c)
+                                    : 0}
+                                <img src={HouseIcon} alt="" />
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Hotles</td>
+                        <td>
+                            <p className="stats">
+                                {localPlayer.properties.length > 0
+                                    ? (
+                                          localPlayer.properties
+                                              .map((v) => v.count)
+                                              .filter(
+                                                  (v) => typeof v === "string"
+                                              ) as Array<number>
+                                      ).length
+                                    : 0}
+                                <img src={HotelIcon} alt="" />
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Position</td>
+                        <td>
+                            <p className="stats">
+                                {localPlayer.position} <label></label>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </>
     );

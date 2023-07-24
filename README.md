@@ -9,8 +9,8 @@ https://htmldom.dev/create-resizable-split-views/
 
 Left To Do:
 [client] adnvace buying
-chance/chest functiuallity
-chance/chest server sync
+[client] advanced chance/chest cards  functiuallity
+jail update - ui and getout cards
 [client -> server] player-death
 [server -> clients ]  win-game by 1 row | 3 monopols | 4 rainwails
 

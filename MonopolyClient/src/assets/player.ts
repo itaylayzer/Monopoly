@@ -5,10 +5,14 @@ export class Player {
 
     public position: number;
     public balance: number;
-    public properties: Array<{posistion:number, count:0|1|2|3|4|"h", group:string}>;
+    public properties: Array<{
+        posistion: number;
+        count: 0 | 1 | 2 | 3 | 4 | "h";
+        group: string;
+    }>;
     public isInJail: boolean;
     public jailTurnsRemaining: number;
-
+    public getoutCards: number;
     constructor(_id: string, _name: string) {
         this.id = _id; // Unique identifier for the player
         this.username = _name; // Player's username or name
@@ -18,6 +22,7 @@ export class Player {
         this.properties = []; // Array to store the properties owned by the player
         this.isInJail = false; // Flag to indicate if the player is in jail
         this.jailTurnsRemaining = 0;
+        this.getoutCards = 0;
     }
     recieveJson(json: PlayerJSON) {
         this.username = json.username;
@@ -27,6 +32,7 @@ export class Player {
         this.properties = json.properties;
         this.isInJail = json.isInJail;
         this.jailTurnsRemaining = json.jailTurnsRemaining;
+        this.getoutCards = json.getoutCards;
         return this;
     }
 
@@ -40,6 +46,7 @@ export class Player {
             position: this.position,
             properties: this.properties,
             username: this.username,
+            getoutCards: this.getoutCards,
         } as PlayerJSON;
     }
 }
@@ -52,6 +59,7 @@ export type PlayerJSON = {
     properties: Array<any>;
     isInJail: boolean;
     jailTurnsRemaining: number;
+    getoutCards: number;
 };
 
 // export class Player extends GlobalPlayer {

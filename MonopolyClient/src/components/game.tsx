@@ -29,6 +29,19 @@ export interface MonopolyGameRef {
             info: object
         ) => void;
     }) => void;
+    chorch:(element: {
+        title: string;
+        action: string;
+        tileid: string;
+        groupid?: undefined;
+        rentmultiplier?: undefined;
+        amount?: undefined;
+        subaction?: undefined;
+        count?: undefined;
+        buildings?: undefined;
+        hotels?: undefined;
+    },
+    is_chance:boolean,time:number)=>void;
 }
 
 export interface g_SpecialAction {}
@@ -138,29 +151,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     args.location >= 0
                 ) {
                     if (x.group === "Special") {
-                        if (x.id === "communitychest" || x.id === "chance") {
-                            const arr =
-                                x.id === "communitychest"
-                                    ? monopolyJSON.communitychest
-                                    : monopolyJSON.chance;
-                            const randomElement =
-                                arr[Math.floor(Math.random() * arr.length)];
-
-                            SetStreetType(
-                                x.id === "chance" ? "Chance" : "CommunityChest"
-                            );
-                            SetStreetDisplay({
-                                title: randomElement.title,
-                            } as ChanceDisplayInfo);
-                            ShowStreet(true);
-                            setTimeout(() => {
-                                args.onResponse("nothing", {});
-                                ShowStreet(false);
-                            }, 3000);
-                        } else {
                             args.onResponse("nothing", {});
                             ShowStreet(false);
-                        }
+                        
                     } else if (x.group === "Utilities") {
                         SetStreetType("Utilities");
                         const streetInfo = {
@@ -260,6 +253,18 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     }
                 }
                 requestAnimationFrame(searchForButtons);
+            },
+            chorch(element, is_chance, time) {
+                SetStreetType(
+                    is_chance ? "Chance" : "CommunityChest"
+                );
+                SetStreetDisplay({
+                    title: element.title,
+                } as ChanceDisplayInfo);
+                ShowStreet(true);
+                setTimeout(() => {
+                    ShowStreet(false);
+                }, time);
             },
         }));
 
@@ -387,6 +392,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
         return (
             <>
+            <div className="game">
                 {rotation};
                 <div id="dice-panel" data-show={showDice}>
                     <img src={RollIcon} />
@@ -890,6 +896,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         </>
                     )}
                 </div>
+            </div>
             </>
         );
     }

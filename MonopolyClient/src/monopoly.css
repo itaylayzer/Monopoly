@@ -933,7 +933,30 @@ div.chance-card p {
 div.chance-card * {
     font-family: "Josefin Sans";
 }
-
+p.money-container{
+    display: inline-block;
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 400;
+}
+table{
+    width:80%;
+    margin-left:10%;
+    box-sizing: border-box;
+}
+table tr td:nth-child(2n+1){
+    font-size: 16;
+    font-style: italic;
+}
+p.stats{
+    font-size: 16;
+    text-align: right;
+    width: auto;
+}
+p.stats img{
+    width: 16px;
+    margin-inline:5px;
+}
 @keyframes part {
     0% {
         transform: translateX(-50%) translateY(-50%) scale(1);

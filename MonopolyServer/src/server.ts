@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { Player } from "./player";
+import monopolyJSON from "./assets/monopoly.json"
 //#region Setup
 const app = express();
 const port = 5175;
@@ -49,6 +50,7 @@ type PlayerJSON = {
     properties: Array<any>;
     isInJail: boolean;
     jailTurnsRemaining: number;
+    getoutCards:number;
 };
 
 //#endregion
@@ -97,6 +99,20 @@ io.on("connection", (socket: Socket) => {
                 console.log(Clients.get(currentId).player == player);
                 EmitAll("dice_roll_result", {
                     listOfNums: [first, second, player.position],
+                    turnId: currentId,
+                });
+            });
+            // chest or chance
+            socket.on("chorch_roll", (is_chance) => {
+
+                const arr = is_chance ? monopolyJSON.chance : monopolyJSON.communitychest;
+                const randomElement =
+                    arr[Math.floor(Math.random() * arr.length)];
+
+            
+                EmitAll("chorch_result", {
+                    element:randomElement,
+                    is_chance,
                     turnId: currentId,
                 });
             });
