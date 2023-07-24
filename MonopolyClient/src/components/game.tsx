@@ -51,6 +51,7 @@ export interface MonopolyGameRef {
         is_chance: boolean,
         time: number
     ) => void;
+    applyAnimation: (type: number) => void;
 }
 
 export interface g_SpecialAction {}
@@ -109,7 +110,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 if (bb) {
                     randomCube();
                     t += 1;
-                    setTimeout(anim, 2 ** t * 10);
+                    requestAnimationFrame(anim);
                 } else {
                     var l = C1Icon.substring(0, C1Icon.length - 5);
                     element.innerHTML = `
@@ -122,7 +123,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 bb = false;
             }, 1000);
 
-            setTimeout(anim, 1.3 ** t * 100);
+            requestAnimationFrame(anim);
         }
         useImperativeHandle(ref, () => ({
             diceResults: (args) => {
@@ -142,101 +143,108 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             },
             setStreet: (args) => {
                 // find data based on location
-                function searchForButtons() {
-                    if (advnacedStreet) {
-                        const b = document.querySelector(
-                            "div#advanced-responses"
-                        );
-
-                        if (b) {
-                            console.log("found them!");
-                            const divB = b as HTMLDivElement;
-                            while (divB.firstChild) {
-                                divB.removeChild(divB.firstChild);
-                            }
-                            const propId = Array.from(
-                                new Map(
-                                    localPlayer.properties.map((v, i) => [i, v])
-                                ).entries()
-                            ).filter(
-                                (v) => v[1].posistion === args.location
-                            )[0][0];
-
-                            function transformCount(
-                                v: 0 | 2 | 1 | 3 | 4 | "h"
-                            ) {
-                                switch (v) {
-                                    case "h":
-                                        return 5;
-
-                                    default:
-                                        return v;
+                function searchForButtons(advanced:boolean) {
+                    function func(){
+                        if (advanced) {
+                            const b = document.querySelector(
+                                "div#advanced-responses"
+                            );
+    
+                            if (b) {
+                                console.log("found them!");
+                                const divB = b as HTMLDivElement;
+                                while (divB.firstChild) {
+                                    divB.removeChild(divB.firstChild);
                                 }
-                            }
-                            console.log("count = 0");
-                            const count: number =  transformCount(localPlayer.properties[propId].count);
-                            for (let index = count + 1; index < 6; index++) {
-                                console.log(index);
-                                const myButton =
+                                const propId = Array.from(
+                                    new Map(
+                                        localPlayer.properties.map((v, i) => [i, v])
+                                    ).entries()
+                                ).filter(
+                                    (v) => v[1].posistion === args.location
+                                )[0][0];
+    
+                                function transformCount(
+                                    v: 0 | 2 | 1 | 3 | 4 | "h"
+                                ) {
+                                    switch (v) {
+                                        case "h":
+                                            return 5;
+    
+                                        default:
+                                            return v;
+                                    }
+                                }
+                                console.log("count = 0");
+                                const count: number = transformCount(
+                                    localPlayer.properties[propId].count
+                                );
+                                for (let index = count + 1; index < 6; index++) {
+                                    console.log(index);
+                                    const myButton =
+                                        document.createElement("button");
+                                    if (index === 5) {
+                                        myButton.innerHTML = `buy hotel`;
+                                        // dont let someone buy hotel of not have a set of 4 houses
+                                        myButton.disabled = index !== count + 1;
+                                        myButton.onclick = () => {
+                                            args.onResponse("advance-buy", {
+                                                state: index,
+                                                money: 1,
+                                            });
+                                        };
+                                    } else {
+                                        myButton.innerHTML = `buy ${index} house${
+                                            index > 0 ? "s" : ""
+                                        }`;
+                                        myButton.onclick = () => {
+                                            args.onResponse("advance-buy", {
+                                                state: index,
+                                                money: index - count,
+                                            });
+                                            ShowStreet(false);
+                                        };
+                                    }
+                                    console.log(myButton);
+                                    divB.appendChild(myButton);
+                                }
+                                // last button of cancel
+                                const continueButtons =
                                     document.createElement("button");
-                                if (index === 5) {
-                                    myButton.innerHTML = `buy hotel`;
-                                    // dont let someone buy hotel of not have a set of 4 houses
-                                    myButton.disabled = index !== count + 1;
-                                    myButton.onclick = () => {
-                                        args.onResponse("advance-buy", {
-                                            state: index,
-                                            money: 1,
-                                        });
-                                    };
-                                } else {
-                                    myButton.innerHTML = `buy ${index} house${
-                                        index > 0 ? "s" : ""
-                                    }`;
-                                    myButton.onclick = () => {
-                                        args.onResponse("advance-buy", {
-                                            state: index,
-                                            money: index - count,
-                                        });
-                                    };
-                                }
-                                console.log(myButton);
-                                divB.appendChild(myButton);
+                                continueButtons.innerHTML = "CONTINUE";
+                                continueButtons.onclick = () => {
+                                    args.onResponse("nothing", {});
+                                    ShowStreet(false);
+                                };
+                                divB.appendChild(continueButtons);
+                                console.log("done");
+                            } else {
+                                requestAnimationFrame(func);
                             }
-                            // last button of cancel
-                            const continueButtons =
-                                document.createElement("button");
-                            continueButtons.innerHTML = "CONTINUE";
-                            continueButtons.onclick = () => {
-                                args.onResponse("nothing", {});
-                            };
-                            divB.appendChild(continueButtons);
-                            console.log("done");
                         } else {
-                            requestAnimationFrame(searchForButtons);
-                        }
-                    } else {
-                        const b = document.querySelector(
-                            "button#card-response-yes"
-                        );
-
-                        if (b) {
-                            (b as HTMLButtonElement).onclick = () => {
-                                args.onResponse("buy", {});
-                                ShowStreet(false);
-                            };
-                            (
-                                document.querySelector(
-                                    "button#card-response-no"
-                                ) as HTMLButtonElement
-                            ).onclick = () => {
-                                args.onResponse("nothing", {});
-                                ShowStreet(false);
-                            };
-                        } else {
-                            requestAnimationFrame(searchForButtons);
+                            const b = document.querySelector(
+                                "button#card-response-yes"
+                            );
+    
+                            if (b) {
+                                (b as HTMLButtonElement).onclick = () => {
+                                    args.onResponse("buy", {});
+                                    ShowStreet(false);
+                                };
+                                (
+                                    document.querySelector(
+                                        "button#card-response-no"
+                                    ) as HTMLButtonElement
+                                ).onclick = () => {
+                                    args.onResponse("nothing", {});
+                                    ShowStreet(false);
+                                };
+                            } else {
+                                requestAnimationFrame(func);
+                            }
                         }
                     }
+                    return func;
                 }
                 const localPlayer = prop.players.filter(
                     (v) => v.id === prop.socket.id
@@ -273,7 +281,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             SetStreetDisplay(streetInfo);
                             SetAdvancedStreet(false);
                             ShowStreet(true);
-                            requestAnimationFrame(searchForButtons);
+                            requestAnimationFrame(searchForButtons(false));
                         } else {
                             args.onResponse("nothing", {});
                         }
@@ -286,35 +294,38 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             } as UtilitiesDisplayInfo;
                             SetStreetDisplay(streetInfo);
                             ShowStreet(true);
-                            requestAnimationFrame(searchForButtons);
+                            requestAnimationFrame(searchForButtons(false));
                         } else {
                             args.onResponse("nothing", {});
                         }
                     } else {
-                        if (localPlayer.balance - (x?.price ?? 0) < 0) {
+                        if (!belong_to_me && localPlayer.balance - (x?.price ?? 0) < 0) {
                             ShowStreet(false);
                             args.onResponse("nothing", {});
                             return;
                         }
 
-                        var belong_to_others = false;
-                        for (const _p of prop.players) {
-                            for (const _prp of _p.properties) {
-                                if (_prp.posistion === args.location)
-                                    belong_to_others = true;
-                            }
-                        }
-
-                        if (belong_to_others) {
-                            args.onResponse("someones", {});
-                            ShowStreet(false);
-                            return;
-                        }
-
+                        
                         if (belong_to_me) {
                             console.log(
                                 `this property belongs to me and its count is ${count}`
                             );
+                        }
+                        else {
+                            var belong_to_others = false;
+                            for (const _p of prop.players) {
+                                for (const _prp of _p.properties) {
+                                    if (_prp.posistion === args.location)
+                                        belong_to_others = true;
+                                }
+                            }
+    
+                            if (belong_to_others) {
+                                args.onResponse("someones", {});
+                                ShowStreet(false);
+                                return;
+                            }
+    
                         }
                         if (belong_to_me && count === "h") {
                             ShowStreet(false);
@@ -345,15 +356,14 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             ? SetAdvancedStreet(true)
                             : SetAdvancedStreet(false);
                         ShowStreet(true);
-                        requestAnimationFrame(searchForButtons);
+                        requestAnimationFrame(searchForButtons(belong_to_me))
+                        
+                        
                     }
                 } else {
                     args.onResponse("nothing", {});
                     ShowStreet(false);
                 }
-                
-                
-                
             },
             chorch(element, is_chance, time) {
                 SetStreetType(is_chance ? "Chance" : "CommunityChest");
@@ -365,11 +375,23 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     ShowStreet(false);
                 }, time);
             },
+            applyAnimation(type) {
+                const element = document.querySelector("img#moneyAnimations");
+                if (element === null) return;
+                const imageElement = element as HTMLImageElement;
+                imageElement.setAttribute("data-anim", "0");
+                requestAnimationFrame(() => {
+                    imageElement.setAttribute("data-anim", type.toString());
+                    setTimeout(() => {
+                        imageElement.setAttribute("data-anim", "0");
+                    }, 1000);
+                });
+            },
         }));
 
         useEffect(() => {
             function animate() {
-                for (const x of prop.players.filter(v=>v.balance>=0)) {
+                for (const x of prop.players.filter((v) => v.balance >= 0)) {
                     const location = x.position;
                     const icon = x.icon + 1;
                     const injail = x.isInJail;
@@ -1017,6 +1039,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             </>
                         )}
                     </div>
+                    <img data-anim="0" id="moneyAnimations" alt="" />
                 </div>
             </>
         );

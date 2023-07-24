@@ -17,5 +17,6 @@ finnally:
 update player tab part 2
 
 additionals:
+alerting system of moving money
 stats
 settings

@@ -773,7 +773,7 @@
         {
             "title": "Advance to Illinois Avenue - If you pass Go, collect $200",
             "action": "move",
-            "tileid": "illinoiseave"
+            "tileid": "illinoisave"
         },
         {
             "title": "Advance to St. Charles Place - If you pass Go, collect $200",

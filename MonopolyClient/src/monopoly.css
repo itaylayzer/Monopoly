@@ -431,6 +431,13 @@ main nav.content div.playerInfo img {
     transform: translateY(1px);
 }
 
+main nav.content div.playerInfo p:nth-last-child(3) {
+    font-family: "consolas";
+    border: 2px solid rgba(255,215,0, 0.5);
+    background-color: rgba(255,215,0, 25%);
+    padding: 0px 5px;
+    margin-right: 3px;
+}
 main nav.content div.playerInfo p:nth-last-child(2) {
     font-family: "consolas";
     border: 2px solid rgba(20, 185, 20, 50%);
@@ -697,7 +704,7 @@ div.card-display-actions {
     background-color: whitesmoke;
     transform: translateY(-50%) translateX(-50%);
     z-index: 0;
-    transition: transform 1s cubic-bezier(0.04, 1.56, 0.37, 0.89);
+    transition: transform 1s cubic-bezier(0,.66,0,.98);
     box-shadow: 0px 0px 5px black;
 }
 
@@ -852,7 +859,7 @@ div.street-card div:nth-child(2) ol li p {
     color: black;
 }
 
-div.street-card div:nth-child(2) ol li p p {
+div.street-card div:nth-child(2) ol li p label {
     position: absolute;
     transform: translateX(-7px);
     color: black;
@@ -933,30 +940,36 @@ div.chance-card p {
 div.chance-card * {
     font-family: "Josefin Sans";
 }
-p.money-container{
+
+p.money-container {
     display: inline-block;
     font-size: 20px;
     font-style: italic;
     font-weight: 400;
 }
-table{
-    width:80%;
-    margin-left:10%;
+
+table {
+    width: 80%;
+    margin-left: 10%;
     box-sizing: border-box;
 }
-table tr td:nth-child(2n+1){
+
+table tr td:nth-child(2n+1) {
     font-size: 16;
     font-style: italic;
 }
-p.stats{
+
+p.stats {
     font-size: 16;
     text-align: right;
     width: auto;
 }
-p.stats img{
+
+p.stats img {
     width: 16px;
-    margin-inline:5px;
+    margin-inline: 5px;
 }
+
 @keyframes part {
     0% {
         transform: translateX(-50%) translateY(-50%) scale(1);
@@ -1007,4 +1020,79 @@ p.stats img{
     100% {
         transform: translateX(-50%) translateY(-50%) scale(1);
     }
+}
+
+img#moneyAnimations{
+    position: absolute;
+    bottom: 0%;
+    right: 10%;
+    width: 70px;
+    aspect-ratio: 1;
+    translate: 0 70px;
+}
+img#moneyAnimations[data-anim="1"] {
+    animation: moneyAnimations1 1s cubic-bezier(.25, 1.44, .55, 1.01),
+        moneyAnimations2 1s ease-out infinite,
+        moneyAnimations3 1s cubic-bezier(.61, .05, .96, .18);
+    background-image: url("/public/animations/send2.png");
+    background-size:80px;
+    background-size:cover;
+}
+
+img#moneyAnimations[data-anim="2"] {
+    animation: moneyAnimations1 1s cubic-bezier(.25, 1.44, .55, 1.01),
+        moneyAnimations22 1s ease-out,
+        moneyAnimations3 1s cubic-bezier(.61, .05, .96, .18);
+    background-image: url("/public/animations/recieve2.png");
+    background-size:80px;
+    background-position: center;
+}
+
+@keyframes moneyAnimations1 {
+    0% {
+        translate: 0 70px;
+    }
+
+    100% {
+        translate: 0 -50px;
+    }
+
+}
+
+@keyframes moneyAnimations2 {
+    0% {
+        transform: scale(2);
+    }
+    33% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(0.7);
+    }
+
+}
+@keyframes moneyAnimations22{
+    0% {
+        transform: scale(0.5);
+    }
+    33% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1.428571428571429);
+    }
+
+}
+
+@keyframes moneyAnimations3 {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+
 }

@@ -181,6 +181,7 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
                             ) : (
                                 <></>
                             )}
+                            {v.getoutCards > 0? <p>{v.getoutCards}</p> : <></>}
                             <p>{v.balance}</p>
                             <p>{v.properties.length}</p>
                         </div>

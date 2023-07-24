@@ -2,7 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { Player } from "./player";
-import monopolyJSON from "./assets/monopoly.json"
+import monopolyJSON from "../../MonopolyClient/src/assets/monopoly.json";
 //#region Setup
 const app = express();
 const port = 5175;

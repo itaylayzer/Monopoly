@@ -115,11 +115,11 @@ function StreetCard({ args }: { args: StreetDisplayInfo }) {
                     </li>
                     <li>
                         <p>Hotels cost</p>
-                        <p>
+                        <label>
                             {args.hotelsCost}M each
                             <br />
                             <p style={{ fontSize: 12 }}>(plus 4 houses)</p>
-                        </p>
+                        </label>
                     </li>
                 </ol>
 
