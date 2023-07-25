@@ -13,6 +13,7 @@ export class Player {
     public isInJail: boolean;
     public jailTurnsRemaining: number;
     public getoutCards: number;
+    public ready:boolean;
     constructor(_id: string, _name: string) {
         this.id = _id; // Unique identifier for the player
         this.username = _name; // Player's username or name
@@ -23,6 +24,7 @@ export class Player {
         this.isInJail = false; // Flag to indicate if the player is in jail
         this.jailTurnsRemaining = 0;
         this.getoutCards = 0;
+        this.ready = false;
     }
     recieveJson(json: PlayerJSON) {
         this.username = json.username;

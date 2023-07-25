@@ -86,8 +86,7 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
             document.removeEventListener("mouseup", mouseUpHandler);
         };
 
-        // Attach the handler
-        resizer.addEventListener("mousedown", function (e) {
+        const mouseDownHandler = function (e: MouseEvent) {
             // Get the current mouse position
             y = e.clientY;
             topHeight = leftSide.getBoundingClientRect().height;
@@ -95,7 +94,13 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
             // Attach the listeners to `document`
             document.addEventListener("mousemove", mouseMoveHandler);
             document.addEventListener("mouseup", mouseUpHandler);
-        });
+        };
+        // Attach the handler
+        resizer.addEventListener("mousedown", mouseDownHandler);
+
+        return () => {
+            resizer.removeEventListener("mousedown", mouseDownHandler);
+        };
     }, []);
 
     return (
@@ -141,12 +146,24 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
                                     </h3>
                                     <div>
                                         {v.count == "h" ? (
-                                            <img src={HotelIcon} alt="" />
+                                            <img
+                                                src={HotelIcon.replace(
+                                                    "public/",
+                                                    ""
+                                                )}
+                                                alt=""
+                                            />
                                         ) : typeof v.count === "number" &&
                                           v.count > 0 ? (
                                             <>
                                                 <p>{v.count}</p>
-                                                <img src={HouseIcon} alt="" />
+                                                <img
+                                                    src={HouseIcon.replace(
+                                                        "public/",
+                                                        ""
+                                                    )}
+                                                    alt=""
+                                                />
                                             </>
                                         ) : (
                                             <></>
@@ -177,7 +194,7 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
                         >
                             <p>{v.username}</p>
                             {v.id === props.currentTurn ? (
-                                <img src={DiceIcon} />
+                                <img src={DiceIcon.replace("public/", "")} />
                             ) : (
                                 <></>
                             )}
@@ -221,7 +238,10 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
                                               ) as Array<number>
                                       ).reduce((p: number, c: number) => p + c)
                                     : 0}
-                                <img src={HouseIcon} alt="" />
+                                <img
+                                    src={HouseIcon.replace("public/", "")}
+                                    alt=""
+                                />
                             </p>
                         </td>
                     </tr>
@@ -239,7 +259,10 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
                                               ) as Array<number>
                                       ).length
                                     : 0}
-                                <img src={HotelIcon} alt="" />
+                                <img
+                                    src={HotelIcon.replace("public/", "")}
+                                    alt=""
+                                />
                             </p>
                         </td>
                     </tr>

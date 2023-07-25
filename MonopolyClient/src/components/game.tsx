@@ -101,6 +101,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
             function randomCube() {
                 var l = C1Icon.substring(0, C1Icon.length - 5);
+                l = l.replace("public/", "");
                 const numA = Math.floor(Math.random() * 6) + 1;
                 const numB = Math.floor(Math.random() * 6) + 1;
                 element.innerHTML = `
@@ -116,6 +117,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     requestAnimationFrame(anim);
                 } else {
                     var l = C1Icon.substring(0, C1Icon.length - 5);
+                    l = l.replace("public/", "");
                     element.innerHTML = `
                 <img src="${l}${a}.png" />
                 <img src="${l}${b}.png" />
@@ -158,125 +160,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             },
             setStreet: (args) => {
                 // find data based on location
-                function searchForButtons(advanced: boolean, location: number) {
-                    function func() {
-                        if (advanced) {
-                            const b = document.querySelector(
-                                "div#advanced-responses"
-                            );
-
-                            if (b) {
-                                const _property = propretyMap.get(location);
-                                if (!_property) return;
-                                const divB = b as HTMLDivElement;
-                                while (divB.firstChild) {
-                                    divB.removeChild(divB.firstChild);
-                                }
-                                const propId = Array.from(
-                                    new Map(
-                                        localPlayer.properties.map((v, i) => [
-                                            i,
-                                            v,
-                                        ])
-                                    ).entries()
-                                ).filter(
-                                    (v) => v[1].posistion === args.location
-                                )[0][0];
-
-                                function transformCount(
-                                    v: 0 | 2 | 1 | 3 | 4 | "h"
-                                ) {
-                                    switch (v) {
-                                        case "h":
-                                            return 5;
-
-                                        default:
-                                            return v;
-                                    }
-                                }
-                                const count: number = transformCount(
-                                    localPlayer.properties[propId].count
-                                );
-                                for (
-                                    let index = count + 1;
-                                    index < 6;
-                                    index++
-                                ) {
-                                    const myButton =
-                                        document.createElement("button");
-                                    if (index === 5) {
-                                        myButton.innerHTML = `buy hotel`;
-                                        // dont let someone buy hotel of not have a set of 4 houses
-                                        myButton.disabled =
-                                            index !== count + 1 ||
-                                            (_property.ohousecost ?? 0) >
-                                                (prop.players.filter(
-                                                    (v) =>
-                                                        v.id === prop.socket.id
-                                                )[0].balance ?? 0);
-                                        myButton.onclick = () => {
-                                            args.onResponse("advance-buy", {
-                                                state: index,
-                                                money: 1,
-                                            });
-                                        };
-                                    } else {
-                                        myButton.innerHTML = `buy ${index} house${
-                                            index > 1 ? "s" : ""
-                                        }`;
-                                        myButton.onclick = () => {
-                                            args.onResponse("advance-buy", {
-                                                state: index,
-                                                money: index - count,
-                                            });
-                                            ShowStreet(false);
-                                        };
-                                        myButton.disabled =
-                                            (index - count) *
-                                                (_property.housecost ?? 0) >
-                                            (prop.players.filter(
-                                                (v) => v.id === prop.socket.id
-                                            )[0].balance ?? 0);
-                                    }
-                                    divB.appendChild(myButton);
-                                }
-                                // last button of cancel
-                                const continueButtons =
-                                    document.createElement("button");
-                                continueButtons.innerHTML = "CONTINUE";
-                                continueButtons.onclick = () => {
-                                    args.onResponse("nothing", {});
-                                    ShowStreet(false);
-                                };
-                                divB.appendChild(continueButtons);
-                            } else {
-                                requestAnimationFrame(func);
-                            }
-                        } else {
-                            const b = document.querySelector(
-                                "button#card-response-yes"
-                            );
-
-                            if (b) {
-                                (b as HTMLButtonElement).onclick = () => {
-                                    args.onResponse("buy", {});
-                                    ShowStreet(false);
-                                };
-                                (
-                                    document.querySelector(
-                                        "button#card-response-no"
-                                    ) as HTMLButtonElement
-                                ).onclick = () => {
-                                    args.onResponse("nothing", {});
-                                    ShowStreet(false);
-                                };
-                            } else {
-                                requestAnimationFrame(func);
-                            }
-                        }
-                    }
-                    return func;
-                }
                 const localPlayer = prop.players.filter(
                     (v) => v.id === prop.socket.id
                 )[0];
@@ -288,6 +171,130 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     args.location < 40 &&
                     args.location >= 0
                 ) {
+                    function searchForButtons(
+                        advanced: boolean,
+                        location: number
+                    ) {
+                        function func() {
+                            if (advanced) {
+                                const b = document.querySelector(
+                                    "div#advanced-responses"
+                                );
+
+                                if (b) {
+                                    const _property = propretyMap.get(location);
+                                    if (!_property) return;
+                                    const divB = b as HTMLDivElement;
+                                    while (divB.firstChild) {
+                                        divB.removeChild(divB.firstChild);
+                                    }
+                                    const propId = Array.from(
+                                        new Map(
+                                            localPlayer.properties.map(
+                                                (v, i) => [i, v]
+                                            )
+                                        ).entries()
+                                    ).filter(
+                                        (v) => v[1].posistion === args.location
+                                    )[0][0];
+
+                                    function transformCount(
+                                        v: 0 | 2 | 1 | 3 | 4 | "h"
+                                    ) {
+                                        switch (v) {
+                                            case "h":
+                                                return 5;
+
+                                            default:
+                                                return v;
+                                        }
+                                    }
+                                    const count: number = transformCount(
+                                        localPlayer.properties[propId].count
+                                    );
+                                    for (
+                                        let index = count + 1;
+                                        index < 6;
+                                        index++
+                                    ) {
+                                        const myButton =
+                                            document.createElement("button");
+                                        if (index === 5) {
+                                            myButton.innerHTML = `buy hotel`;
+                                            // dont let someone buy hotel of not have a set of 4 houses
+                                            myButton.disabled =
+                                                index !== count + 1 ||
+                                                (_property.ohousecost ?? 0) >
+                                                    (prop.players.filter(
+                                                        (v) =>
+                                                            v.id ===
+                                                            prop.socket.id
+                                                    )[0].balance ?? 0);
+                                            myButton.onclick = () => {
+                                                args.onResponse("advance-buy", {
+                                                    state: index,
+                                                    money: 1,
+                                                });
+                                            };
+                                        } else {
+                                            myButton.innerHTML = `buy ${index} house${
+                                                index > 1 ? "s" : ""
+                                            }`;
+                                            myButton.onclick = () => {
+                                                args.onResponse("advance-buy", {
+                                                    state: index,
+                                                    money: index - count,
+                                                });
+                                                ShowStreet(false);
+                                            };
+                                            myButton.disabled =
+                                                (index - count) *
+                                                    (_property.housecost ?? 0) >
+                                                (prop.players.filter(
+                                                    (v) =>
+                                                        v.id === prop.socket.id
+                                                )[0].balance ?? 0);
+                                        }
+                                        divB.appendChild(myButton);
+                                    }
+                                    // last button of cancel
+                                    const continueButtons =
+                                        document.createElement("button");
+                                    continueButtons.innerHTML = "CONTINUE";
+                                    continueButtons.onclick = () => {
+                                        args.onResponse("nothing", {});
+                                        ShowStreet(false);
+                                    };
+                                    divB.appendChild(continueButtons);
+                                } else {
+                                    requestAnimationFrame(func);
+                                }
+                            } else {
+                                const b = document.querySelector(
+                                    "button#card-response-yes"
+                                );
+
+                                if (b) {
+                                    (b as HTMLButtonElement).onclick = () => {
+                                        args.onResponse("buy", {});
+                                        ShowStreet(false);
+                                    };
+                                    (
+                                        document.querySelector(
+                                            "button#card-response-no"
+                                        ) as HTMLButtonElement
+                                    ).onclick = () => {
+                                        args.onResponse("nothing", {});
+                                        ShowStreet(false);
+                                    };
+                                } else {
+                                    requestAnimationFrame(func);
+                                }
+                            }
+                        }
+                        return func;
+                    }
+
                     var belong_to_me = false;
                     var count: 0 | 1 | 2 | 3 | 4 | "h" = 0;
                     for (const _prp of localPlayer.properties) {
@@ -466,8 +473,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
                         returnToNormal();
                     };
-
-                   
                 }
                 rollElement.onclick = () => {
                     prop.socket.emit("roll_dice");
@@ -479,7 +484,46 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
         }));
 
         useEffect(() => {
-            function animate() {
+            // Rotation and Scale with mouse
+            (document.getElementById("locations") as HTMLDivElement).onwheel = (
+                e
+            ) => {
+                if (e.shiftKey) {
+                    SetScale((old) => old + e.deltaY / 1000);
+                } else {
+                    SetRotation((old) => old + (e.deltaY * 22.5) / 100);
+                }
+            };
+            // Clicking Street
+            const safe = Array.from(propretyMap.values()).filter(
+                (v) => v.group != "Special"
+            );
+            for (const x of safe) {
+                const element = (
+                    document.getElementById("locations") as HTMLDivElement
+                ).querySelector(
+                    `div.street[data-position="${x.posistion}"]`
+                ) as HTMLDivElement;
+
+                element.onclick = () => {
+                    prop.clickedOnBoard(x.posistion);
+                };
+
+                element.onmousemove = () => {
+                    element.style.cursor = "pointer";
+                    element.style.backgroundColor = "rgba(0,0,0,15%)";
+                };
+                element.onmouseleave = () => {
+                    element.style.cursor = "unset";
+                    element.style.scale = "1";
+                    element.style.backgroundColor = "rgba(0,0,0,0%)";
+                };
+            }
+        }, []);
+
+        useEffect(() => {
+            var continue_to_animate = true;
+            var animate = () => {
                 for (const x of prop.players.filter((v) => v.balance >= 0)) {
                     const location = x.position;
                     const icon = x.icon + 1;
@@ -626,7 +670,10 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                         ) {
                                             const image =
                                                 document.createElement("img");
-                                            image.src = HouseIcon;
+                                            image.src = HouseIcon.replace(
+                                                "public/",
+                                                ""
+                                            );
                                             st.appendChild(image);
                                         }
                                         break;
@@ -646,55 +693,22 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 }
                 propertiesDisplay();
 
-                requestAnimationFrame(animate);
-            }
+                if (continue_to_animate) requestAnimationFrame(animate);
+            };
             requestAnimationFrame(animate);
 
-            // Rotation and Scale with mouse
-            (document.getElementById("locations") as HTMLDivElement).onwheel = (
-                e
-            ) => {
-                if (e.shiftKey) {
-                    SetScale((old) => old + e.deltaY / 1000);
-                } else {
-                    SetRotation((old) => old + (e.deltaY * 22.5) / 100);
-                }
+            return () => {
+                continue_to_animate = false;
+                requestAnimationFrame(() => {
+                    animate = () => {};
+                });
             };
-            // Clicking Street
-            const safe = Array.from(propretyMap.values()).filter(
-                (v) => v.group != "Special"
-            );
-            for (const x of safe) {
-                const element = (
-                    document.getElementById("locations") as HTMLDivElement
-                ).querySelector(
-                    `div.street[data-position="${x.posistion}"]`
-                ) as HTMLDivElement;
-
-                element.onclick = () => {
-                    prop.clickedOnBoard(x.posistion);
-                };
-
-                element.onmousemove = () => {
-                    element.style.cursor = "pointer";
-                    element.style.backgroundColor = "rgba(0,0,0,15%)";
-                };
-                element.onmouseleave = () => {
-                    element.style.cursor = "unset";
-                    element.style.scale = "1";
-                    element.style.backgroundColor = "rgba(0,0,0,0%)";
-                };
-            }
-        }, []);
-
+        }, [prop.players]);
         return (
             <>
                 <div className="game">
-                    {rotation};
-                    <div id="dice-panel" data-show={showDice}>
-                        <img src={RollIcon} />
-                        <p>ROLL THE DICE</p> <img src={RollIcon} />
-                    </div>
+                    {prop.players.map((v) => v.id)};{rotation};
+                    <div id="dice-panel" data-show={showDice}></div>
                     <div
                         className="board"
                         style={{
@@ -894,7 +908,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                 data-rotate="2"
                                 className="street-houses"
                                 style={{
-                                    top: "66.5%",
+                                    top: "74.75%",
                                     left: "6.5%",
                                 }}
                             ></div>
@@ -1427,8 +1441,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                 }
                             }}
                         >
-                            <img src={RollIcon} />
-                            <p>ROLL THE DICE</p> <img src={RollIcon} />
+                            <img src={RollIcon.replace("public/", "")} />
+                            <p>ROLL THE DICE</p>{" "}
+                            <img src={RollIcon.replace("public/", "")} />
                         </button>
                     </div>
                     <div

@@ -12,7 +12,7 @@ function App() {
     return socket !== undefined && isSignedIn === true ? (
         <Monopoly socket={socket} name={name} />
     ) : (
-        <>
+        <div className="entry">
             <input
                 type="text"
                 id="name"
@@ -20,9 +20,9 @@ function App() {
                 defaultValue={"Player A"}
                 placeholder="enter name"
             />
-            <button
+            <center><button
                 onClick={() => {
-                    const socket = io("localhost:5175");
+                    const socket = io("localhost:5176");
                     socket.on("state", (args: boolean) => {
                         if (args) {
                             SetSocket(socket);
@@ -35,8 +35,8 @@ function App() {
                 }}
             >
                 join
-            </button>
-        </>
+            </button></center>
+        </div>
     );
 }
 

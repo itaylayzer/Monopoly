@@ -5,7 +5,7 @@ import { Player } from "./player";
 import monopolyJSON from "../../MonopolyClient/src/assets/monopoly.json";
 //#region Setup
 const app = express();
-const port = 5175;
+const port = 5176;
 const httpServer = createServer(app);
 
 interface Client {
@@ -128,7 +128,6 @@ io.on("connection", (socket: Socket) => {
                 const arr = Array.from(Clients.values()).filter(v=>v.player.balance>0).map(v=>v.player.id);
                 var i = arr.indexOf(socket.id);
                 i = (i + 1) % arr.length;
-
                 currentId = arr[i];
 
                 if (arr.length === 1){
@@ -169,7 +168,7 @@ io.on("connection", (socket: Socket) => {
 
             const readys = Array.from(Clients.values()).map((v) => v.ready);
             // console.log(JSON.stringify(readys));
-
+            EmitAll("ready",{id:socket.id, state:args});
             if (!readys.includes(false)) {
                 console.log("starting game");
                 gameStarted = true;
@@ -183,7 +182,13 @@ io.on("connection", (socket: Socket) => {
     // Handle disconnect event
     socket.on("disconnect", () => {
         Clients.delete(socket.id);
-        EmitAll("disconnected-player", socket.id);
+        if (currentId === socket.id){
+            const arr = Array.from(Clients.values()).filter(v=>v.player.balance>0).map(v=>v.player.id);
+                var i = arr.indexOf(socket.id);
+                i = (i + 1) % arr.length;
+                currentId = arr[i];
+        }
+        EmitAll("disconnected-player", {id:socket.id, turn:currentId});
 
         if (Array.from(Clients.keys()).length === 0) {
             gameStarted = false;

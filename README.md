@@ -8,14 +8,13 @@ for resizable split views i use htmldom.dev:
 https://htmldom.dev/create-resizable-split-views/
 
 Left To Do:
-[win/lose] show death / win uis
+[win/lose] show death / win uis - as dialog box!
 
 finnally:
-[client] advanced chance/chest cards  functiuallity
+[client] advanced chance/chest cards functiuallity
 railroad & utilities rent;
 update player tab part 2
 
 additionals:
-alerting system of moving money
 stats
 settings

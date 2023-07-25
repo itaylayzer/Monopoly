@@ -89,7 +89,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                     <img
                         style={{ marginTop: 75 }}
                         className="header"
-                        src={MonopolyIcon}
+                        src={MonopolyIcon.replace("public/", "")}
                     />
                     <div className="upper">
                         <div
@@ -98,7 +98,10 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                             data-tooltip-hover="players"
                             className="button"
                         >
-                            <img src={PlayersIcon} alt="" />
+                            <img
+                                src={PlayersIcon.replace("public/", "")}
+                                alt=""
+                            />
                         </div>
 
                         <div
@@ -107,7 +110,10 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                             data-tooltip-hover="propreties"
                             className="button"
                         >
-                            <img src={PropretiesIcon} alt="" />
+                            <img
+                                src={PropretiesIcon.replace("public/", "")}
+                                alt=""
+                            />
                         </div>
 
                         <div
@@ -117,7 +123,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                             className="button"
                             id="chatIconChange"
                         >
-                            <img src={ChatIcon} alt="" />
+                            <img src={ChatIcon.replace("public/", "")} alt="" />
                         </div>
                     </div>
                     <div className="lower">
@@ -127,14 +133,20 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                             data-tooltip-hover="settings"
                             className="button"
                         >
-                            <img src={SettingsIcon} alt="" />
+                            <img
+                                src={SettingsIcon.replace("public/", "")}
+                                alt=""
+                            />
                         </div>
                         <div
                             data-tooltip="leave"
                             className="button color"
                             data-tooltip-hover="leave"
                         >
-                            <img src={LeaveIcon} alt="" />
+                            <img
+                                src={LeaveIcon.replace("public/", "")}
+                                alt=""
+                            />
                         </div>
                     </div>
                 </nav>
