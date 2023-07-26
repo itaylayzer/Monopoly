@@ -690,7 +690,7 @@ div.board {
     left: 50%;
     transform: translate(-50%) translateY(-50%);
     width: 900px;
-    background-image: url(./board2.png);
+    background-image: url(../board2.png);
     background-size: cover;
     box-shadow: 0 0 0 3px #000;
     z-index: 0;
