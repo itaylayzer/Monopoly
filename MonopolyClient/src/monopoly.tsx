@@ -121,10 +121,22 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             id: string;
             turn: string;
         }) => {
-            const name = clients.get(args.id)?.username ?? "player"
-            notifyRef.current?.message(`${name} disconected`,"error");
             destroyPlayer(args.id);
             SetCurrent(args.turn);
+            if (clients.size > 2) {
+                const name = clients.get(args.id)?.username ?? "player";
+                notifyRef.current?.message(`${name} disconected`, "error");
+            } else {
+                notifyRef.current?.dialog((close_func, createButton) => ({
+                    innerHTML: `<h3> YOU WON! </h3> <p> your the only left player with the balance of ${clients.get(socket.id)?.balance ?? 0} </p>`,
+                    buttons: [
+                        createButton("PLAY ANOTHER GAME", () => {
+                            close_func();
+                            document.location.reload();
+                        })
+                    ],
+                }));
+            }
         };
 
         const socket_TurnFinished = (args: {
@@ -139,19 +151,36 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             }
 
             if (args.pJson.balance < 0) {
-                if (args.pJson.id !== socket.id ){
-                    if (clients.size > 2){
+                if (args.pJson.id !== socket.id) {
+                    if (clients.size > 2) {
                         const name = args.pJson.username;
-                        notifyRef.current?.message(`${name} lost`,"info");
+                        notifyRef.current?.message(`${name} lost`, "info");
+                    } else {
+                        notifyRef.current?.dialog((close_func, createButton) => ({
+                            innerHTML: `<h3> YOU WON! </h3> <p> your the only left player with the balance of ${clients.get(socket.id)?.balance ?? 0} </p>`,
+                            buttons: [
+                                createButton("PLAY ANOTHER GAME", () => {
+                                    close_func();
+                                    document.location.reload();
+                                })
+                            ],
+                        }));
                     }
-                    else {
-                        // TODO: display won screen!
-                    }
+                } else {
+                    notifyRef.current?.dialog((close_func, createButton) => ({
+                        innerHTML: `<h3> YOU LOST! </h3> <p> you lost your money and lost the monopol with a wanted balance of ${-(clients.get(socket.id)?.balance ?? 0)} </p>`,
+                        buttons: [
+                            createButton("CONTINUE WATCHING", () => {
+                                close_func();
+                            }),
+                            createButton("PLAY ANOTHER GAME", () => {
+                                close_func();
+                                document.location.reload();
+                            })
+                        ],
+                    }));
                 }
-                else {
-                    // TODO: display lost screen!
-                }
-                
+
                 destroyPlayer(args.pJson.id);
             }
 
@@ -754,27 +783,26 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
     return gameStarted ? (
         <>
-        
-        <main>
-            <MonopolyNav
-                currentTurn={currentId}
-                ref={navRef}
-                name={name}
-                socket={socket}
-                players={players}
-            />
+            <main>
+                <MonopolyNav
+                    currentTurn={currentId}
+                    ref={navRef}
+                    name={name}
+                    socket={socket}
+                    players={players}
+                />
 
-            <MonopolyGame
-                clickedOnBoard={(a) => {
-                    navRef.current?.clickedOnBoard(a);
-                }}
-                ref={engineRef}
-                socket={socket}
-                players={Array.from(clients.values())}
-                myTurn={currentId === socket.id}
-            />
-        </main>
-        <NotifyElement ref={notifyRef} />
+                <MonopolyGame
+                    clickedOnBoard={(a) => {
+                        navRef.current?.clickedOnBoard(a);
+                    }}
+                    ref={engineRef}
+                    socket={socket}
+                    players={Array.from(clients.values())}
+                    myTurn={currentId === socket.id}
+                />
+            </main>
+            <NotifyElement ref={notifyRef} />
         </>
     ) : (
         <div className="lobby">
