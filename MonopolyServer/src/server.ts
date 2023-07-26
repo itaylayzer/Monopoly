@@ -1,7 +1,7 @@
 import express from "express";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
-import { Player } from "./player";
+import { Player, PlayerJSON } from "./player";
 const monopolyJSON = {
     properties: [
         {
@@ -1039,17 +1039,6 @@ function EmitExcepts(id: string, event: string, args: any) {
     }
 }
 //#endregion
-type PlayerJSON = {
-    id: string;
-    username: string;
-    icon: number;
-    position: number;
-    balance: number;
-    properties: Array<any>;
-    isInJail: boolean;
-    jailTurnsRemaining: number;
-    getoutCards: number;
-};
 
 //#endregion
 //#region Game Logic
@@ -1139,6 +1128,11 @@ io.on("connection", (socket: Socket) => {
                 });
                 socket.on("finish-turn", (playerInfo: PlayerJSON) => {
                     try {
+                        
+                        console.log(playerInfo.getoutCards);
+                        if (playerInfo.getoutCards !== 0){
+                            console.log(playerInfo);
+                        }
                         player.from_json(playerInfo);
                         if (currentId != socket.id) return;
                         const arr = Array.from(Clients.values())

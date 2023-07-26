@@ -17,9 +17,10 @@ export class Player {
         this.properties = [];
         this.isInJail = false;
         this.jailTurnsRemaining = 0;
+        this.getoutCards = 0;
     }
 
-    to_json() {
+    to_json(): PlayerJSON {
         return {
             id: this.id,
             username: this.username,
@@ -33,17 +34,7 @@ export class Player {
         };
     }
 
-    from_json(json: {
-        id: string;
-        username: string;
-        icon: number;
-        position: number;
-        balance: number;
-        properties: any[];
-        isInJail: boolean;
-        jailTurnsRemaining: number;
-        getoutCards: number;
-    }) {
+    from_json(json: PlayerJSON) {
         if (this.id == json.id) {
             this.position = json.position;
             this.balance = json.balance;
@@ -54,3 +45,15 @@ export class Player {
         }
     }
 }
+
+export type PlayerJSON = {
+    id: string;
+    username: string;
+    icon: number;
+    position: number;
+    balance: number;
+    properties: Array<any>;
+    isInJail: boolean;
+    jailTurnsRemaining: number;
+    getoutCards: number;
+};

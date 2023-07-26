@@ -381,28 +381,54 @@ main nav.content[data-index="0"] {
     color: white;
 }
 
-main nav.content[data-index="0"] div.container__top {
-    height: 60%;
+main nav.content[data-index="0"] div.container-top {
+    flex:1;
+    display: flex;
+    flex-direction: column;
     overflow-y: hidden;
-    display: block;
 }
 
-main nav.content[data-index="0"] div.resizer {
-    background-color: #cbd5e0;
-    cursor: ns-resize;
-    width: 100%;
-    height: 3px;
-    border-radius: 500px;
-    margin: 1px;
-    box-sizing: border-box;
-    display: block;
-}
-
-main nav.content[data-index="0"] div.container__bottom {
-    /* Take the remaining width */
+main nav.content[data-index="0"] div.container-top div.playersInfos{
     flex-grow: 1;
+    overflow-y: auto;
+    padding-right:5px;
+}
+main nav.content div.propertyList{
+    padding-right:5px;
+    cursor:unset;
+}
+main nav.content div.main-chat div.messages::-webkit-scrollbar,
+main nav.content div.propertyList::-webkit-scrollbar,
+main nav.content div.container-top div.playersInfos::-webkit-scrollbar{
+    width: 5px;
+}
+
+main nav.content div.main-chat div.messages::-webkit-scrollbar-track,
+main nav.content div.propertyList::-webkit-scrollbar-track,
+main nav.content div.container-top div.playersInfos::-webkit-scrollbar-track{
+    background-color: rgb(255,255,255,25%);
+    border-radius: 100px;
+    margin-block:20px;
+}
+main nav.content div.main-chat div.messages::-webkit-scrollbar-thumb,
+main nav.content div.propertyList::-webkit-scrollbar-thumb,
+main nav.content div.container-top div.playersInfos::-webkit-scrollbar-thumb{
+    background-color: rgb(255,255,255,50%);
+    border-radius: 100px;
+}
+main nav.content div.main-chat div.messages::-webkit-scrollbar-thumb:hover,
+main nav.content div.propertyList::-webkit-scrollbar-thumb:hover,
+main nav.content div.container-top div.playersInfos::-webkit-scrollbar-thumb:hover{
+    background-color: rgb(255,255,255,75%);
+}
+main nav.content[data-index="0"] div.container-bottom {
     display: block;
-    overflow-y: hidden;
+    border: 2px solid rgba(20, 185, 20, 50%);
+    background-color: rgba(20, 185, 20, 25%);
+    padding: 0px 5px;
+    text-align: center;
+    font-size: 35px;
+    margin-block:25px;
 }
 
 main nav.content[data-index="1"],
@@ -547,6 +573,7 @@ main nav.content[data-index="1"] input {
     font-size: 17px;
     user-select: text;
 }
+
 
 main nav.content div.playerInfo {
     display: flex;

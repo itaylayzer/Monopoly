@@ -83,6 +83,26 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
             prop.players.map((v) => v.properties),
             prop.players.map((v) => v.balance),
         ]);
+
+        useEffect(()=>{
+            const keyDownHandle =(e:KeyboardEvent)=>{
+                const x = parseInt(e.key);
+                if (!isNaN(x)){
+                    const activeElement = document.activeElement;
+                    if (activeElement === null)
+                        SetTab(x-1);
+                    else if (activeElement.tagName !== "INPUT"){
+                        SetTab(x-1);
+                    }
+                }
+
+                
+            }
+            document.addEventListener("keydown",keyDownHandle);
+            return (()=>{
+                document.removeEventListener("keydown",keyDownHandle);
+            })
+        },[])
         return (
             <nav className="main">
                 <nav className="header">
@@ -151,7 +171,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                     </div>
                 </nav>
 
-                <nav className="content" data-index={tabIndex}>
+                <nav className="content" data-index={tabIndex>3?0:tabIndex <0 ? 0 :tabIndex}>
                     {tabIndex == 1 ? (
                         <PropretyTab
                             ref={propretyRef}
@@ -174,7 +194,6 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                                     placeholder="Type Message Here..."
                                     type="text"
                                     onKeyDown={(e) => {
-                                        console.log(e.which);
                                         if (
                                             e.which === 13 &&
                                             e.currentTarget.value.length > 0
@@ -204,7 +223,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                                 </select>
                             </p>
                         </>
-                    ) : tabIndex == 0 ? (
+                    ) :  (
                         <PlayersTab
                             ref={playersRef}
                             clickedOnPlayer={(position) => {
@@ -218,10 +237,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                             players={displayPlayers}
                             socket={prop.socket}
                             currentTurn={prop.currentTurn}
-                        />
-                    ) : (
-                        <></>
-                    )}
+                        />)}
                 </nav>
             </nav>
         );

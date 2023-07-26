@@ -80,7 +80,7 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>(
                     placeholder="Search for global cards..."
                 />
 
-                <div
+                <div className="propertyList"
                     style={{
                         overflowY: "auto",
                         position: "relative",

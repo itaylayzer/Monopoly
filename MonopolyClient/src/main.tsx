@@ -39,6 +39,8 @@ function App() {
         cookie.rememberHost
     );
 
+    const [disabled, SetDisabled] = useState<boolean>(false);
+
     const [isSignedIn, SetSignedIn] = useState<boolean>(false);
     const joinButtonClicked = (
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -51,16 +53,21 @@ function App() {
         } as MonopolyCookie);
 
         const socket = io(addr);
+        SetDisabled(true);
         socket.on("state", (args: number) => {
             switch (args) {
                 case 0:
                     SetSocket(socket);
+                    SetSignedIn(true);
+                    SetDisabled(false);
                     break;
                 case 1:
                     notifyRef.current?.message(
                         "the game has already begun",
                         "error",
-                        2
+                        2,()=>{
+                            SetDisabled(false);
+                        }
                     );
                     socket.disconnect();
                     break;
@@ -68,21 +75,27 @@ function App() {
                     notifyRef.current?.message(
                         "too many players on the server",
                         "error",
-                        2
+                        2,()=>{
+                            SetDisabled(false);
+                        }
                     );
                     socket.disconnect();
                     break;
                 default:
                     notifyRef.current?.message("unkown error", "error", 2);
                     socket.disconnect();
+                    SetDisabled(false);
                     break;
             }
+           
         });
         socket.on("connect_error", () => {
             notifyRef.current?.message(
                 "the server does not exist or is unreachable",
                 "error",
-                2
+                2,()=>{
+                    SetDisabled(false);
+                }
             );
             socket.disconnect();
         });
@@ -90,11 +103,12 @@ function App() {
             notifyRef.current?.message(
                 "the server took too long to respond",
                 "error",
-                2
+                2,()=>{
+                    SetDisabled(false);
+                }
             );
             socket.disconnect();
-        });
-        SetSignedIn(true);
+        });        
     };
 
     return socket !== undefined && isSignedIn === true ? (
@@ -150,7 +164,7 @@ function App() {
                 </h5>
 
                 <center>
-                    <button onClick={joinButtonClicked}>join</button>
+                    <button onClick={joinButtonClicked} disabled={disabled} >join</button>
                 </center>
             </div>
         </>

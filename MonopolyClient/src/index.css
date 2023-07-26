@@ -62,7 +62,7 @@ div.entry h5 input {
 div.entry button {
     font-size: 20px;
     color: white;
-    background-color: rgb(35, 35, 35);
+    background-color: #0075FF;
     display: block;
     padding-inline: 40px;
     border-radius: 5px;
@@ -81,7 +81,30 @@ div.entry button:hover {
 div.entry button:active {
     scale: 0.9
 }
-
+div.entry button:disabled{
+    animation:disabledAnim 1s ease-out infinite;
+}
+div.entry button:disabled:hover{
+    scale:1;
+    cursor:not-allowed;
+}
+div.entry button:disabled:active{
+    scale:1;
+}
+@keyframes disabledAnim {
+    0%{
+        scale:1;
+        filter:blur(0px) grayscale(.5);
+    }
+    50%{
+        filter:blur(5px) grayscale(1);
+        scale:0.95;
+    }
+    100%{
+        filter:blur(0px) grayscale(.5);
+        scale:1;
+    }
+}
 div.lobby {
     position: absolute;
     top: 50%;

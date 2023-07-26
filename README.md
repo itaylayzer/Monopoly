@@ -19,21 +19,16 @@ Participate in the property-buying process through the intuitive buy-in UI and s
 credit for danielstern for the monopoly.json file which i modified
 https://github.com/danielstern/science/blob/master/monopoly.json
 
-for resizable split views i use htmldom.dev:
-https://htmldom.dev/create-resizable-split-views/
 
 ## TODO List:
-servers reading a file to know what the port is! and maybe max players?
 
 finnally:
 [client] advanced chance/chest cards functiuallity
 railroad & utilities rent;
-update player tab part 2
 
 additionals:
-stats bar
 settings
 
-To Fix: fix-walking animation | getoutcards | animation when other player going to jail
+To Fix: fix-walking animation
 
 ## Pictures and Videos of the game!

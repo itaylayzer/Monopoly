@@ -1,23 +1,24 @@
 {
-  "mmyipBWYuzPSZpEsAAAB": {
-    "id": "mmyipBWYuzPSZpEsAAAB",
+  "sTQuOvrHQM0grkGdAAAD": {
+    "id": "sTQuOvrHQM0grkGdAAAD",
     "username": "Itay",
     "icon": 0,
-    "position": 18,
-    "balance": 1200,
-    "properties": [
-      {
-        "posistion": 9,
-        "count": 0,
-        "group": "lightgreen"
-      },
-      {
-        "posistion": 18,
-        "count": 0,
-        "group": "Orange"
-      }
-    ],
+    "position": 4,
+    "balance": 1300,
+    "properties": [],
     "isInJail": false,
-    "jailTurnsRemaining": 0
+    "jailTurnsRemaining": 0,
+    "getoutCards": 0
+  },
+  "IfoOBx7bVXVoapySAAAF": {
+    "id": "IfoOBx7bVXVoapySAAAF",
+    "username": "Amit",
+    "icon": 1,
+    "position": 0,
+    "balance": 1500,
+    "properties": [],
+    "isInJail": false,
+    "jailTurnsRemaining": 0,
+    "getoutCards": 0
   }
 }

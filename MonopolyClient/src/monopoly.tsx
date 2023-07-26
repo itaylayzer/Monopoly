@@ -27,8 +27,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
     useEffect(() => {
         function destroyPlayer(playerId: string) {
-            console.log(`destroy player ${playerId}`);
-
             // remove player from clients
             function removePlayer() {
                 clients.delete(playerId);
@@ -40,8 +38,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                         // request a loop frame!
                         requestAnimationFrame(removePlayer);
                     } else {
-                        console.log("id was removed from clients");
-                        console.log(players.filter((v) => v.id === playerId));
                     }
                 });
             }
@@ -67,7 +63,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                         // request a loop frame!
                         requestAnimationFrame(removeChild);
                     } else {
-                        console.log("player icon was removed from game view");
                     }
                 });
             }
@@ -80,16 +75,16 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             get200whengo: boolean = true,
             afterFinished?: () => void
         ) {
-            var sum_moves = (final_position - _xplayer.position) % 40; 
+            var sum_moves = (final_position - _xplayer.position) % 40;
             if (final_position < _xplayer.position || sum_moves < 0) {
-                sum_moves = 40 - _xplayer.position + final_position;   
+                sum_moves = 40 - _xplayer.position + final_position;
             }
             const time = 0.35 * 1000 * sum_moves;
 
             console.log(
                 `generator target ${final_position} time ${time} current ${_xplayer.position}`
             );
-
+            const genId = Math.random();
             function _playerMoveFunc() {
                 var firstPosition = 0;
                 var addedMoney = false;
@@ -105,7 +100,14 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 const movingAnim = () => {
                     if (i < sum_moves) {
                         i += 1;
+
+                        console.log(
+                            `${genId} adding one to ${_xplayer.position}`
+                        );
                         _xplayer.position = (_xplayer.position + 1) % 40;
+                        console.log(
+                            `${genId}  result of adding one to ${_xplayer.position}`
+                        );
                         if (_xplayer.position == 0 && get200whengo) {
                             _xplayer.balance += 200;
                             if (_xplayer.id === socket.id)
@@ -295,15 +297,12 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
             SetCurrent(args.turnId);
             if (args.turnId === socket.id) {
-                console.log("checking controllers");
                 const x = clients.get(args.turnId);
                 if (x && x.isInJail) {
-                    console.log("new controllers");
                     engineRef.current?.showJailsButtons(
                         (x?.getoutCards ?? -1) > 0
                     );
                 } else {
-                    console.log("no controllers??");
                 }
             }
             navRef.current?.reRenderPlayerList();
@@ -489,12 +488,10 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                             )
                                         );
                                         engineRef.current?.freeDice();
-                                        socket.emit(
-                                            "finish-turn",
-                                            (
-                                                clients.get(socket.id) as Player
-                                            ).toJson()
-                                        );
+                                        const json = (
+                                            clients.get(socket.id) as Player
+                                        ).toJson();
+                                        socket.emit("finish-turn", json);
                                     }, time_till_free);
                                 },
                             });
@@ -636,7 +633,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 const c = args.element;
                 const xplayer = clients.get(args.turnId);
                 if (xplayer === undefined) return;
-                console.log({ c });
                 function addBalanceToOthers(amnout: number) {
                     if (xplayer === undefined) return 0;
                     const other_players = Array.from(clients.values()).filter(
@@ -652,9 +648,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 var time_till_finish = 0;
                 switch (c.action) {
                     case "move":
-                        console.log("got that move");
                         if (c.tileid) {
-                            console.log(`got that tileid ${c.tileid}`);
                             const p = new Map(
                                 monopolyJSON.properties.map((obj) => {
                                     return [obj.id, obj];
@@ -662,11 +656,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             );
                             const targetPos = p.get(c.tileid)?.posistion;
                             if (targetPos === undefined) {
-                                console.log(`didnot found "${c.tileid}"`);
-                                console.log(`his length "${c.tileid.length}"`);
                                 const _arr = Array.from(p.keys());
-                                console.log(_arr);
-                                console.log(_arr.filter((v) => v == c.tileid));
                                 break;
                             }
                             const generatorResults = playerMoveGENERATOR(
@@ -695,9 +685,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             switch (c.subaction) {
                                 case "getout":
                                     xplayer.getoutCards += 1;
-                                    console.log(
-                                        `getoutcards was added one to player ${xplayer.id}`
-                                    );
                                     break;
                                 case "goto":
                                     const generatorResults =
@@ -769,12 +756,10 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                         const arr = monopolyJSON.properties
                             .filter((v) => v.group === p)
                             .map((v) => v.posistion);
-                        console.log(arr);
                         const ongoingLocation = findNextValue(
                             arr,
                             xplayer.position
                         );
-                        console.log({ ongoingLocation });
                         const generatorResults = playerMoveGENERATOR(
                             ongoingLocation,
                             xplayer

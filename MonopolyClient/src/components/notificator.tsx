@@ -5,7 +5,8 @@ export interface NotificatorRef {
     message: (
         message: string,
         type?: "info" | "warn" | "error",
-        time?: number
+        time?: number,
+        after?:()=>void
     ) => void;
     dialog: (
         build_dialog_function: (
@@ -25,7 +26,7 @@ export interface NotificatorRef {
 const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
     (prop, ref) => {
         useImperativeHandle(ref, () => ({
-            message(message, type, time) {
+            message(message, type, time, after) {
                 const folder = document.querySelector(
                     "div.notify"
                 ) as HTMLDivElement;
@@ -45,6 +46,7 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
                     setTimeout(() => {
                         folder.removeChild(element);
                         element.remove();
+                        if (after) after();
                     }, 700);
                 };
 
@@ -54,6 +56,7 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
                         setTimeout(() => {
                             folder.removeChild(element);
                             element.remove();
+                            if (after) after();
                         }, 700);
                     }
                 }, (time ?? 2) * 1000);
@@ -77,7 +80,6 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
                         dialaogElement.setAttribute("data-show", "false");
                         dialaogElement.style.animation =
                             "dialogout 1s cubic-bezier(.5,0,1,.5)";
-                        console.log("called animation");
                         setTimeout(() => {
                             dialaogElement.style.animation = "";
                             textsElement.innerHTML = "";
