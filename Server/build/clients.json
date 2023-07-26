@@ -1,11 +1,17 @@
 {
-  "3GtSkgnto31EekrRAAAH": {
-    "id": "3GtSkgnto31EekrRAAAH",
+  "MWieJMl6z56vWagbAAAJ": {
+    "id": "MWieJMl6z56vWagbAAAJ",
     "username": "Itay",
     "icon": 0,
-    "position": 4,
-    "balance": 1300,
-    "properties": [],
+    "position": 21,
+    "balance": 1280,
+    "properties": [
+      {
+        "posistion": 21,
+        "count": 0,
+        "group": "Red"
+      }
+    ],
     "isInJail": false,
     "jailTurnsRemaining": 0,
     "getoutCards": 0

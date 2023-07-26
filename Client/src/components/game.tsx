@@ -1,6 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import RollIcon from "../../public/roll.png";
-import C1Icon from "../../public/c1.png";
 import HouseIcon from "../../public/h.png";
 import HotelIcon from "../../public/ho.png";
 import { Player } from "../assets/player";
@@ -100,8 +99,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             var t = -1;
 
             function randomCube() {
-                var l = C1Icon.substring(0, C1Icon.length - 5);
-                l = l.replace("public/", "");
+                var l = "./c";
                 const numA = Math.floor(Math.random() * 6) + 1;
                 const numB = Math.floor(Math.random() * 6) + 1;
                 element.innerHTML = `
@@ -116,8 +114,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     t += 1;
                     requestAnimationFrame(anim);
                 } else {
-                    var l = C1Icon.substring(0, C1Icon.length - 5);
-                    l = l.replace("public/", "");
+                    var l = "./c";
                     element.innerHTML = `
                 <img src="${l}${a}.png" />
                 <img src="${l}${b}.png" />
