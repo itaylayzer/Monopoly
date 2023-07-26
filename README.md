@@ -23,6 +23,7 @@ for resizable split views i use htmldom.dev:
 https://htmldom.dev/create-resizable-split-views/
 
 ## TODO List:
+servers reading a file to know what the port is! and maybe max players?
 
 finnally:
 [client] advanced chance/chest cards functiuallity
@@ -33,6 +34,6 @@ additionals:
 stats bar
 settings
 
-To Fix: fix-walking animation
+To Fix: fix-walking animation | getoutcards | animation when other player going to jail
 
 ## Pictures and Videos of the game!

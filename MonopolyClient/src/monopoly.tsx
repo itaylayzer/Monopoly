@@ -74,6 +74,86 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             removeChild();
         }
 
+        function playerMoveGENERATOR(
+            final_position: number,
+            _xplayer: Player,
+            get200whengo: boolean = true,
+            afterFinished?: () => void
+        ) {
+            var sum_moves = (final_position - _xplayer.position) % 40; 
+            if (final_position < _xplayer.position || sum_moves < 0) {
+                sum_moves = 40 - _xplayer.position + final_position;   
+            }
+            const time = 0.35 * 1000 * sum_moves;
+
+            console.log(
+                `generator target ${final_position} time ${time} current ${_xplayer.position}`
+            );
+
+            function _playerMoveFunc() {
+                var firstPosition = 0;
+                var addedMoney = false;
+                var i = 0;
+                const element = document.querySelector(
+                    `div.player[player-id="${_xplayer.id}"]`
+                ) as HTMLDivElement;
+
+                firstPosition = _xplayer.position;
+                _xplayer.position += 1;
+                element.style.animation =
+                    "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
+                const movingAnim = () => {
+                    if (i < sum_moves) {
+                        i += 1;
+                        _xplayer.position = (_xplayer.position + 1) % 40;
+                        if (_xplayer.position == 0 && get200whengo) {
+                            _xplayer.balance += 200;
+                            if (_xplayer.id === socket.id)
+                                engineRef.current?.applyAnimation(2);
+                            addedMoney = true;
+                            SetClients(
+                                new Map(clients.set(_xplayer.id, _xplayer))
+                            );
+                        }
+                        if (i == sum_moves - 1) {
+                            _xplayer.position = final_position;
+                            element.style.animation =
+                                "part 0.9s cubic-bezier(0,.7,.57,1)";
+                            setTimeout(() => {
+                                element.style.animation = "";
+                            }, 900);
+
+                            if (
+                                !addedMoney &&
+                                firstPosition > _xplayer.position &&
+                                get200whengo
+                            ) {
+                                _xplayer.balance += 200;
+                                if (_xplayer.id === socket.id)
+                                    engineRef.current?.applyAnimation(2);
+                                addedMoney = true;
+
+                                SetClients(
+                                    new Map(clients.set(_xplayer.id, _xplayer))
+                                );
+                            }
+                            if (afterFinished) afterFinished();
+                        } else {
+                            element.style.animation =
+                                "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
+                            setTimeout(movingAnim, 0.35 * 1000);
+                        }
+                    }
+                };
+                setTimeout(movingAnim, 0.35 * 1000);
+            }
+
+            return {
+                func: _playerMoveFunc,
+                time,
+            };
+        }
+
         //#region socket handeling
         const socket_Initials = (args: {
             turn_id: string;
@@ -236,14 +316,19 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             listOfNums: [number, number, number];
             turnId: string;
         }) => {
-            const sumTimes = args.listOfNums[0] + args.listOfNums[1];
+            // const sumTimes = args.listOfNums[0] + args.listOfNums[1];
             const localPlayer = clients.get(socket.id) as Player;
             const xplayer = clients.get(args.turnId) as Player;
+            const generatorResults = playerMoveGENERATOR(
+                args.listOfNums[2],
+                xplayer,
+                true
+            );
             engineRef.current?.diceResults({
                 l: [args.listOfNums[0], args.listOfNums[1]],
                 time: localPlayer.isInJail
                     ? 2000
-                    : 0.35 * 1000 * sumTimes + 2000 + 800,
+                    : generatorResults.time + 2000 + 800,
                 onDone: () => {
                     if (socket.id !== args.turnId) return;
 
@@ -262,6 +347,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             engineRef.current?.setStreet({
                                 location,
                                 onResponse: (b, info) => {
+                                    var time_till_free = 0;
                                     if (b === "buy") {
                                         localPlayer.balance -=
                                             (proprety?.price ?? 0) * 1;
@@ -363,9 +449,21 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                         if (
                                             (proprety?.id ?? "") == "gotojail"
                                         ) {
-                                            localPlayer.isInJail = true;
-                                            localPlayer.jailTurnsRemaining = 3;
-                                            localPlayer.position = 10;
+                                            const generatorResults =
+                                                playerMoveGENERATOR(
+                                                    10,
+                                                    xplayer,
+                                                    false,
+                                                    () => {
+                                                        xplayer.position = 10;
+                                                        xplayer.isInJail = true;
+                                                        xplayer.jailTurnsRemaining = 3;
+                                                    }
+                                                );
+
+                                            time_till_free =
+                                                generatorResults.time;
+                                            generatorResults.func();
                                         }
                                         if (proprety?.id === "incometax") {
                                             localPlayer.balance -= 200;
@@ -381,18 +479,23 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                         }
                                     }
 
-                                    SetClients(
-                                        new Map(
-                                            clients.set(socket.id, localPlayer)
-                                        )
-                                    );
-                                    engineRef.current?.freeDice();
-                                    socket.emit(
-                                        "finish-turn",
-                                        (
-                                            clients.get(socket.id) as Player
-                                        ).toJson()
-                                    );
+                                    setTimeout(() => {
+                                        SetClients(
+                                            new Map(
+                                                clients.set(
+                                                    socket.id,
+                                                    localPlayer
+                                                )
+                                            )
+                                        );
+                                        engineRef.current?.freeDice();
+                                        socket.emit(
+                                            "finish-turn",
+                                            (
+                                                clients.get(socket.id) as Player
+                                            ).toJson()
+                                        );
+                                    }, time_till_free);
                                 },
                             });
                         }
@@ -400,71 +503,73 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 },
             });
 
-            function playerMove() {
-                var firstPosition = 0;
-                var addedMoney = false;
-                setTimeout(() => {
-                    var i = 0;
-                    const element = document.querySelector(
-                        `div.player[player-id="${args.turnId}"]`
-                    ) as HTMLDivElement;
+            // function playerMove() {
+            //     var firstPosition = 0;
+            //     var addedMoney = false;
+            //     setTimeout(() => {
+            //         var i = 0;
+            //         const element = document.querySelector(
+            //             `div.player[player-id="${args.turnId}"]`
+            //         ) as HTMLDivElement;
 
-                    firstPosition = xplayer.position;
-                    xplayer.position += 1;
-                    element.style.animation =
-                        "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
-                    const movingAnim = () => {
-                        if (i < sumTimes) {
-                            i += 1;
-                            xplayer.position = (xplayer.position + 1) % 40;
-                            if (xplayer.position == 0) {
-                                xplayer.balance += 200;
-                                if (xplayer.id === socket.id)
-                                    engineRef.current?.applyAnimation(2);
-                                addedMoney = true;
-                                SetClients(
-                                    new Map(clients.set(args.turnId, xplayer))
-                                );
-                            }
-                            if (i == sumTimes - 1) {
-                                xplayer.position = args.listOfNums[2];
-                                element.style.animation =
-                                    "part 0.9s cubic-bezier(0,.7,.57,1)";
-                                setTimeout(() => {
-                                    element.style.animation = "";
-                                }, 900);
+            //         firstPosition = xplayer.position;
+            //         xplayer.position += 1;
+            //         element.style.animation =
+            //             "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
+            //         const movingAnim = () => {
+            //             if (i < sumTimes) {
+            //                 i += 1;
+            //                 xplayer.position = (xplayer.position + 1) % 40;
+            //                 if (xplayer.position == 0) {
+            //                     xplayer.balance += 200;
+            //                     if (xplayer.id === socket.id)
+            //                         engineRef.current?.applyAnimation(2);
+            //                     addedMoney = true;
+            //                     SetClients(
+            //                         new Map(clients.set(args.turnId, xplayer))
+            //                     );
+            //                 }
+            //                 if (i == sumTimes - 1) {
+            //                     xplayer.position = args.listOfNums[2];
+            //                     element.style.animation =
+            //                         "part 0.9s cubic-bezier(0,.7,.57,1)";
+            //                     setTimeout(() => {
+            //                         element.style.animation = "";
+            //                     }, 900);
 
-                                if (
-                                    !addedMoney &&
-                                    firstPosition > xplayer.position
-                                ) {
-                                    xplayer.balance += 200;
-                                    if (xplayer.id === socket.id)
-                                        engineRef.current?.applyAnimation(2);
-                                    addedMoney = true;
+            //                     if (
+            //                         !addedMoney &&
+            //                         firstPosition > xplayer.position
+            //                     ) {
+            //                         xplayer.balance += 200;
+            //                         if (xplayer.id === socket.id)
+            //                             engineRef.current?.applyAnimation(2);
+            //                         addedMoney = true;
 
-                                    SetClients(
-                                        new Map(
-                                            clients.set(args.turnId, xplayer)
-                                        )
-                                    );
-                                }
-                            } else {
-                                element.style.animation =
-                                    "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
-                                setTimeout(movingAnim, 0.35 * 1000);
-                            }
-                        }
-                    };
-                    setTimeout(movingAnim, 0.35 * 1000);
-                }, 2000);
-            }
+            //                         SetClients(
+            //                             new Map(
+            //                                 clients.set(args.turnId, xplayer)
+            //                             )
+            //                         );
+            //                     }
+            //                 } else {
+            //                     element.style.animation =
+            //                         "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
+            //                     setTimeout(movingAnim, 0.35 * 1000);
+            //                 }
+            //             }
+            //         };
+            //         setTimeout(movingAnim, 0.35 * 1000);
+            //     }, 2000);
+            // }
 
             if (xplayer.isInJail) {
                 setTimeout(() => {
                     if (args.listOfNums[0] == args.listOfNums[1]) {
                         xplayer.isInJail = false;
-                        playerMove();
+                        setTimeout(() => {
+                            generatorResults.func();
+                        }, 2000);
                     } else if (xplayer.jailTurnsRemaining > 0) {
                         xplayer.jailTurnsRemaining -= 1;
                         if (xplayer.jailTurnsRemaining === 0) {
@@ -474,7 +579,9 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     SetClients(new Map(clients.set(args.turnId, xplayer)));
                 }, 1500);
             } else {
-                playerMove();
+                setTimeout(() => {
+                    generatorResults.func();
+                }, 2000);
             }
         };
         const socket_Unjail = (args: {
@@ -540,86 +647,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                         SetClients(new Map(clients.set(p.id, p)));
                     }
                     return other_players.length;
-                }
-
-                function playerMoveGENERATOR(
-                    final_position: number,
-                    xplayer: Player,
-                    get200whengo: boolean = true,
-                    afterFinished?: () => void
-                ) {
-                    var sum_moves = (final_position - xplayer.position) % 40;
-                    function _playerMoveFunc() {
-                        var firstPosition = 0;
-                        var addedMoney = false;
-                        var i = 0;
-                        const element = document.querySelector(
-                            `div.player[player-id="${args.turnId}"]`
-                        ) as HTMLDivElement;
-
-                        firstPosition = xplayer.position;
-                        xplayer.position += 1;
-                        element.style.animation =
-                            "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
-                        const movingAnim = () => {
-                            if (i < sum_moves) {
-                                i += 1;
-                                xplayer.position = (xplayer.position + 1) % 40;
-                                if (xplayer.position == 0 && get200whengo) {
-                                    xplayer.balance += 200;
-                                    if (xplayer.id === socket.id)
-                                        engineRef.current?.applyAnimation(2);
-                                    addedMoney = true;
-                                    SetClients(
-                                        new Map(
-                                            clients.set(args.turnId, xplayer)
-                                        )
-                                    );
-                                }
-                                if (i == sum_moves - 1) {
-                                    xplayer.position = final_position;
-                                    element.style.animation =
-                                        "part 0.9s cubic-bezier(0,.7,.57,1)";
-                                    setTimeout(() => {
-                                        element.style.animation = "";
-                                    }, 900);
-
-                                    if (
-                                        !addedMoney &&
-                                        firstPosition > xplayer.position &&
-                                        get200whengo
-                                    ) {
-                                        xplayer.balance += 200;
-                                        if (xplayer.id === socket.id)
-                                            engineRef.current?.applyAnimation(
-                                                2
-                                            );
-                                        addedMoney = true;
-
-                                        SetClients(
-                                            new Map(
-                                                clients.set(
-                                                    args.turnId,
-                                                    xplayer
-                                                )
-                                            )
-                                        );
-                                    }
-                                    if (afterFinished) afterFinished();
-                                } else {
-                                    element.style.animation =
-                                        "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
-                                    setTimeout(movingAnim, 0.35 * 1000);
-                                }
-                            }
-                        };
-                        setTimeout(movingAnim, 0.35 * 1000);
-                    }
-
-                    return {
-                        func: _playerMoveFunc,
-                        time: 0.35 * 1000 * sum_moves,
-                    };
                 }
 
                 var time_till_finish = 0;
@@ -842,7 +869,9 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 {Array.from(clients.values()).map((v, i) => {
                     return (
                         <p
-                            style={v.ready ? { backgroundColor: "#32a852" } : {}}
+                            style={
+                                v.ready ? { backgroundColor: "#32a852" } : {}
+                            }
                             className="lobby-players"
                             key={i}
                         >

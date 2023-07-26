@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import ReactDOM from "react-dom/client";
 import Monopoly from "./monopoly.tsx";
 import "./index.css";
 import { Socket, io } from "socket.io-client";
-
+import NotifyElement, { NotificatorRef } from "./components/notificator";
 type MonopolyCookie = {
     name: string;
     host: string;
@@ -24,6 +24,7 @@ function App() {
         };
     }
 
+    const notifyRef = useRef<NotificatorRef>(null);
     const [socket, SetSocket] = useState<Socket>();
     const [name, SetName] = useState<string>(
         cookie.rememberName ? cookie.name : ""
@@ -39,7 +40,6 @@ function App() {
     );
 
     const [isSignedIn, SetSignedIn] = useState<boolean>(false);
-
     const joinButtonClicked = (
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
@@ -51,66 +51,109 @@ function App() {
         } as MonopolyCookie);
 
         const socket = io(addr);
-        socket.on("state", (args: boolean) => {
-            if (args) {
-                SetSocket(socket);
-            } else {
-                alert("the game has already begon");
+        socket.on("state", (args: number) => {
+            switch (args) {
+                case 0:
+                    SetSocket(socket);
+                    break;
+                case 1:
+                    notifyRef.current?.message(
+                        "the game has already begun",
+                        "error",
+                        2
+                    );
+                    socket.disconnect();
+                    break;
+                case 2:
+                    notifyRef.current?.message(
+                        "too many players on the server",
+                        "error",
+                        2
+                    );
+                    socket.disconnect();
+                    break;
+                default:
+                    notifyRef.current?.message("unkown error", "error", 2);
+                    socket.disconnect();
+                    break;
             }
         });
-
+        socket.on("connect_error", () => {
+            notifyRef.current?.message(
+                "the server does not exist or is unreachable",
+                "error",
+                2
+            );
+            socket.disconnect();
+        });
+        socket.on("connect_timeout", () => {
+            notifyRef.current?.message(
+                "the server took too long to respond",
+                "error",
+                2
+            );
+            socket.disconnect();
+        });
         SetSignedIn(true);
     };
 
     return socket !== undefined && isSignedIn === true ? (
         <Monopoly socket={socket} name={name} />
     ) : (
-        <div className="entry">
-            <header>
-                Welcome to the <h3>MONOPOLY</h3> Game
-            </header>
-            <br></br>
-            <p>please enter your ip and port:</p>
-            <input
-                type="text"
-                id="name"
-                onChange={(e) => SetAddress(e.currentTarget.value)}
-                defaultValue={addr}
-                placeholder="enter ip"
-            />
+        <>
+            <NotifyElement ref={notifyRef} />
 
-            <p>please enter your name:</p>
-            <input
-                type="text"
-                id="name"
-                onChange={(e) => SetName(e.currentTarget.value)}
-                defaultValue={name}
-                placeholder="enter name"
-            />
-
-            <h5>
-                do you want your name to be remembered?{" "}
+            <div className="entry">
+                <header>
+                    Welcome to the <h3>MONOPOLY</h3> Game
+                </header>
+                <br></br>
+                <p>please enter your ip and port:</p>
                 <input
-                    id="rememberedName"
-                    checked={rememberName}
-                    onClick={(e) => SetRememberName(e.currentTarget.checked)}
-                    type="checkbox"
+                    type="text"
+                    id="name"
+                    onChange={(e) => SetAddress(e.currentTarget.value)}
+                    defaultValue={addr}
+                    placeholder="enter ip"
                 />
-            </h5>
-            <h5>
-                do you want your host to be remembered?{" "}
-                <input
-                    id="rememberedHost"
-                    checked={rememberAdrr}
-                    onClick={(e) => SetRememberAdrr(e.currentTarget.checked)}
-                    type="checkbox"
-                />
-            </h5>
 
-            <center>
-                <button onClick={joinButtonClicked}>join</button>
-            </center>
-        </div>
+                <p>please enter your name:</p>
+                <input
+                    type="text"
+                    id="name"
+                    onChange={(e) => SetName(e.currentTarget.value)}
+                    defaultValue={name}
+                    placeholder="enter name"
+                />
+
+                <h5>
+                    do you want your name to be remembered?{" "}
+                    <input
+                        id="rememberedName"
+                        checked={rememberName}
+                        onChange={(e) =>
+                            SetRememberName(e.currentTarget.checked)
+                        }
+                        type="checkbox"
+                    />
+                </h5>
+                <h5>
+                    do you want your host to be remembered?{" "}
+                    <input
+                        id="rememberedHost"
+                        checked={rememberAdrr}
+                        onChange={(e) =>
+                            SetRememberAdrr(e.currentTarget.checked)
+                        }
+                        type="checkbox"
+                    />
+                </h5>
+
+                <center>
+                    <button onClick={joinButtonClicked}>join</button>
+                </center>
+            </div>
+        </>
     );
 }
 

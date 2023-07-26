@@ -26,7 +26,7 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>(
         const localPlayer = props.players.filter(
             (v) => v.id === props.socket.id
         )[0];
-
+            if (localPlayer === undefined) return (<>Could not read local player!</>)
         useImperativeHandle(ref, () => ({
             clickedOnBoard(a) {
                 SetLookCard(-1);

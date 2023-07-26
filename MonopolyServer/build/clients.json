@@ -1,0 +1,23 @@
+{
+  "mmyipBWYuzPSZpEsAAAB": {
+    "id": "mmyipBWYuzPSZpEsAAAB",
+    "username": "Itay",
+    "icon": 0,
+    "position": 18,
+    "balance": 1200,
+    "properties": [
+      {
+        "posistion": 9,
+        "count": 0,
+        "group": "lightgreen"
+      },
+      {
+        "posistion": 18,
+        "count": 0,
+        "group": "Orange"
+      }
+    ],
+    "isInJail": false,
+    "jailTurnsRemaining": 0
+  }
+}
