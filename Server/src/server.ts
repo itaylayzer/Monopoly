@@ -954,6 +954,7 @@ import {
     bgBlueBright,
     bgRed,
     white,
+    cyan
 } from "colorette";
 
 function saveMapToJsonFile(map: Map<string, Client>, filePath) {
@@ -1167,6 +1168,9 @@ io.on("connection", (socket: Socket) => {
 
                 socket.on("message", (message: string) => {
                     try {
+                        console.log(cyan(`[${socket.id}] Player "${
+                            Clients.get(socket.id).player.username
+                        }" has messaged "${message}".`));
                         EmitAll("message", {
                             from: player.username,
                             message: message,
