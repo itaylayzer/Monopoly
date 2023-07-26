@@ -1,39 +1,19 @@
 {
-  "wJes9bkn2TG7CXaGAAAX": {
-    "id": "wJes9bkn2TG7CXaGAAAX",
+  "-ODnSyYilBHLEpy5AAAH": {
+    "id": "-ODnSyYilBHLEpy5AAAH",
     "username": "Itay",
     "icon": 0,
-    "position": 15,
-    "balance": 990,
+    "position": 8,
+    "balance": 1440,
     "properties": [
       {
-        "posistion": 9,
+        "posistion": 3,
         "count": 0,
-        "group": "lightgreen"
-      },
-      {
-        "posistion": 19,
-        "count": 0,
-        "group": "Orange"
-      },
-      {
-        "posistion": 28,
-        "count": 0,
-        "group": "Utilities"
-      },
-      {
-        "posistion": 11,
-        "count": 0,
-        "group": "Violet"
-      },
-      {
-        "posistion": 15,
-        "count": 0,
-        "group": "Railroad"
+        "group": "Purple"
       }
     ],
     "isInJail": false,
     "jailTurnsRemaining": 0,
-    "getoutCards": 1
+    "getoutCards": 0
   }
 }

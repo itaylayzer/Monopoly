@@ -11715,13 +11715,6 @@ const wh = B.forwardRef((e, t) => {
                                     `div.player[player-id="${V.id}"]`
                                 );
                             if (I !== null) {
-                                const L = `-${h}deg`,
-                                    C = I;
-                                C.style.rotate
-                                    .replace(";", "")
-                                    .replace(" ", " ") !==
-                                    L.replace(";", "").replace(" ", " ") &&
-                                    (C.style.rotate = L);
                                 const k =
                                     (R = I.parentElement) == null
                                         ? void 0
