@@ -11756,8 +11756,7 @@ const wh = B.forwardRef((e, t) => {
                                     L.setAttribute(
                                         "data-tooltip-hover",
                                         V.username
-                                    ),
-                                    (L.style.rotate = `${h}deg`);
+                                    );
                                 const C = document.createElement("img");
                                 if (
                                     ((C.src = `./p${N}.png`),

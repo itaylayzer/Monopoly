@@ -531,13 +531,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         `div.player[player-id="${x.id}"]`
                     );
                     if (elementSearch !== null) {
-                        const _rot_string =  `-${rotation}deg`;
-                        const e = (
-                            elementSearch as HTMLDivElement
-                        );
-                        if (e.style.rotate.replace(';','').replace(' ',' ') !== _rot_string.replace(';','').replace(' ',' ')){
-                            e.style.rotate = _rot_string;
-                        };
 
                         // check if loaction is the same
                         const pos = elementSearch.parentElement?.getAttribute(

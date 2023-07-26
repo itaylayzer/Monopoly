@@ -1,15 +1,15 @@
 {
-  "-ODnSyYilBHLEpy5AAAH": {
-    "id": "-ODnSyYilBHLEpy5AAAH",
+  "j3dimWt3W4SXjbMcAAAJ": {
+    "id": "j3dimWt3W4SXjbMcAAAJ",
     "username": "Itay",
     "icon": 0,
     "position": 8,
-    "balance": 1440,
+    "balance": 1400,
     "properties": [
       {
-        "posistion": 3,
+        "posistion": 8,
         "count": 0,
-        "group": "Purple"
+        "group": "lightgreen"
       }
     ],
     "isInJail": false,
