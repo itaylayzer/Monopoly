@@ -1,54 +1,54 @@
 @font-face {
     font-family: Josefin Sans;
-    src: url(./JosefinSans-Regular-0225feee.ttf);
+    src: url(./assets/JosefinSans-Regular-0225feee.ttf);
     font-weight: 400
 }
 
 @font-face {
     font-family: Josefin Sans;
-    src: url(./JosefinSans-SemiBold-8be32b30.ttf);
+    src: url(./assets/JosefinSans-SemiBold-8be32b30.ttf);
     font-weight: 500
 }
 
 @font-face {
     font-family: Josefin Sans;
-    src: url(./JosefinSans-Bold-0ef845c2.ttf);
+    src: url(./assets/JosefinSans-Bold-0ef845c2.ttf);
     font-weight: 600
 }
 
 @font-face {
     font-family: Josefin Sans;
-    src: url(./JosefinSans-Bold-0ef845c2.ttf);
+    src: url(./assets/JosefinSans-Bold-0ef845c2.ttf);
     font-weight: 700
 }
 
 @font-face {
     font-family: Josefin Sans;
-    src: url(./JosefinSans-Bold-0ef845c2.ttf);
+    src: url(./assets/JosefinSans-Bold-0ef845c2.ttf);
     font-weight: 800
 }
 
 @font-face {
     font-family: Josefin Sans;
-    src: url(./JosefinSans-Bold-0ef845c2.ttf);
+    src: url(./assets/JosefinSans-Bold-0ef845c2.ttf);
     font-weight: 900
 }
 
 @font-face {
     font-family: Josefin Sans;
-    src: url(./JosefinSans-Light-6f8f36ad.ttf);
+    src: url(./assets/JosefinSans-Light-6f8f36ad.ttf);
     font-weight: 200
 }
 
 @font-face {
     font-family: Josefin Sans;
-    src: url(./JosefinSans-ExtraLight-cde9fd29.ttf);
+    src: url(./assets/JosefinSans-ExtraLight-cde9fd29.ttf);
     font-weight: 100
 }
 
 @font-face {
     font-family: Josefin Sans;
-    src: url(./JosefinSans-Thin-e0657a1e.ttf);
+    src: url(./assets/JosefinSans-Thin-e0657a1e.ttf);
     font-weight: 300
 }
 
@@ -690,7 +690,7 @@ div.board {
     left: 50%;
     transform: translate(-50%) translateY(-50%);
     width: 900px;
-    background-image: url(../board2.png);
+    background-image: url(./board2.png);
     background-size: cover;
     box-shadow: 0 0 0 3px #000;
     z-index: 0;
