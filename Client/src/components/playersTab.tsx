@@ -1,11 +1,11 @@
 import { useState, forwardRef, useImperativeHandle } from "react";
 import { Socket } from "socket.io-client";
 import { Player } from "../assets/player";
-import DiceIcon from "../../public/monopoly-icon/roll.png";
+import DiceIcon from "../../public/roll.png";
 import { translateGroup } from "./streetCard";
 import monopolyJSON from "../assets/monopoly.json";
-import HouseIcon from "../../public/monopoly-icon/h.png";
-import HotelIcon from "../../public/monopoly-icon/ho.png";
+import HouseIcon from "../../public/h.png";
+import HotelIcon from "../../public/ho.png";
 
 interface PlayersTabProps {
     socket: Socket;

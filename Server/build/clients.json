@@ -1,17 +1,11 @@
 {
-  "tBWiuU4UNfFhCm7BAAAF": {
-    "id": "tBWiuU4UNfFhCm7BAAAF",
-    "username": "Itay",
+  "U0F9UHmbunmsVh48AAAF": {
+    "id": "U0F9UHmbunmsVh48AAAF",
+    "username": "Amit",
     "icon": 0,
-    "position": 8,
-    "balance": 1400,
-    "properties": [
-      {
-        "posistion": 8,
-        "count": 0,
-        "group": "lightgreen"
-      }
-    ],
+    "position": 15,
+    "balance": 1500,
+    "properties": [],
     "isInJail": false,
     "jailTurnsRemaining": 0,
     "getoutCards": 0

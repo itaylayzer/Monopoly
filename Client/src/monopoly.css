@@ -1155,7 +1155,7 @@ div.chance-card {
 }
 
 div.chance-card[data-b-image="chance"] {
-    background-image: url("/special/chance.png");
+    background-image: url("/chance.png");
     background-size: 80px;
 }
 
@@ -1283,7 +1283,7 @@ img#moneyAnimations[data-anim="1"] {
     animation: moneyAnimations1 1s cubic-bezier(0.25, 1.44, 0.55, 1.01),
         moneyAnimations2 1s ease-out infinite,
         moneyAnimations3 1s cubic-bezier(0.61, 0.05, 0.96, 0.18);
-    background-image: url("/animations/send2.png");
+    background-image: url("/send2.png");
     background-size: 80px;
     background-size: cover;
 }
@@ -1292,7 +1292,7 @@ img#moneyAnimations[data-anim="2"] {
     animation: moneyAnimations1 1s cubic-bezier(0.25, 1.44, 0.55, 1.01),
         moneyAnimations22 1s ease-out,
         moneyAnimations3 1s cubic-bezier(0.61, 0.05, 0.96, 0.18);
-    background-image: url("/animations/recieve2.png");
+    background-image: url("/recieve2.png");
     background-size: 80px;
     background-position: center;
 }

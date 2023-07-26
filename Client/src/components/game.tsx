@@ -1,8 +1,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
-import RollIcon from "../../public/monopoly-icon/roll.png";
-import C1Icon from "../../public/cubes/c1.png";
-import HouseIcon from "../../public/monopoly-icon/h.png";
-import HotelIcon from "../../public/monopoly-icon/ho.png";
+import RollIcon from "../../public/roll.png";
+import C1Icon from "../../public/c1.png";
+import HouseIcon from "../../public/h.png";
+import HotelIcon from "../../public/ho.png";
 import { Player } from "../assets/player";
 import { Socket } from "socket.io-client";
 import StreetCard, {
@@ -569,11 +569,11 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             }
 
                             const image = document.createElement("img");
-                            image.src = `/public/players/p${icon}.png`;
+                            image.src = `./p${icon}.png`;
                             elementSearch.appendChild(image);
 
                             const jimage = document.createElement("img");
-                            jimage.src = `/public/players/jail.png`;
+                            jimage.src = `./jail.png`;
                             jimage.className = "jailIcon";
                             elementSearch.appendChild(jimage);
                         }
@@ -588,11 +588,11 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         );
                         element.setAttribute("data-tooltip-hover", x.username);
                         const image = document.createElement("img");
-                        image.src = `/public/players/p${icon}.png`;
+                        image.src = `./p${icon}.png`;
                         element.appendChild(image);
                         if (injail) {
                             const jimage = document.createElement("img");
-                            jimage.src = `/public/players/jail.png`;
+                            jimage.src = `./jail.png`;
                             jimage.className = "jailIcon";
                             element.appendChild(jimage);
                         }

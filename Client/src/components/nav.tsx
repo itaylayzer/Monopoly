@@ -4,7 +4,7 @@ import NChatIcon from "../../public/chat_new.png";
 import LeaveIcon from "../../public/leave1.png";
 import PropretiesIcon from "../../public/proprety.png";
 import SettingsIcon from "../../public/settings.png";
-import MonopolyIcon from "../../public/monopoly-icon/icon.png";
+import MonopolyIcon from "../../public/icon.png";
 
 import {
     forwardRef,
@@ -56,9 +56,9 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                     ) as HTMLImageElement;
                     imageElement.style.animation =
                         "spin3 2s cubic-bezier(.68,.05,.49,.95) infinite";
-                    imageElement.src = NChatIcon;
+                    imageElement.src = NChatIcon.replace('/public','');
                     iconElement.onclick = () => {
-                        imageElement.src = ChatIcon;
+                        imageElement.src = ChatIcon.replace('/public','');
                         imageElement.style.animation = "";
                         SetTab(2);
                         iconElement.onclick = () => {

@@ -9587,7 +9587,11 @@ function uh({ args: e }) {
             l.jsxs("div", {
                 "data-clear": !0,
                 children: [
-                    l.jsx("img", { "data-type": "rail", src: oh, alt: "" }),
+                    l.jsx("img", {
+                        "data-type": "rail",
+                        src: oh.replace("/public", ""),
+                        alt: "",
+                    }),
                     l.jsx("h3", { children: e.title }),
                 ],
             }),
@@ -9646,7 +9650,10 @@ function ch({ args: e }) {
                     l.jsx("center", {
                         children: l.jsx("img", {
                             "data-type": e.type,
-                            src: e.type === "electricity" ? sh : lh,
+                            src:
+                                e.type === "electricity"
+                                    ? sh.replace("/public", "")
+                                    : lh.replace("/public", ""),
                             alt: "",
                         }),
                     }),
@@ -11057,9 +11064,9 @@ const mh = D.forwardRef((e, t) => {
                         y = m.querySelector("img");
                     (y.style.animation =
                         "spin3 2s cubic-bezier(.68,.05,.49,.95) infinite"),
-                        (y.src = eh),
+                        (y.src = eh.replace("/public", "")),
                         (m.onclick = () => {
-                            (y.src = za),
+                            (y.src = za.replace("/public", "")),
                                 (y.style.animation = ""),
                                 r(2),
                                 (m.onclick = () => {
@@ -11736,10 +11743,9 @@ const Sh = D.forwardRef((e, t) => {
                                     for (; I.firstChild; )
                                         I.removeChild(I.firstChild);
                                     const P = document.createElement("img");
-                                    (P.src = `./players/p${N}.png`),
-                                        I.appendChild(P);
+                                    (P.src = `./p${N}.png`), I.appendChild(P);
                                     const S = document.createElement("img");
-                                    (S.src = "/public/players/jail.png"),
+                                    (S.src = "./jail.png"),
                                         (S.className = "jailIcon"),
                                         I.appendChild(S);
                                 }
@@ -11757,12 +11763,12 @@ const Sh = D.forwardRef((e, t) => {
                                     );
                                 const P = document.createElement("img");
                                 if (
-                                    ((P.src = `./players/p${N}.png`),
+                                    ((P.src = `./p${N}.png`),
                                     _.appendChild(P),
                                     F)
                                 ) {
                                     const S = document.createElement("img");
-                                    (S.src = "/public/players/jail.png"),
+                                    (S.src = "./jail.png"),
                                         (S.className = "jailIcon"),
                                         _.appendChild(S);
                                 }

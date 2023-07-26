@@ -1,6 +1,6 @@
-import RailIcon from "../../public/monopoly-icon/rails.png";
-import ElectricityIcon from "../../public/monopoly-icon/elects.png";
-import WaterIcon from "../../public/monopoly-icon/water.png";
+import RailIcon from "../../public/rails.png";
+import ElectricityIcon from "../../public/elects.png";
+import WaterIcon from "../../public/water.png";
 
 export interface StreetDisplayInfo {
     title: string;
@@ -135,7 +135,7 @@ function RailroadCard({ args }: { args: RailroadDisplayInfo }) {
     return (
         <div className="street-card">
             <div data-clear>
-                <img data-type="rail" src={RailIcon} alt="" />
+                <img data-type="rail" src={RailIcon.replace('/public','')} alt="" />
                 <h3>{args.title}</h3>
             </div>
             <div>
@@ -175,8 +175,8 @@ function UtilityCard({ args }: { args: UtilitiesDisplayInfo }) {
                         data-type={args.type}
                         src={
                             args.type === "electricity"
-                                ? ElectricityIcon
-                                : WaterIcon
+                                ? ElectricityIcon.replace('/public','')
+                                : WaterIcon.replace('/public','')
                         }
                         alt=""
                     />
