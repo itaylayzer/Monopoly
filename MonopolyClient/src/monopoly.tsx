@@ -72,12 +72,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 });
             }
             removeChild();
-
-            if (playerId === socket.id) {
-                // show death ui
-            } else {
-                // show death animation maybe?1
-            }
         }
 
         //#region socket handeling
@@ -128,12 +122,14 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 notifyRef.current?.message(`${name} disconected`, "error");
             } else {
                 notifyRef.current?.dialog((close_func, createButton) => ({
-                    innerHTML: `<h3> YOU WON! </h3> <p> your the only left player with the balance of ${clients.get(socket.id)?.balance ?? 0} </p>`,
+                    innerHTML: `<h3> YOU WON! </h3> <p> your the only left player with the balance of ${
+                        clients.get(socket.id)?.balance ?? 0
+                    } </p>`,
                     buttons: [
                         createButton("PLAY ANOTHER GAME", () => {
                             close_func();
                             document.location.reload();
-                        })
+                        }),
                     ],
                 }));
             }
@@ -156,19 +152,52 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                         const name = args.pJson.username;
                         notifyRef.current?.message(`${name} lost`, "info");
                     } else {
-                        notifyRef.current?.dialog((close_func, createButton) => ({
-                            innerHTML: `<h3> YOU WON! </h3> <p> your the only left player with the balance of ${clients.get(socket.id)?.balance ?? 0} </p>`,
-                            buttons: [
-                                createButton("PLAY ANOTHER GAME", () => {
-                                    close_func();
-                                    document.location.reload();
+                        if (clients.has(socket.id)) {
+                            notifyRef.current?.dialog(
+                                (close_func, createButton) => ({
+                                    innerHTML: `<h3> YOU WON! </h3> <p> your the only left player with the balance of ${
+                                        clients.get(socket.id)?.balance ?? 0
+                                    } </p>`,
+                                    buttons: [
+                                        createButton(
+                                            "PLAY ANOTHER GAME",
+                                            () => {
+                                                close_func();
+                                                document.location.reload();
+                                            }
+                                        ),
+                                    ],
                                 })
-                            ],
-                        }));
+                            );
+                        } else {
+                            const xclient = Array.from(clients.values()).filter(
+                                (v) => v.id !== args.pJson.id
+                            )[0];
+                            const name = xclient.username ?? 0;
+
+                            notifyRef.current?.dialog(
+                                (close_func, createButton) => ({
+                                    innerHTML: `<h3> ${name} WON! </h3> <p> ${name} won with the balance of ${
+                                        clients.get(socket.id)?.balance ?? 0
+                                    } </p>`,
+                                    buttons: [
+                                        createButton(
+                                            "PLAY ANOTHER GAME",
+                                            () => {
+                                                close_func();
+                                                document.location.reload();
+                                            }
+                                        ),
+                                    ],
+                                })
+                            );
+                        }
                     }
                 } else {
                     notifyRef.current?.dialog((close_func, createButton) => ({
-                        innerHTML: `<h3> YOU LOST! </h3> <p> you lost your money and lost the monopol with a wanted balance of ${-(clients.get(socket.id)?.balance ?? 0)} </p>`,
+                        innerHTML: `<h3> YOU LOST! </h3> <p> you lost your money and lost the monopol with a wanted balance of ${-(
+                            clients.get(socket.id)?.balance ?? 0
+                        )} </p>`,
                         buttons: [
                             createButton("CONTINUE WATCHING", () => {
                                 close_func();
@@ -176,7 +205,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             createButton("PLAY ANOTHER GAME", () => {
                                 close_func();
                                 document.location.reload();
-                            })
+                            }),
                         ],
                     }));
                 }
@@ -303,7 +332,8 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                         payment_ammount =
                                                             (proprety?.multpliedrent ?? [
                                                                 0, 0, 0, 0,
-                                                            ])[prp.count] ?? 0;
+                                                            ])[prp.count - 1] ??
+                                                            0;
                                                     }
                                                     if (prp.count === "h") {
                                                         payment_ammount =

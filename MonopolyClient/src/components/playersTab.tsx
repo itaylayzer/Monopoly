@@ -18,7 +18,7 @@ export interface PlayersTabRef {
 }
 
 const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
-    const localPlayer = props.players.filter(
+    const localPlayer: Player | undefined = props.players.filter(
         (v) => v.id === props.socket.id
     )[0];
     const propretyMap = new Map(
@@ -105,7 +105,10 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
 
     return (
         <>
-            <div className="container__top" style={{}}>
+            <div
+                className={localPlayer !== undefined ? "container__top" : ""}
+                style={localPlayer === undefined ? { height: "100%" } : {}}
+            >
                 <h3
                     data-clickable={current !== undefined}
                     style={{ textAlign: "center" }}
@@ -209,74 +212,101 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
                     ))
                 )}
             </div>
-            <div className="resizer" id="dragMe" style={{}} />
 
-            <div className="container__bottom" style={{}}>
-                <h3 style={{ textAlign: "center" }}>{localPlayer.username}</h3>
-                <style></style>
+            {localPlayer !== undefined ? (
+                <>
+                    <div className="resizer" id="dragMe" style={{}} />
 
-                <table>
-                    <tr>
-                        <td>Balance</td>
-                        <td>
-                            <p className="stats">
-                                {localPlayer.balance} <label>M</label>
-                            </p>
-                        </td>
-                    </tr>
+                    <div className="container__bottom" style={{}}>
+                        {/* stats part! */}
+                        <h3 style={{ textAlign: "center" }}>
+                            {localPlayer.username}
+                        </h3>
+                        <style></style>
 
-                    <tr>
-                        <td>Houses</td>
-                        <td>
-                            <p className="stats">
-                                {localPlayer.properties.length > 0
-                                    ? (
-                                          localPlayer.properties
-                                              .map((v) => v.count)
-                                              .filter(
-                                                  (v) => typeof v === "number"
-                                              ) as Array<number>
-                                      ).reduce((p: number, c: number) => p + c)
-                                    : 0}
-                                <img
-                                    src={HouseIcon.replace("public/", "")}
-                                    alt=""
-                                />
-                            </p>
-                        </td>
-                    </tr>
+                        <table>
+                            <tr>
+                                <td>Balance</td>
+                                <td>
+                                    <p className="stats">
+                                        {localPlayer.balance} <label>M</label>
+                                    </p>
+                                </td>
+                            </tr>
 
-                    <tr>
-                        <td>Hotles</td>
-                        <td>
-                            <p className="stats">
-                                {localPlayer.properties.length > 0
-                                    ? (
-                                          localPlayer.properties
-                                              .map((v) => v.count)
-                                              .filter(
-                                                  (v) => typeof v === "string"
-                                              ) as Array<number>
-                                      ).length
-                                    : 0}
-                                <img
-                                    src={HotelIcon.replace("public/", "")}
-                                    alt=""
-                                />
-                            </p>
-                        </td>
-                    </tr>
+                            <tr>
+                                <td>Houses</td>
+                                <td>
+                                    <p className="stats">
+                                        {localPlayer.properties
+                                            .map((v) => v.count)
+                                            .filter(
+                                                (v) => typeof v === "number"
+                                            ).length > 0
+                                            ? (
+                                                  localPlayer.properties
+                                                      .map((v) => v.count)
+                                                      .filter(
+                                                          (v) =>
+                                                              typeof v ===
+                                                              "number"
+                                                      ) as Array<number>
+                                              ).reduce(
+                                                  (p: number, c: number) =>
+                                                      p + c
+                                              )
+                                            : 0}
+                                        <img
+                                            src={HouseIcon.replace(
+                                                "public/",
+                                                ""
+                                            )}
+                                            alt=""
+                                        />
+                                    </p>
+                                </td>
+                            </tr>
 
-                    <tr>
-                        <td>Position</td>
-                        <td>
-                            <p className="stats">
-                                {localPlayer.position} <label></label>
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+                            <tr>
+                                <td>Hotles</td>
+                                <td>
+                                    <p className="stats">
+                                        {localPlayer.properties.length > 0
+                                            ? (
+                                                  localPlayer.properties
+                                                      .map((v) => v.count)
+                                                      .filter(
+                                                          (v) =>
+                                                              typeof v ===
+                                                              "string"
+                                                      ) as Array<number>
+                                              ).length
+                                            : 0}
+                                        <img
+                                            src={HotelIcon.replace(
+                                                "public/",
+                                                ""
+                                            )}
+                                            alt=""
+                                        />
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Position</td>
+                                <td>
+                                    <p className="stats">
+                                        {localPlayer.position} <label></label>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </>
+            ) : (
+                <></>
+            )}
         </>
     );
 });

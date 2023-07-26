@@ -35,4 +35,6 @@ additionals:
 stats bar
 settings
 
+To Fix: fix-walking animation
+
 ## Pictures and Videos of the game!

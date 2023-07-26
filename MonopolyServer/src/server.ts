@@ -50,7 +50,7 @@ type PlayerJSON = {
     properties: Array<any>;
     isInJail: boolean;
     jailTurnsRemaining: number;
-    getoutCards:number;
+    getoutCards: number;
 };
 
 //#endregion
@@ -89,12 +89,12 @@ io.on("connection", (socket: Socket) => {
 
             // handle all events from here on!
             // game sockets
-            socket.on("unjail",(option:"card"|"pay")=>{
+            socket.on("unjail", (option: "card" | "pay") => {
                 EmitAll("unjail", {
-                    to:player.id,
-                    option
+                    to: player.id,
+                    option,
                 });
-            })
+            });
             socket.on("roll_dice", () => {
                 const first = Math.floor(Math.random() * 6) + 1;
                 const second = Math.floor(Math.random() * 6) + 1;
@@ -102,19 +102,19 @@ io.on("connection", (socket: Socket) => {
                 const pos = (player.position + sum) % 40;
                 EmitAll("dice_roll_result", {
                     listOfNums: [first, second, pos],
-                    turnId: currentId
+                    turnId: currentId,
                 });
             });
             // chest or chance
             socket.on("chorch_roll", (is_chance) => {
-
-                const arr = is_chance ? monopolyJSON.chance : monopolyJSON.communitychest;
+                const arr = is_chance
+                    ? monopolyJSON.chance
+                    : monopolyJSON.communitychest;
                 const randomElement =
                     arr[Math.floor(Math.random() * arr.length)];
 
-            
                 EmitAll("chorch_result", {
-                    element:randomElement,
+                    element: randomElement,
                     is_chance,
                     turnId: currentId,
                 });
@@ -122,21 +122,13 @@ io.on("connection", (socket: Socket) => {
             socket.on("finish-turn", (playerInfo: PlayerJSON) => {
                 player.from_json(playerInfo);
                 if (currentId != socket.id) return;
-
-                // TODO: win-game by 1 row | 3 monopols | 4 rainwails
-                // TODO: player-death -> deleting every proprety
-                const arr = Array.from(Clients.values()).filter(v=>v.player.balance>0).map(v=>v.player.id);
+                const arr = Array.from(Clients.values())
+                    .filter((v) => v.player.balance > 0)
+                    .map((v) => v.player.id);
                 var i = arr.indexOf(socket.id);
                 i = (i + 1) % arr.length;
                 currentId = arr[i];
 
-                if (arr.length === 1){
-                    console.log(`${arr[0]} fucking won!`)
-                }
-
-                // console.log(
-                //     `turn-finished ${JSON.stringify(player.to_json())}`
-                // );
                 EmitAll("turn-finished", {
                     from: socket.id,
                     turnId: currentId,
@@ -148,16 +140,19 @@ io.on("connection", (socket: Socket) => {
                 EmitAll("message", { from: player.username, message: message });
             });
 
-            socket.on("pay",(args:{balance:number, from:string, to:string})=>{
-                const p = Clients.get(args.to).player;
-                p.balance += args.balance;
-                EmitAll("member_updating",{
-                    playerId:args.to,
-                    animation:"recieveMoney",
-                    additional_props:[args.from],
-                    pJson: p.to_json()
-                });
-            })
+            socket.on(
+                "pay",
+                (args: { balance: number; from: string; to: string }) => {
+                    const p = Clients.get(args.to).player;
+                    p.balance += args.balance;
+                    EmitAll("member_updating", {
+                        playerId: args.to,
+                        animation: "recieveMoney",
+                        additional_props: [args.from],
+                        pJson: p.to_json(),
+                    });
+                }
+            );
         });
         socket.on("ready", (args: boolean) => {
             const client = Clients.get(socket.id);
@@ -168,7 +163,7 @@ io.on("connection", (socket: Socket) => {
 
             const readys = Array.from(Clients.values()).map((v) => v.ready);
             // console.log(JSON.stringify(readys));
-            EmitAll("ready",{id:socket.id, state:args});
+            EmitAll("ready", { id: socket.id, state: args });
             if (!readys.includes(false)) {
                 console.log("starting game");
                 gameStarted = true;
@@ -182,13 +177,15 @@ io.on("connection", (socket: Socket) => {
     // Handle disconnect event
     socket.on("disconnect", () => {
         Clients.delete(socket.id);
-        if (currentId === socket.id){
-            const arr = Array.from(Clients.values()).filter(v=>v.player.balance>0).map(v=>v.player.id);
-                var i = arr.indexOf(socket.id);
-                i = (i + 1) % arr.length;
-                currentId = arr[i];
+        if (currentId === socket.id) {
+            const arr = Array.from(Clients.values())
+                .filter((v) => v.player.balance > 0)
+                .map((v) => v.player.id);
+            var i = arr.indexOf(socket.id);
+            i = (i + 1) % arr.length;
+            currentId = arr[i];
         }
-        EmitAll("disconnected-player", {id:socket.id, turn:currentId});
+        EmitAll("disconnected-player", { id: socket.id, turn: currentId });
 
         if (Array.from(Clients.keys()).length === 0) {
             gameStarted = false;

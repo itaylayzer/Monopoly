@@ -235,6 +235,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                                     state: index,
                                                     money: 1,
                                                 });
+                                                ShowStreet(false);
                                             };
                                         } else {
                                             myButton.innerHTML = `buy ${index} house${
@@ -680,7 +681,10 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                     case "h":
                                         const image =
                                             document.createElement("img");
-                                        image.src = HotelIcon;
+                                        image.src = HotelIcon.replace(
+                                            "public/",
+                                            ""
+                                        );
                                         st.appendChild(image);
                                         break;
 
@@ -693,21 +697,18 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 }
                 propertiesDisplay();
 
-                if (continue_to_animate) requestAnimationFrame(animate);
+                if (continue_to_animate)
+                    requestAnimationFrame(animate);
             };
             requestAnimationFrame(animate);
 
             return () => {
                 continue_to_animate = false;
-                requestAnimationFrame(() => {
-                    animate = () => {};
-                });
             };
         }, [prop.players]);
         return (
             <>
                 <div className="game">
-                    {prop.players.map((v) => v.id)};{rotation};
                     <div id="dice-panel" data-show={showDice}></div>
                     <div
                         className="board"

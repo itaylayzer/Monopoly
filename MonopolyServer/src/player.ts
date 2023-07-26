@@ -1,5 +1,4 @@
 export class Player {
-
     public id: string;
     public username: string;
     public icon: number;
@@ -8,7 +7,7 @@ export class Player {
     public properties: Array<any>;
     public isInJail: boolean;
     public jailTurnsRemaining: number;
-    public getoutCards:number;
+    public getoutCards: number;
     constructor(_id: string, _name: string, _icon: number) {
         this.id = _id; // Unique identifier for the player
         this.username = _name; // Player's username or name
@@ -30,7 +29,7 @@ export class Player {
             properties: this.properties,
             isInJail: this.isInJail,
             jailTurnsRemaining: this.jailTurnsRemaining,
-            getoutCards: this.getoutCards 
+            getoutCards: this.getoutCards,
         };
     }
 
@@ -43,7 +42,7 @@ export class Player {
         properties: any[];
         isInJail: boolean;
         jailTurnsRemaining: number;
-        getoutCards:number
+        getoutCards: number;
     }) {
         if (this.id == json.id) {
             this.position = json.position;

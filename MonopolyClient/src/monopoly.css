@@ -119,148 +119,170 @@ p.lobby-players {
     border-radius: 3px;
 }
 
-div.notify{
+div.notify {
     display: block;
     position: absolute;
-    top:0%;
-    left:50%;
+    top: 0%;
+    left: 50%;
     min-width: 100px;
     min-height: 50px;
-    transform:translateX(-50%) translateY(-150%);
-    
+    transform: translateX(-50%) translateY(-150%);
+
 }
-div.notification{
+
+div.notification {
     display: block;
     border-radius: 500px;
-    padding-inline:100px;
+    padding-inline: 100px;
     background-color: white;
     font-weight: 500;
-    color:rgb(0, 74, 172);
+    color: rgb(0, 74, 172);
     text-align: center;
     font-size: 20px;
-    margin-block:10px;
-    animation:popin 0.33s cubic-bezier(0,1.88,.46,.76);
-    position:absolute;
+    margin-block: 10px;
+    animation: popin 0.33s cubic-bezier(0, 1.88, .46, .76);
+    position: absolute;
     white-space: nowrap;
-    translate:0px 100px;
-    padding-block:10px;
+    translate: 0px 100px;
+    padding-block: 10px;
     z-index: 10;
-    box-shadow: 0px 0px 10px rgba(0,0,0,50%);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 50%);
     transition: top .5s ease-out, translate .5s ease-out;
 }
-div.notification[data-notif-type="warn"]{
-    color:rgb(204, 151, 7);
+
+div.notification[data-notif-type="warn"] {
+    color: rgb(204, 151, 7);
 }
-div.notification[data-notif-type="error"]{
-    color:rgb(223, 8, 8);
+
+div.notification[data-notif-type="error"] {
+    color: rgb(223, 8, 8);
 }
+
 @keyframes popin {
     0% {
-        translate:0px 0px;
+        translate: 0px 0px;
     }
+
     100% {
-        translate:0px 100px;
+        translate: 0px 100px;
     }
-} 
-@keyframes popoff{
+}
+
+@keyframes popoff {
     0% {
-        translate:0px 100px;
+        translate: 0px 100px;
     }
+
     100% {
-        translate:0px 0px;
+        translate: 0px 0px;
     }
 }
-div.dialog-screen{
+
+div.dialog-screen {
     z-index: 8;
-    position:absolute;
-    top:0;
-    left:0;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    height:100%;
-    
+    height: 100%;
+
 }
-div.dialog-screen[data-show="true"]
-{    background-color: rgba(0,0,0,50%);
+
+div.dialog-screen[data-show="true"] {
+    background-color: rgba(0, 0, 0, 50%);
     backdrop-filter: blur(20px);
-    transition: background-color 1s cubic-bezier(0,.5,.5,1), backdrop-filter 1s cubic-bezier(0,.5,.5,1);
+    transition: background-color 1s cubic-bezier(0, .5, .5, 1), backdrop-filter 1s cubic-bezier(0, .5, .5, 1);
 }
-div.dialog-screen[data-show="false"]
-{    background-color: rgba(0,0,0,0%);
-    backdrop-filter:none;
+
+div.dialog-screen[data-show="false"] {
+    background-color: rgba(0, 0, 0, 0%);
+    backdrop-filter: none;
     pointer-events: none;
-    transition: background-color 1s cubic-bezier(.5,0,1,.5), backdrop-filter 1s cubic-bezier(.5,0,1,.5);
+    transition: background-color 1s cubic-bezier(.5, 0, 1, .5), backdrop-filter 1s cubic-bezier(.5, 0, 1, .5);
 }
-div.dialog-box{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translateX(-50%) translateY(-50%);
-    padding:50px 160px;
+
+div.dialog-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    padding: 50px 160px;
     background-color: white;
-    color:black;
+    color: black;
     border-radius: 10px;
     font-size: 20px;
     z-index: 10;
 }
-div.dialog-box[data-show="true"]{
-    animation:dialogin 1s cubic-bezier(0,.5,.5,1);
+
+div.dialog-box[data-show="true"] {
+    animation: dialogin 1s cubic-bezier(0, .5, .5, 1);
     pointer-events: all;
-    opacity:1;
+    opacity: 1;
 }
-div.dialog-box[data-show="false"]{
+
+div.dialog-box[data-show="false"] {
     pointer-events: none;
-    opacity:0;
+    opacity: 0;
 }
-div.dialog-box div.texts{
-    margin-bottom:70px;
+
+div.dialog-box div.texts {
+    margin-bottom: 70px;
 }
-div.dialog-box div.texts *{
-    color:black
+
+div.dialog-box div.texts * {
+    color: black
 }
+
 div.dialog-box div.buttons {
     display: flex;
     justify-content: center;
-    gap:10px;
+    gap: 10px;
 }
-div.dialog-box div.buttons button{
-    padding:5px 20px;
+
+div.dialog-box div.buttons button {
+    padding: 5px 20px;
     font-size: 15px;
-    border:0;
-    outline:0;
+    border: 0;
+    outline: 0;
     background-color: rgb(20, 20, 20);
     color: white;
     cursor: pointer;
     transition: transform 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
 }
-div.dialog-box div.buttons button:hover{
-    transform:scale(0.9);
+
+div.dialog-box div.buttons button:hover {
+    transform: scale(0.9);
 }
-div.dialog-box div.buttons button:active{
-    transform:scale(0.95);
+
+div.dialog-box div.buttons button:active {
+    transform: scale(0.95);
 }
 
 @keyframes dialogin {
     0% {
-        transform:translateX(-50%) translateY(-50%) scale(0.7);
+        transform: translateX(-50%) translateY(-50%) scale(0.7);
         filter: blur(10px);
-        opacity:0;
+        opacity: 0;
     }
+
     100% {
-        transform:translateX(-50%) translateY(-50%) scale(1);
-        opacity:1;
+        transform: translateX(-50%) translateY(-50%) scale(1);
+        opacity: 1;
     }
-} 
-@keyframes dialogout{
+}
+
+@keyframes dialogout {
     0% {
-        transform:translateX(-50%) translateY(-50%) scale(1);
-        opacity:1;
+        transform: translateX(-50%) translateY(-50%) scale(1);
+        opacity: 1;
     }
+
     100% {
-        transform:translateX(-50%) translateY(-50%) scale(0.7);
+        transform: translateX(-50%) translateY(-50%) scale(0.7);
         filter: blur(10px);
-        opacity:0;
+        opacity: 0;
     }
-    
+
 }
 
 
@@ -656,7 +678,7 @@ div.board {
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
     width: 900px;
-    background-image: url("/public/board.png");
+    background-image: url("/board2.png");
     background-size: cover;
     box-shadow: 0px 0px 0px 3px black;
     z-index: 0;
@@ -664,7 +686,7 @@ div.board {
 }
 
 div.board div#display-houses div.street-houses {
-    background-color: rgb(0,0,0,50%);
+    background-color: rgb(0, 0, 0, 50%);
     position: absolute;
     transform: translateX(-50%) translateY(-50%);
     z-index: 1;
@@ -722,7 +744,7 @@ div.roll-panel {
     left: 50%;
 }
 
-div.roll-panel button{
+div.roll-panel button {
     position: absolute;
     transform: translateX(-50%);
     background-color: rgba(20, 20, 20, 100);
@@ -730,13 +752,14 @@ div.roll-panel button{
     border-radius: 7px;
     font-size: 20px;
     text-align: center;
-    height:70px;
-    
+    height: 70px;
+
     transition: transform 0.3s cubic-bezier(0.21, 1.57, 0.55, 1),
-    translate 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
+        translate 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
     pointer-events: all;
-    width:300px;
+    width: 300px;
 }
+
 div.roll-panel button:hover {
     transform: scale(0.9) translateX(-55%);
     cursor: pointer;
@@ -760,12 +783,15 @@ div.roll-panel button p {
     font-family: "Josefin Sans";
     transform: translateY(5px);
 }
-div.roll-panel button.roll-button[aria-disabled="false"]:nth-child(1){
+
+div.roll-panel button.roll-button[aria-disabled="false"]:nth-child(1) {
     translate: 0px -160px;
 }
-div.roll-panel button.roll-button[aria-disabled="false"]:nth-child(2){
+
+div.roll-panel button.roll-button[aria-disabled="false"]:nth-child(2) {
     translate: 0px -80px;
 }
+
 div.roll-panel button.roll-button[aria-disabled="false"] img:nth-child(3) {
     position: absolute;
     top: 50%;
@@ -780,7 +806,7 @@ div.roll-panel button.roll-button img:nth-child(1) {
     width: 50px;
 }
 
-div.roll-panel button.roll-button[data-button-type][aria-disabled="true"]{
+div.roll-panel button.roll-button[data-button-type][aria-disabled="true"] {
     opacity: 0;
     visibility: hidden;
 }
@@ -955,11 +981,12 @@ div.card-display-actions div button:hover {
     color: white;
     background-color: rgb(12, 51, 87);
 }
-div.card-display-actions div button:disabled:hover{
-    cursor:not-allowed;
+
+div.card-display-actions div button:disabled:hover {
+    cursor: not-allowed;
     transform: scale(1);
-    background-color: rgb(20,20,20);
-    color:white;
+    background-color: rgb(20, 20, 20);
+    color: white;
 }
 
 div.card-display-actions div button:hover:nth-last-child(1) {
@@ -1313,4 +1340,3 @@ img#moneyAnimations[data-anim="2"] {
     }
 
 }
-

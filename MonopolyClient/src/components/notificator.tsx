@@ -59,7 +59,9 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
                 }, (time ?? 2) * 1000);
             },
             dialog(build_dialog_function) {
-                const dialogScreen = document.querySelector('div.dialog-screen') as HTMLDivElement;
+                const dialogScreen = document.querySelector(
+                    "div.dialog-screen"
+                ) as HTMLDivElement;
                 const dialaogElement = document.querySelector(
                     "div.dialog-box"
                 ) as HTMLDivElement;
@@ -71,16 +73,16 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
                 ) as HTMLDivElement;
                 const functionResults = build_dialog_function(
                     () => {
-                        
                         dialogScreen.setAttribute("data-show", "false");
-                            dialaogElement.setAttribute("data-show", "false");
-                            dialaogElement.style.animation="dialogout 1s cubic-bezier(.5,0,1,.5)";
-                        console.log('called animation')
-                        setTimeout(()=>{
-                            dialaogElement.style.animation="";
+                        dialaogElement.setAttribute("data-show", "false");
+                        dialaogElement.style.animation =
+                            "dialogout 1s cubic-bezier(.5,0,1,.5)";
+                        console.log("called animation");
+                        setTimeout(() => {
+                            dialaogElement.style.animation = "";
                             textsElement.innerHTML = "";
-                        buttonsElement.innerHTML = "";
-                        },1000)
+                            buttonsElement.innerHTML = "";
+                        }, 1000);
                     },
                     (innerHTML, onClick) => {
                         const _button = document.createElement("button");
@@ -102,12 +104,10 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
             <>
                 {" "}
                 <div className="notify"></div>
-                <div className="dialog-screen" data-show={false}>
-                </div>
+                <div className="dialog-screen" data-show={false}></div>
                 <div className="dialog-box" data-show={false}>
                     <div className="texts"></div>
                     <div className="buttons"></div>
-                
                 </div>
             </>
         );
