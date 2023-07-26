@@ -1,0 +1,158 @@
+#root {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: rgb(20, 20, 20);
+}
+
+div.entry {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+div.entry header {
+    color: white;
+    margin-bottom: 20px;
+}
+
+div.entry p {
+    color: white;
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+div.entry h3 {
+    margin: 0;
+}
+
+div.entry input[type=text] {
+    font-size: 20px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0);
+    border: 0;
+    border-bottom: 1px solid white;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+div.entry input:focus {
+    outline: 0;
+}
+
+div.entry h5 {
+    color: white;
+    margin: 0;
+    margin-bottom: 10px;
+    font-weight: 400;
+}
+
+div.entry h5 input {
+    margin: 0;
+}
+
+div.entry button {
+    font-size: 20px;
+    color: white;
+    background-color: #0075FF;
+    display: block;
+    padding-inline: 40px;
+    border-radius: 5px;
+    margin-top: 50px;
+    cursor: pointer;
+    padding-block: 3px;
+    border: 0;
+    outline: 0;
+    transition: scale .35s cubic-bezier(0, .6, .28, 1.47)
+}
+
+div.entry button:hover {
+    scale: 0.8
+}
+
+div.entry button:active {
+    scale: 0.9
+}
+div.entry button:disabled{
+    animation:disabledAnim 1s ease-out infinite;
+}
+div.entry button:disabled:hover{
+    scale:1;
+    cursor:not-allowed;
+}
+div.entry button:disabled:active{
+    scale:1;
+}
+@keyframes disabledAnim {
+    0%{
+        scale:1;
+        filter:blur(0px) grayscale(.5);
+    }
+    50%{
+        filter:blur(5px) grayscale(1);
+        scale:0.95;
+    }
+    100%{
+        filter:blur(0px) grayscale(.5);
+        scale:1;
+    }
+}
+div.lobby {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 20px;
+    color: white;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+div.lobby h3 {
+    color: white;
+}
+
+div.lobby button {
+    font-size: 20px;
+    color: white;
+    background-color: rgb(35, 35, 35);
+    display: block;
+    padding-inline: 40px;
+    border-radius: 5px;
+    margin-top: 50px;
+    cursor: pointer;
+    padding-block: 3px;
+    border: 0;
+    outline: 0;
+    transition: scale .35s cubic-bezier(0, .6, .28, 1.47)
+}
+
+div.lobby button:hover {
+    scale: 0.8
+}
+
+div.lobby button:active {
+    scale: 0.9
+}
+
+
+p.lobby-players {
+    font-family: consolas, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+        "Helvetica Neue", sans-serif;
+    margin: 5px;
+    margin-left: 15px;
+    background-color: rgb(35, 35, 35);
+    width: fit-content;
+    padding-inline: 15px 30px;
+    padding-block: 2px;
+    color: white;
+    border-radius: 3px;
+    width: 100%;
+}
