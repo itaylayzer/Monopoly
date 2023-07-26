@@ -697,8 +697,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 }
                 propertiesDisplay();
 
-                if (continue_to_animate)
-                    requestAnimationFrame(animate);
+                if (continue_to_animate) requestAnimationFrame(animate);
             };
             requestAnimationFrame(animate);
 

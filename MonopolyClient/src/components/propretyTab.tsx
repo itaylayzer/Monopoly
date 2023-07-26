@@ -148,12 +148,24 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>(
                                 </h3>
                                 <div>
                                     {v.count == "h" ? (
-                                        <img src={HotelIcon.replace("public/","")} alt="" />
+                                        <img
+                                            src={HotelIcon.replace(
+                                                "public/",
+                                                ""
+                                            )}
+                                            alt=""
+                                        />
                                     ) : typeof v.count === "number" &&
                                       v.count > 0 ? (
                                         <>
                                             <p>{v.count}</p>
-                                            <img src={HouseIcon.replace("public/","")} alt="" />
+                                            <img
+                                                src={HouseIcon.replace(
+                                                    "public/",
+                                                    ""
+                                                )}
+                                                alt=""
+                                            />
                                         </>
                                     ) : (
                                         <></>

@@ -105,20 +105,6 @@ body {
     user-select: none;
 }
 
-p.lobby-players {
-    font-family: consolas, system-ui, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
-        "Helvetica Neue", sans-serif;
-    margin: 5px;
-    margin-left: 15px;
-    background-color: rgb(20, 20, 20);
-    width: fit-content;
-    padding-inline: 10px 20px;
-    color: white;
-    border: 1px solid black;
-    border-radius: 3px;
-}
-
 div.notify {
     display: block;
     position: absolute;
@@ -127,7 +113,6 @@ div.notify {
     min-width: 100px;
     min-height: 50px;
     transform: translateX(-50%) translateY(-150%);
-
 }
 
 div.notification {
@@ -140,14 +125,14 @@ div.notification {
     text-align: center;
     font-size: 20px;
     margin-block: 10px;
-    animation: popin 0.33s cubic-bezier(0, 1.88, .46, .76);
+    animation: popin 0.33s cubic-bezier(0, 1.88, 0.46, 0.76);
     position: absolute;
     white-space: nowrap;
     translate: 0px 100px;
     padding-block: 10px;
     z-index: 10;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 50%);
-    transition: top .5s ease-out, translate .5s ease-out;
+    transition: top 0.5s ease-out, translate 0.5s ease-out;
 }
 
 div.notification[data-notif-type="warn"] {
@@ -185,20 +170,21 @@ div.dialog-screen {
     left: 0;
     width: 100%;
     height: 100%;
-
 }
 
 div.dialog-screen[data-show="true"] {
     background-color: rgba(0, 0, 0, 50%);
     backdrop-filter: blur(20px);
-    transition: background-color 1s cubic-bezier(0, .5, .5, 1), backdrop-filter 1s cubic-bezier(0, .5, .5, 1);
+    transition: background-color 1s cubic-bezier(0, 0.5, 0.5, 1),
+        backdrop-filter 1s cubic-bezier(0, 0.5, 0.5, 1);
 }
 
 div.dialog-screen[data-show="false"] {
     background-color: rgba(0, 0, 0, 0%);
     backdrop-filter: none;
     pointer-events: none;
-    transition: background-color 1s cubic-bezier(.5, 0, 1, .5), backdrop-filter 1s cubic-bezier(.5, 0, 1, .5);
+    transition: background-color 1s cubic-bezier(0.5, 0, 1, 0.5),
+        backdrop-filter 1s cubic-bezier(0.5, 0, 1, 0.5);
 }
 
 div.dialog-box {
@@ -215,7 +201,7 @@ div.dialog-box {
 }
 
 div.dialog-box[data-show="true"] {
-    animation: dialogin 1s cubic-bezier(0, .5, .5, 1);
+    animation: dialogin 1s cubic-bezier(0, 0.5, 0.5, 1);
     pointer-events: all;
     opacity: 1;
 }
@@ -230,7 +216,7 @@ div.dialog-box div.texts {
 }
 
 div.dialog-box div.texts * {
-    color: black
+    color: black;
 }
 
 div.dialog-box div.buttons {
@@ -282,9 +268,7 @@ div.dialog-box div.buttons button:active {
         filter: blur(10px);
         opacity: 0;
     }
-
 }
-
 
 main {
     position: absolute;
@@ -393,8 +377,6 @@ main nav.content[data-index="0"] {
     height: 100%;
 
     color: white;
-
-
 }
 
 main nav.content[data-index="0"] div.container__top {
@@ -402,7 +384,6 @@ main nav.content[data-index="0"] div.container__top {
     overflow-y: hidden;
     display: block;
 }
-
 
 main nav.content[data-index="0"] div.resizer {
     background-color: #cbd5e0;
@@ -682,7 +663,7 @@ div.board {
     background-size: cover;
     box-shadow: 0px 0px 0px 3px black;
     z-index: 0;
-    transition: transform .1s ease-out;
+    transition: transform 0.1s ease-out;
 }
 
 div.board div#display-houses div.street-houses {
@@ -734,7 +715,7 @@ div.board div.street {
     transform: translateX(-50%) translateY(-50%);
     position: absolute;
     z-index: 2;
-    transition: background-color .1s ease-out;
+    transition: background-color 0.1s ease-out;
 }
 
 div.roll-panel {
@@ -937,7 +918,7 @@ div.card-display-actions {
     background-color: whitesmoke;
     transform: translateY(-50%) translateX(-50%);
     z-index: 0;
-    transition: transform 1s cubic-bezier(0, .66, 0, .98);
+    transition: transform 1s cubic-bezier(0, 0.66, 0, 0.98);
     box-shadow: 0px 0px 5px black;
 }
 
@@ -1142,7 +1123,6 @@ div.chance-card {
 
     background-position: center;
     background-repeat: no-repeat;
-
 }
 
 div.chance-card[data-b-image="chance"] {
@@ -1153,7 +1133,6 @@ div.chance-card[data-b-image="chance"] {
 div.chance-card[data-b-image="chest"] {
     background-image: url("/special/chest.png");
     background-size: 200px;
-
 }
 
 div.chance-card div {
@@ -1194,7 +1173,7 @@ table {
     box-sizing: border-box;
 }
 
-table tr td:nth-child(2n+1) {
+table tr td:nth-child(2n + 1) {
     font-size: 16;
     font-style: italic;
 }
@@ -1272,18 +1251,18 @@ img#moneyAnimations {
 }
 
 img#moneyAnimations[data-anim="1"] {
-    animation: moneyAnimations1 1s cubic-bezier(.25, 1.44, .55, 1.01),
+    animation: moneyAnimations1 1s cubic-bezier(0.25, 1.44, 0.55, 1.01),
         moneyAnimations2 1s ease-out infinite,
-        moneyAnimations3 1s cubic-bezier(.61, .05, .96, .18);
+        moneyAnimations3 1s cubic-bezier(0.61, 0.05, 0.96, 0.18);
     background-image: url("/animations/send2.png");
     background-size: 80px;
     background-size: cover;
 }
 
 img#moneyAnimations[data-anim="2"] {
-    animation: moneyAnimations1 1s cubic-bezier(.25, 1.44, .55, 1.01),
+    animation: moneyAnimations1 1s cubic-bezier(0.25, 1.44, 0.55, 1.01),
         moneyAnimations22 1s ease-out,
-        moneyAnimations3 1s cubic-bezier(.61, .05, .96, .18);
+        moneyAnimations3 1s cubic-bezier(0.61, 0.05, 0.96, 0.18);
     background-image: url("/animations/recieve2.png");
     background-size: 80px;
     background-position: center;
@@ -1297,7 +1276,6 @@ img#moneyAnimations[data-anim="2"] {
     100% {
         translate: 0 -50px;
     }
-
 }
 
 @keyframes moneyAnimations2 {
@@ -1312,7 +1290,6 @@ img#moneyAnimations[data-anim="2"] {
     100% {
         transform: scale(0.7);
     }
-
 }
 
 @keyframes moneyAnimations22 {
@@ -1327,7 +1304,6 @@ img#moneyAnimations[data-anim="2"] {
     100% {
         transform: scale(1.428571428571429);
     }
-
 }
 
 @keyframes moneyAnimations3 {
@@ -1338,5 +1314,4 @@ img#moneyAnimations[data-anim="2"] {
     100% {
         opacity: 0;
     }
-
 }

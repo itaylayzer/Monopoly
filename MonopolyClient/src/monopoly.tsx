@@ -842,11 +842,11 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 {Array.from(clients.values()).map((v, i) => {
                     return (
                         <p
-                            style={v.ready ? { backgroundColor: "green" } : {}}
+                            style={v.ready ? { backgroundColor: "#32a852" } : {}}
                             className="lobby-players"
                             key={i}
                         >
-                            {v.username} [{v.position}]
+                            {v.username}
                         </p>
                     );
                 })}
