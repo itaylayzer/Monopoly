@@ -531,7 +531,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         `div.player[player-id="${x.id}"]`
                     );
                     if (elementSearch !== null) {
-                        const _rot_string =  `${rotation}deg`;
+                        const _rot_string =  `-${rotation}deg`;
                         const e = (
                             elementSearch as HTMLDivElement
                         );
