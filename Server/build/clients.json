@@ -1,0 +1,19 @@
+{
+  "tBWiuU4UNfFhCm7BAAAF": {
+    "id": "tBWiuU4UNfFhCm7BAAAF",
+    "username": "Itay",
+    "icon": 0,
+    "position": 8,
+    "balance": 1400,
+    "properties": [
+      {
+        "posistion": 8,
+        "count": 0,
+        "group": "lightgreen"
+      }
+    ],
+    "isInJail": false,
+    "jailTurnsRemaining": 0,
+    "getoutCards": 0
+  }
+}
