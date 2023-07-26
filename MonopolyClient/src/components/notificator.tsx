@@ -24,6 +24,7 @@ export interface NotificatorRef {
 
 // Create the component with forwardRef
 const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
+    // @ts-ignore
     (prop, ref) => {
         useImperativeHandle(ref, () => ({
             message(message, type, time, after) {

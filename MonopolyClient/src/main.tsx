@@ -43,6 +43,7 @@ function App() {
 
     const [isSignedIn, SetSignedIn] = useState<boolean>(false);
     const joinButtonClicked = (
+        // @ts-ignore
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
         document.cookie = JSON.stringify({

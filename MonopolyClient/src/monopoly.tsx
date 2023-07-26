@@ -656,7 +656,9 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             );
                             const targetPos = p.get(c.tileid)?.posistion;
                             if (targetPos === undefined) {
+                                
                                 const _arr = Array.from(p.keys());
+                                console.log(_arr);
                                 break;
                             }
                             const generatorResults = playerMoveGENERATOR(

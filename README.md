@@ -39,16 +39,12 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 
 
 ## TODO List:
-
-finnally:
-[client] advanced chance/chest cards functiuallity
-railroad & utilities rent;
-
-additionals:
-settings
-
-To Fix: fix-walking animation
+1. Enhancement of [client] advanced chance/chest cards functionality.
+2. Implementation of railroad and utilities rent mechanics.
+3. Configuration and refinement of settings.
+4. Fixing walking animation issues
 
 ## Pictures and Videos of the game!
 for more pictures go to the pictures folder in this repo
 ![picture of the monopoly game](https://cdn.discordapp.com/attachments/1005211638191890532/1133681326793433138/7.PNG)
+![picture of the monopoly server](https://cdn.discordapp.com/attachments/1005211638191890532/1133683905522847816/17.PNG)
