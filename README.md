@@ -1,4 +1,5 @@
 # 🎲 Monopoly 🎲 - A Multiplayer React.js and Express.js Game
+the url of the game https://coder-1t45.github.io/Monopoly/
 
 Welcome to my Monopoly, a thrilling online multiplayer game developed using React.js, Express.js, and TypeScript. This exciting rendition of the classic Monopoly game incorporates some intriguing rule changes. this Monopoly can only be played in multiplayer mode.
 
@@ -42,7 +43,9 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 1. Enhancement of [client] advanced chance/chest cards functionality.
 2. Implementation of railroad and utilities rent mechanics.
 3. Configuration and refinement of settings.
-4. Fixing walking animation issues
+4. Fixing walking animation issues 
+
+The reason i only care about TODO number 4 is beacuse when i played the game this advanced chance/cards didnt matter, also rairoad and utilities rent, and i dont find any settings to add to the game. maybe another day i will do so! im currently playing the game and debugin to understand why the walking got messed up in mid-game state. If this is ignored or you dont care, the game is ready to run!
 
 ## Pictures and Videos of the game!
 for more pictures go to the pictures folder in this repo

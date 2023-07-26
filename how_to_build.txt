@@ -1,0 +1,10 @@
+to build the frontend you will need to use npm run build in the Client library, 
+
+rechange the name of dist to docs and move to root folder
+in the docs/index.html change /assets/ to ./assets/
+in the css change url(/ to url(./
+in javascript change /assets/ to ./assets/
+
+and everything will work!
+
+after that move the css to the root

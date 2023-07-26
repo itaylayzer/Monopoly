@@ -531,6 +531,14 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         `div.player[player-id="${x.id}"]`
                     );
                     if (elementSearch !== null) {
+                        const _rot_string =  `${rotation}deg`;
+                        const e = (
+                            elementSearch as HTMLDivElement
+                        );
+                        if (e.style.rotate.replace(';','').replace(' ',' ') !== _rot_string.replace(';','').replace(' ',' ')){
+                            e.style.rotate = _rot_string;
+                        };
+
                         // check if loaction is the same
                         const pos = elementSearch.parentElement?.getAttribute(
                             "data-position"
@@ -584,6 +592,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             x.position.toString()
                         );
                         element.setAttribute("data-tooltip-hover", x.username);
+                        element.style.rotate = `${rotation}deg`;
                         const image = document.createElement("img");
                         image.src = `./p${icon}.png`;
                         element.appendChild(image);

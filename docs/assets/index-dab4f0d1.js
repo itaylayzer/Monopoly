@@ -484,44 +484,44 @@ var l = Qa.exports,
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */ (function (e) {
-    function t(P, S) {
-        var L = P.length;
-        P.push(S);
-        e: for (; 0 < L; ) {
-            var z = (L - 1) >>> 1,
-                O = P[z];
-            if (0 < i(O, S)) (P[z] = S), (P[L] = O), (L = z);
+    function t(C, k) {
+        var T = C.length;
+        C.push(k);
+        e: for (; 0 < T; ) {
+            var M = (T - 1) >>> 1,
+                O = C[M];
+            if (0 < i(O, k)) (C[M] = k), (C[T] = O), (T = M);
             else break e;
         }
     }
-    function n(P) {
-        return P.length === 0 ? null : P[0];
+    function n(C) {
+        return C.length === 0 ? null : C[0];
     }
-    function r(P) {
-        if (P.length === 0) return null;
-        var S = P[0],
-            L = P.pop();
-        if (L !== S) {
-            P[0] = L;
-            e: for (var z = 0, O = P.length, J = O >>> 1; z < J; ) {
-                var Y = 2 * (z + 1) - 1,
-                    ue = P[Y],
+    function r(C) {
+        if (C.length === 0) return null;
+        var k = C[0],
+            T = C.pop();
+        if (T !== k) {
+            C[0] = T;
+            e: for (var M = 0, O = C.length, J = O >>> 1; M < J; ) {
+                var Y = 2 * (M + 1) - 1,
+                    ue = C[Y],
                     ye = Y + 1,
-                    fe = P[ye];
-                if (0 > i(ue, L))
+                    fe = C[ye];
+                if (0 > i(ue, T))
                     ye < O && 0 > i(fe, ue)
-                        ? ((P[z] = fe), (P[ye] = L), (z = ye))
-                        : ((P[z] = ue), (P[Y] = L), (z = Y));
-                else if (ye < O && 0 > i(fe, L))
-                    (P[z] = fe), (P[ye] = L), (z = ye);
+                        ? ((C[M] = fe), (C[ye] = T), (M = ye))
+                        : ((C[M] = ue), (C[Y] = T), (M = Y));
+                else if (ye < O && 0 > i(fe, T))
+                    (C[M] = fe), (C[ye] = T), (M = ye);
                 else break e;
             }
         }
-        return S;
+        return k;
     }
-    function i(P, S) {
-        var L = P.sortIndex - S.sortIndex;
-        return L !== 0 ? L : P.id - S.id;
+    function i(C, k) {
+        var T = C.sortIndex - k.sortIndex;
+        return T !== 0 ? T : C.id - k.id;
     }
     if (
         typeof performance == "object" &&
@@ -553,73 +553,73 @@ var l = Qa.exports,
         navigator.scheduling !== void 0 &&
         navigator.scheduling.isInputPending !== void 0 &&
         navigator.scheduling.isInputPending.bind(navigator.scheduling);
-    function p(P) {
-        for (var S = n(f); S !== null; ) {
-            if (S.callback === null) r(f);
-            else if (S.startTime <= P)
-                r(f), (S.sortIndex = S.expirationTime), t(u, S);
+    function p(C) {
+        for (var k = n(f); k !== null; ) {
+            if (k.callback === null) r(f);
+            else if (k.startTime <= C)
+                r(f), (k.sortIndex = k.expirationTime), t(u, k);
             else break;
-            S = n(f);
+            k = n(f);
         }
     }
-    function k(P) {
-        if (((x = !1), p(P), !A))
+    function S(C) {
+        if (((x = !1), p(C), !A))
             if (n(u) !== null) (A = !0), I(v);
             else {
-                var S = n(f);
-                S !== null && _(k, S.startTime - P);
+                var k = n(f);
+                k !== null && L(S, k.startTime - C);
             }
     }
-    function v(P, S) {
+    function v(C, k) {
         (A = !1), x && ((x = !1), d(R), (R = -1)), (y = !0);
-        var L = m;
+        var T = m;
         try {
             for (
-                p(S), h = n(u);
-                h !== null && (!(h.expirationTime > S) || (P && !$()));
+                p(k), h = n(u);
+                h !== null && (!(h.expirationTime > k) || (C && !$()));
 
             ) {
-                var z = h.callback;
-                if (typeof z == "function") {
+                var M = h.callback;
+                if (typeof M == "function") {
                     (h.callback = null), (m = h.priorityLevel);
-                    var O = z(h.expirationTime <= S);
-                    (S = e.unstable_now()),
+                    var O = M(h.expirationTime <= k);
+                    (k = e.unstable_now()),
                         typeof O == "function"
                             ? (h.callback = O)
                             : h === n(u) && r(u),
-                        p(S);
+                        p(k);
                 } else r(u);
                 h = n(u);
             }
             if (h !== null) var J = !0;
             else {
                 var Y = n(f);
-                Y !== null && _(k, Y.startTime - S), (J = !1);
+                Y !== null && L(S, Y.startTime - k), (J = !1);
             }
             return J;
         } finally {
-            (h = null), (m = L), (y = !1);
+            (h = null), (m = T), (y = !1);
         }
     }
-    var C = !1,
+    var P = !1,
         w = null,
         R = -1,
         b = 5,
-        F = -1;
+        z = -1;
     function $() {
-        return !(e.unstable_now() - F < b);
+        return !(e.unstable_now() - z < b);
     }
     function V() {
         if (w !== null) {
-            var P = e.unstable_now();
-            F = P;
-            var S = !0;
+            var C = e.unstable_now();
+            z = C;
+            var k = !0;
             try {
-                S = w(!0, P);
+                k = w(!0, C);
             } finally {
-                S ? j() : ((C = !1), (w = null));
+                k ? j() : ((P = !1), (w = null));
             }
-        } else C = !1;
+        } else P = !1;
     }
     var j;
     if (typeof c == "function")
@@ -628,22 +628,22 @@ var l = Qa.exports,
         };
     else if (typeof MessageChannel < "u") {
         var N = new MessageChannel(),
-            M = N.port2;
+            F = N.port2;
         (N.port1.onmessage = V),
             (j = function () {
-                M.postMessage(null);
+                F.postMessage(null);
             });
     } else
         j = function () {
             D(V, 0);
         };
-    function I(P) {
-        (w = P), C || ((C = !0), j());
+    function I(C) {
+        (w = C), P || ((P = !0), j());
     }
-    function _(P, S) {
+    function L(C, k) {
         R = D(function () {
-            P(e.unstable_now());
-        }, S);
+            C(e.unstable_now());
+        }, k);
     }
     (e.unstable_IdlePriority = 5),
         (e.unstable_ImmediatePriority = 1),
@@ -651,18 +651,18 @@ var l = Qa.exports,
         (e.unstable_NormalPriority = 3),
         (e.unstable_Profiling = null),
         (e.unstable_UserBlockingPriority = 2),
-        (e.unstable_cancelCallback = function (P) {
-            P.callback = null;
+        (e.unstable_cancelCallback = function (C) {
+            C.callback = null;
         }),
         (e.unstable_continueExecution = function () {
             A || y || ((A = !0), I(v));
         }),
-        (e.unstable_forceFrameRate = function (P) {
-            0 > P || 125 < P
+        (e.unstable_forceFrameRate = function (C) {
+            0 > C || 125 < C
                 ? console.error(
                       "forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"
                   )
-                : (b = 0 < P ? Math.floor(1e3 / P) : 5);
+                : (b = 0 < C ? Math.floor(1e3 / C) : 5);
         }),
         (e.unstable_getCurrentPriorityLevel = function () {
             return m;
@@ -670,28 +670,28 @@ var l = Qa.exports,
         (e.unstable_getFirstCallbackNode = function () {
             return n(u);
         }),
-        (e.unstable_next = function (P) {
+        (e.unstable_next = function (C) {
             switch (m) {
                 case 1:
                 case 2:
                 case 3:
-                    var S = 3;
+                    var k = 3;
                     break;
                 default:
-                    S = m;
+                    k = m;
             }
-            var L = m;
-            m = S;
+            var T = m;
+            m = k;
             try {
-                return P();
+                return C();
             } finally {
-                m = L;
+                m = T;
             }
         }),
         (e.unstable_pauseExecution = function () {}),
         (e.unstable_requestPaint = function () {}),
-        (e.unstable_runWithPriority = function (P, S) {
-            switch (P) {
+        (e.unstable_runWithPriority = function (C, k) {
+            switch (C) {
                 case 1:
                 case 2:
                 case 3:
@@ -699,24 +699,24 @@ var l = Qa.exports,
                 case 5:
                     break;
                 default:
-                    P = 3;
+                    C = 3;
             }
-            var L = m;
-            m = P;
+            var T = m;
+            m = C;
             try {
-                return S();
+                return k();
             } finally {
-                m = L;
+                m = T;
             }
         }),
-        (e.unstable_scheduleCallback = function (P, S, L) {
-            var z = e.unstable_now();
+        (e.unstable_scheduleCallback = function (C, k, T) {
+            var M = e.unstable_now();
             switch (
-                (typeof L == "object" && L !== null
-                    ? ((L = L.delay),
-                      (L = typeof L == "number" && 0 < L ? z + L : z))
-                    : (L = z),
-                P)
+                (typeof T == "object" && T !== null
+                    ? ((T = T.delay),
+                      (T = typeof T == "number" && 0 < T ? M + T : M))
+                    : (T = M),
+                C)
             ) {
                 case 1:
                     var O = -1;
@@ -734,35 +734,35 @@ var l = Qa.exports,
                     O = 5e3;
             }
             return (
-                (O = L + O),
-                (P = {
+                (O = T + O),
+                (C = {
                     id: g++,
-                    callback: S,
-                    priorityLevel: P,
-                    startTime: L,
+                    callback: k,
+                    priorityLevel: C,
+                    startTime: T,
                     expirationTime: O,
                     sortIndex: -1,
                 }),
-                L > z
-                    ? ((P.sortIndex = L),
-                      t(f, P),
+                T > M
+                    ? ((C.sortIndex = T),
+                      t(f, C),
                       n(u) === null &&
-                          P === n(f) &&
-                          (x ? (d(R), (R = -1)) : (x = !0), _(k, L - z)))
-                    : ((P.sortIndex = O), t(u, P), A || y || ((A = !0), I(v))),
-                P
+                          C === n(f) &&
+                          (x ? (d(R), (R = -1)) : (x = !0), L(S, T - M)))
+                    : ((C.sortIndex = O), t(u, C), A || y || ((A = !0), I(v))),
+                C
             );
         }),
         (e.unstable_shouldYield = $),
-        (e.unstable_wrapCallback = function (P) {
-            var S = m;
+        (e.unstable_wrapCallback = function (C) {
+            var k = m;
             return function () {
-                var L = m;
-                m = S;
+                var T = m;
+                m = k;
                 try {
-                    return P.apply(this, arguments);
+                    return C.apply(this, arguments);
                 } finally {
-                    m = L;
+                    m = T;
                 }
             };
         });
@@ -3252,14 +3252,14 @@ function fo(e, t, n, r, i) {
                 x = [];
                 for (var c = f, p; c !== null; ) {
                     p = c;
-                    var k = p.stateNode;
+                    var S = p.stateNode;
                     if (
                         (p.tag === 5 &&
-                            k !== null &&
-                            ((p = k),
+                            S !== null &&
+                            ((p = S),
                             d !== null &&
-                                ((k = ar(c, d)),
-                                k != null && x.push(mr(c, k, p)))),
+                                ((S = ar(c, d)),
+                                S != null && x.push(mr(c, S, p)))),
                         D)
                     )
                         break;
@@ -3302,31 +3302,31 @@ function fo(e, t, n, r, i) {
                 ) {
                     if (
                         ((x = ql),
-                        (k = "onMouseLeave"),
+                        (S = "onMouseLeave"),
                         (d = "onMouseEnter"),
                         (c = "mouse"),
                         (e === "pointerout" || e === "pointerover") &&
                             ((x = Jl),
-                            (k = "onPointerLeave"),
+                            (S = "onPointerLeave"),
                             (d = "onPointerEnter"),
                             (c = "pointer")),
                         (D = y == null ? m : dn(y)),
                         (p = A == null ? m : dn(A)),
-                        (m = new x(k, c + "leave", y, n, g)),
+                        (m = new x(S, c + "leave", y, n, g)),
                         (m.target = D),
                         (m.relatedTarget = p),
-                        (k = null),
+                        (S = null),
                         Jt(g) === f &&
                             ((x = new x(d, c + "enter", A, n, g)),
                             (x.target = p),
                             (x.relatedTarget = D),
-                            (k = x)),
-                        (D = k),
+                            (S = x)),
+                        (D = S),
                         y && A)
                     )
                         t: {
                             for (x = y, d = A, c = 0, p = x; p; p = rn(p)) c++;
-                            for (p = 0, k = d; k; k = rn(k)) p++;
+                            for (p = 0, S = d; S; S = rn(S)) p++;
                             for (; 0 < c - p; ) (x = rn(x)), c--;
                             for (; 0 < p - c; ) (d = rn(d)), p--;
                             for (; c--; ) {
@@ -3355,7 +3355,7 @@ function fo(e, t, n, r, i) {
                     if (Hu) v = rp;
                     else {
                         v = tp;
-                        var C = ep;
+                        var P = ep;
                     }
                 else
                     (y = m.nodeName) &&
@@ -3366,17 +3366,17 @@ function fo(e, t, n, r, i) {
                     Ju(h, v, n, g);
                     break e;
                 }
-                C && C(e, m, f),
+                P && P(e, m, f),
                     e === "focusout" &&
-                        (C = m._wrapperState) &&
-                        C.controlled &&
+                        (P = m._wrapperState) &&
+                        P.controlled &&
                         m.type === "number" &&
                         Oo(m, "number", m.value);
             }
-            switch (((C = f ? dn(f) : window), e)) {
+            switch (((P = f ? dn(f) : window), e)) {
                 case "focusin":
-                    (Wl(C) || C.contentEditable === "true") &&
-                        ((un = C), (Ho = f), (tr = null));
+                    (Wl(P) || P.contentEditable === "true") &&
+                        ((un = P), (Ho = f), (tr = null));
                     break;
                 case "focusout":
                     tr = Ho = un = null;
@@ -3425,10 +3425,10 @@ function fo(e, t, n, r, i) {
                         : ((Et = g),
                           (Ds = "value" in Et ? Et.value : Et.textContent),
                           (an = !0))),
-                (C = mi(f, R)),
-                0 < C.length &&
+                (P = mi(f, R)),
+                0 < P.length &&
                     ((R = new Vl(R, e, null, n, g)),
-                    h.push({ event: R, listeners: C }),
+                    h.push({ event: R, listeners: P }),
                     w
                         ? (R.data = w)
                         : ((w = Vu(n)), w !== null && (R.data = w)))),
@@ -4364,38 +4364,38 @@ function fc(e) {
     function s(d) {
         return e && d.alternate === null && (d.flags |= 2), d;
     }
-    function a(d, c, p, k) {
+    function a(d, c, p, S) {
         return c === null || c.tag !== 6
-            ? ((c = ko(p, d.mode, k)), (c.return = d), c)
+            ? ((c = ko(p, d.mode, S)), (c.return = d), c)
             : ((c = i(c, p)), (c.return = d), c);
     }
-    function u(d, c, p, k) {
+    function u(d, c, p, S) {
         var v = p.type;
         return v === ln
-            ? g(d, c, p.props.children, k, p.key)
+            ? g(d, c, p.props.children, S, p.key)
             : c !== null &&
               (c.elementType === v ||
                   (typeof v == "object" &&
                       v !== null &&
                       v.$$typeof === kt &&
                       pa(v) === c.type))
-            ? ((k = i(c, p.props)), (k.ref = qn(d, c, p)), (k.return = d), k)
-            : ((k = ii(p.type, p.key, p.props, null, d.mode, k)),
-              (k.ref = qn(d, c, p)),
-              (k.return = d),
-              k);
+            ? ((S = i(c, p.props)), (S.ref = qn(d, c, p)), (S.return = d), S)
+            : ((S = ii(p.type, p.key, p.props, null, d.mode, S)),
+              (S.ref = qn(d, c, p)),
+              (S.return = d),
+              S);
     }
-    function f(d, c, p, k) {
+    function f(d, c, p, S) {
         return c === null ||
             c.tag !== 4 ||
             c.stateNode.containerInfo !== p.containerInfo ||
             c.stateNode.implementation !== p.implementation
-            ? ((c = xo(p, d.mode, k)), (c.return = d), c)
+            ? ((c = xo(p, d.mode, S)), (c.return = d), c)
             : ((c = i(c, p.children || [])), (c.return = d), c);
     }
-    function g(d, c, p, k, v) {
+    function g(d, c, p, S, v) {
         return c === null || c.tag !== 7
-            ? ((c = Kt(p, d.mode, k, v)), (c.return = d), c)
+            ? ((c = Kt(p, d.mode, S, v)), (c.return = d), c)
             : ((c = i(c, p)), (c.return = d), c);
     }
     function h(d, c, p) {
@@ -4413,8 +4413,8 @@ function fc(e) {
                 case sn:
                     return (c = xo(c, d.mode, p)), (c.return = d), c;
                 case kt:
-                    var k = c._init;
-                    return h(d, k(c._payload), p);
+                    var S = c._init;
+                    return h(d, S(c._payload), p);
             }
             if (Wn(c) || zn(c))
                 return (c = Kt(c, d.mode, p, null)), (c.return = d), c;
@@ -4422,86 +4422,86 @@ function fc(e) {
         }
         return null;
     }
-    function m(d, c, p, k) {
+    function m(d, c, p, S) {
         var v = c !== null ? c.key : null;
         if ((typeof p == "string" && p !== "") || typeof p == "number")
-            return v !== null ? null : a(d, c, "" + p, k);
+            return v !== null ? null : a(d, c, "" + p, S);
         if (typeof p == "object" && p !== null) {
             switch (p.$$typeof) {
                 case Rr:
-                    return p.key === v ? u(d, c, p, k) : null;
+                    return p.key === v ? u(d, c, p, S) : null;
                 case sn:
-                    return p.key === v ? f(d, c, p, k) : null;
+                    return p.key === v ? f(d, c, p, S) : null;
                 case kt:
-                    return (v = p._init), m(d, c, v(p._payload), k);
+                    return (v = p._init), m(d, c, v(p._payload), S);
             }
-            if (Wn(p) || zn(p)) return v !== null ? null : g(d, c, p, k, null);
+            if (Wn(p) || zn(p)) return v !== null ? null : g(d, c, p, S, null);
             br(d, p);
         }
         return null;
     }
-    function y(d, c, p, k, v) {
-        if ((typeof k == "string" && k !== "") || typeof k == "number")
-            return (d = d.get(p) || null), a(c, d, "" + k, v);
-        if (typeof k == "object" && k !== null) {
-            switch (k.$$typeof) {
+    function y(d, c, p, S, v) {
+        if ((typeof S == "string" && S !== "") || typeof S == "number")
+            return (d = d.get(p) || null), a(c, d, "" + S, v);
+        if (typeof S == "object" && S !== null) {
+            switch (S.$$typeof) {
                 case Rr:
                     return (
-                        (d = d.get(k.key === null ? p : k.key) || null),
-                        u(c, d, k, v)
+                        (d = d.get(S.key === null ? p : S.key) || null),
+                        u(c, d, S, v)
                     );
                 case sn:
                     return (
-                        (d = d.get(k.key === null ? p : k.key) || null),
-                        f(c, d, k, v)
+                        (d = d.get(S.key === null ? p : S.key) || null),
+                        f(c, d, S, v)
                     );
                 case kt:
-                    var C = k._init;
-                    return y(d, c, p, C(k._payload), v);
+                    var P = S._init;
+                    return y(d, c, p, P(S._payload), v);
             }
-            if (Wn(k) || zn(k))
-                return (d = d.get(p) || null), g(c, d, k, v, null);
-            br(c, k);
+            if (Wn(S) || zn(S))
+                return (d = d.get(p) || null), g(c, d, S, v, null);
+            br(c, S);
         }
         return null;
     }
-    function A(d, c, p, k) {
+    function A(d, c, p, S) {
         for (
-            var v = null, C = null, w = c, R = (c = 0), b = null;
+            var v = null, P = null, w = c, R = (c = 0), b = null;
             w !== null && R < p.length;
             R++
         ) {
             w.index > R ? ((b = w), (w = null)) : (b = w.sibling);
-            var F = m(d, w, p[R], k);
-            if (F === null) {
+            var z = m(d, w, p[R], S);
+            if (z === null) {
                 w === null && (w = b);
                 break;
             }
-            e && w && F.alternate === null && t(d, w),
-                (c = o(F, c, R)),
-                C === null ? (v = F) : (C.sibling = F),
-                (C = F),
+            e && w && z.alternate === null && t(d, w),
+                (c = o(z, c, R)),
+                P === null ? (v = z) : (P.sibling = z),
+                (P = z),
                 (w = b);
         }
         if (R === p.length) return n(d, w), X && qt(d, R), v;
         if (w === null) {
             for (; R < p.length; R++)
-                (w = h(d, p[R], k)),
+                (w = h(d, p[R], S)),
                     w !== null &&
                         ((c = o(w, c, R)),
-                        C === null ? (v = w) : (C.sibling = w),
-                        (C = w));
+                        P === null ? (v = w) : (P.sibling = w),
+                        (P = w));
             return X && qt(d, R), v;
         }
         for (w = r(d, w); R < p.length; R++)
-            (b = y(w, d, R, p[R], k)),
+            (b = y(w, d, R, p[R], S)),
                 b !== null &&
                     (e &&
                         b.alternate !== null &&
                         w.delete(b.key === null ? R : b.key),
                     (c = o(b, c, R)),
-                    C === null ? (v = b) : (C.sibling = b),
-                    (C = b));
+                    P === null ? (v = b) : (P.sibling = b),
+                    (P = b));
         return (
             e &&
                 w.forEach(function ($) {
@@ -4511,46 +4511,46 @@ function fc(e) {
             v
         );
     }
-    function x(d, c, p, k) {
+    function x(d, c, p, S) {
         var v = zn(p);
         if (typeof v != "function") throw Error(E(150));
         if (((p = v.call(p)), p == null)) throw Error(E(151));
         for (
-            var C = (v = null), w = c, R = (c = 0), b = null, F = p.next();
-            w !== null && !F.done;
-            R++, F = p.next()
+            var P = (v = null), w = c, R = (c = 0), b = null, z = p.next();
+            w !== null && !z.done;
+            R++, z = p.next()
         ) {
             w.index > R ? ((b = w), (w = null)) : (b = w.sibling);
-            var $ = m(d, w, F.value, k);
+            var $ = m(d, w, z.value, S);
             if ($ === null) {
                 w === null && (w = b);
                 break;
             }
             e && w && $.alternate === null && t(d, w),
                 (c = o($, c, R)),
-                C === null ? (v = $) : (C.sibling = $),
-                (C = $),
+                P === null ? (v = $) : (P.sibling = $),
+                (P = $),
                 (w = b);
         }
-        if (F.done) return n(d, w), X && qt(d, R), v;
+        if (z.done) return n(d, w), X && qt(d, R), v;
         if (w === null) {
-            for (; !F.done; R++, F = p.next())
-                (F = h(d, F.value, k)),
-                    F !== null &&
-                        ((c = o(F, c, R)),
-                        C === null ? (v = F) : (C.sibling = F),
-                        (C = F));
+            for (; !z.done; R++, z = p.next())
+                (z = h(d, z.value, S)),
+                    z !== null &&
+                        ((c = o(z, c, R)),
+                        P === null ? (v = z) : (P.sibling = z),
+                        (P = z));
             return X && qt(d, R), v;
         }
-        for (w = r(d, w); !F.done; R++, F = p.next())
-            (F = y(w, d, R, F.value, k)),
-                F !== null &&
+        for (w = r(d, w); !z.done; R++, z = p.next())
+            (z = y(w, d, R, z.value, S)),
+                z !== null &&
                     (e &&
-                        F.alternate !== null &&
-                        w.delete(F.key === null ? R : F.key),
-                    (c = o(F, c, R)),
-                    C === null ? (v = F) : (C.sibling = F),
-                    (C = F));
+                        z.alternate !== null &&
+                        w.delete(z.key === null ? R : z.key),
+                    (c = o(z, c, R)),
+                    P === null ? (v = z) : (P.sibling = z),
+                    (P = z));
         return (
             e &&
                 w.forEach(function (V) {
@@ -4560,7 +4560,7 @@ function fc(e) {
             v
         );
     }
-    function D(d, c, p, k) {
+    function D(d, c, p, S) {
         if (
             (typeof p == "object" &&
                 p !== null &&
@@ -4572,56 +4572,56 @@ function fc(e) {
             switch (p.$$typeof) {
                 case Rr:
                     e: {
-                        for (var v = p.key, C = c; C !== null; ) {
-                            if (C.key === v) {
+                        for (var v = p.key, P = c; P !== null; ) {
+                            if (P.key === v) {
                                 if (((v = p.type), v === ln)) {
-                                    if (C.tag === 7) {
-                                        n(d, C.sibling),
-                                            (c = i(C, p.props.children)),
+                                    if (P.tag === 7) {
+                                        n(d, P.sibling),
+                                            (c = i(P, p.props.children)),
                                             (c.return = d),
                                             (d = c);
                                         break e;
                                     }
                                 } else if (
-                                    C.elementType === v ||
+                                    P.elementType === v ||
                                     (typeof v == "object" &&
                                         v !== null &&
                                         v.$$typeof === kt &&
-                                        pa(v) === C.type)
+                                        pa(v) === P.type)
                                 ) {
-                                    n(d, C.sibling),
-                                        (c = i(C, p.props)),
-                                        (c.ref = qn(d, C, p)),
+                                    n(d, P.sibling),
+                                        (c = i(P, p.props)),
+                                        (c.ref = qn(d, P, p)),
                                         (c.return = d),
                                         (d = c);
                                     break e;
                                 }
-                                n(d, C);
+                                n(d, P);
                                 break;
-                            } else t(d, C);
-                            C = C.sibling;
+                            } else t(d, P);
+                            P = P.sibling;
                         }
                         p.type === ln
-                            ? ((c = Kt(p.props.children, d.mode, k, p.key)),
+                            ? ((c = Kt(p.props.children, d.mode, S, p.key)),
                               (c.return = d),
                               (d = c))
-                            : ((k = ii(
+                            : ((S = ii(
                                   p.type,
                                   p.key,
                                   p.props,
                                   null,
                                   d.mode,
-                                  k
+                                  S
                               )),
-                              (k.ref = qn(d, c, p)),
-                              (k.return = d),
-                              (d = k));
+                              (S.ref = qn(d, c, p)),
+                              (S.return = d),
+                              (d = S));
                     }
                     return s(d);
                 case sn:
                     e: {
-                        for (C = p.key; c !== null; ) {
-                            if (c.key === C)
+                        for (P = p.key; c !== null; ) {
+                            if (c.key === P)
                                 if (
                                     c.tag === 4 &&
                                     c.stateNode.containerInfo ===
@@ -4641,21 +4641,21 @@ function fc(e) {
                             else t(d, c);
                             c = c.sibling;
                         }
-                        (c = xo(p, d.mode, k)), (c.return = d), (d = c);
+                        (c = xo(p, d.mode, S)), (c.return = d), (d = c);
                     }
                     return s(d);
                 case kt:
-                    return (C = p._init), D(d, c, C(p._payload), k);
+                    return (P = p._init), D(d, c, P(p._payload), S);
             }
-            if (Wn(p)) return A(d, c, p, k);
-            if (zn(p)) return x(d, c, p, k);
+            if (Wn(p)) return A(d, c, p, S);
+            if (zn(p)) return x(d, c, p, S);
             br(d, p);
         }
         return (typeof p == "string" && p !== "") || typeof p == "number"
             ? ((p = "" + p),
               c !== null && c.tag === 6
                   ? (n(d, c.sibling), (c = i(c, p)), (c.return = d), (d = c))
-                  : (n(d, c), (c = ko(p, d.mode, k)), (c.return = d), (d = c)),
+                  : (n(d, c), (c = ko(p, d.mode, S)), (c.return = d), (d = c)),
               s(d))
             : n(d, c);
     }
@@ -6729,7 +6729,7 @@ function _p(e, t) {
 var qr = !1,
     we = !1,
     Lp = typeof WeakSet == "function" ? WeakSet : Set,
-    T = null;
+    _ = null;
 function yn(e, t) {
     var n = e.ref;
     if (n !== null)
@@ -6807,19 +6807,19 @@ function Op(e, t) {
         n = n || { start: 0, end: 0 };
     } else n = null;
     for (
-        Ko = { focusedElem: e, selectionRange: n }, pi = !1, T = t;
-        T !== null;
+        Ko = { focusedElem: e, selectionRange: n }, pi = !1, _ = t;
+        _ !== null;
 
     )
         if (
-            ((t = T),
+            ((t = _),
             (e = t.child),
             (t.subtreeFlags & 1028) !== 0 && e !== null)
         )
-            (e.return = t), (T = e);
+            (e.return = t), (_ = e);
         else
-            for (; T !== null; ) {
-                t = T;
+            for (; _ !== null; ) {
+                t = _;
                 try {
                     var A = t.alternate;
                     if (t.flags & 1024)
@@ -6858,14 +6858,14 @@ function Op(e, t) {
                             default:
                                 throw Error(E(163));
                         }
-                } catch (k) {
-                    ne(t, t.return, k);
+                } catch (S) {
+                    ne(t, t.return, S);
                 }
                 if (((e = t.sibling), e !== null)) {
-                    (e.return = t.return), (T = e);
+                    (e.return = t.return), (_ = e);
                     break;
                 }
-                T = t.return;
+                _ = t.return;
             }
     return (A = Ca), (Ca = !1), A;
 }
@@ -7273,9 +7273,9 @@ function Kc(e, t) {
                     ((f = e.memoizedState !== null),
                     (e.stateNode.isHidden = f) && !g && e.mode & 1)
                 )
-                    for (T = e, g = e.child; g !== null; ) {
-                        for (h = T = g; T !== null; ) {
-                            switch (((m = T), (y = m.child), m.tag)) {
+                    for (_ = e, g = e.child; g !== null; ) {
+                        for (h = _ = g; _ !== null; ) {
+                            switch (((m = _), (y = m.child), m.tag)) {
                                 case 0:
                                 case 11:
                                 case 14:
@@ -7309,7 +7309,7 @@ function Kc(e, t) {
                                         continue;
                                     }
                             }
-                            y !== null ? ((y.return = m), (T = y)) : ja(h);
+                            y !== null ? ((y.return = m), (_ = y)) : ja(h);
                         }
                         g = g.sibling;
                     }
@@ -7416,11 +7416,11 @@ function rt(e) {
     t & 4096 && (e.flags &= -4097);
 }
 function Ip(e, t, n) {
-    (T = e), Qc(e);
+    (_ = e), Qc(e);
 }
 function Qc(e, t, n) {
-    for (var r = (e.mode & 1) !== 0; T !== null; ) {
-        var i = T,
+    for (var r = (e.mode & 1) !== 0; _ !== null; ) {
+        var i = _,
             o = i.child;
         if (i.tag === 22 && r) {
             var s = i.memoizedState !== null || qr;
@@ -7430,27 +7430,27 @@ function Qc(e, t, n) {
                 a = qr;
                 var f = we;
                 if (((qr = s), (we = u) && !f))
-                    for (T = i; T !== null; )
-                        (s = T),
+                    for (_ = i; _ !== null; )
+                        (s = _),
                             (u = s.child),
                             s.tag === 22 && s.memoizedState !== null
                                 ? Ra(i)
                                 : u !== null
-                                ? ((u.return = s), (T = u))
+                                ? ((u.return = s), (_ = u))
                                 : Ra(i);
-                for (; o !== null; ) (T = o), Qc(o), (o = o.sibling);
-                (T = i), (qr = a), (we = f);
+                for (; o !== null; ) (_ = o), Qc(o), (o = o.sibling);
+                (_ = i), (qr = a), (we = f);
             }
             Na(e);
         } else
             i.subtreeFlags & 8772 && o !== null
-                ? ((o.return = i), (T = o))
+                ? ((o.return = i), (_ = o))
                 : Na(e);
     }
 }
 function Na(e) {
-    for (; T !== null; ) {
-        var t = T;
+    for (; _ !== null; ) {
+        var t = _;
         if (t.flags & 8772) {
             var n = t.alternate;
             try {
@@ -7544,34 +7544,34 @@ function Na(e) {
             }
         }
         if (t === e) {
-            T = null;
+            _ = null;
             break;
         }
         if (((n = t.sibling), n !== null)) {
-            (n.return = t.return), (T = n);
+            (n.return = t.return), (_ = n);
             break;
         }
-        T = t.return;
+        _ = t.return;
     }
 }
 function ja(e) {
-    for (; T !== null; ) {
-        var t = T;
+    for (; _ !== null; ) {
+        var t = _;
         if (t === e) {
-            T = null;
+            _ = null;
             break;
         }
         var n = t.sibling;
         if (n !== null) {
-            (n.return = t.return), (T = n);
+            (n.return = t.return), (_ = n);
             break;
         }
-        T = t.return;
+        _ = t.return;
     }
 }
 function Ra(e) {
-    for (; T !== null; ) {
-        var t = T;
+    for (; _ !== null; ) {
+        var t = _;
         try {
             switch (t.tag) {
                 case 0:
@@ -7613,15 +7613,15 @@ function Ra(e) {
             ne(t, t.return, u);
         }
         if (t === e) {
-            T = null;
+            _ = null;
             break;
         }
         var a = t.sibling;
         if (a !== null) {
-            (a.return = t.return), (T = a);
+            (a.return = t.return), (_ = a);
             break;
         }
-        T = t.return;
+        _ = t.return;
     }
 }
 var Mp = Math.ceil,
@@ -8081,8 +8081,8 @@ function Yc(e, t) {
                                         (Lt === null || !Lt.has(p))))
                             ) {
                                 (o.flags |= 65536), (t &= -t), (o.lanes |= t);
-                                var k = Mc(o, a, t);
-                                ua(o, k);
+                                var S = Mc(o, a, t);
+                                ua(o, S);
                                 break e;
                             }
                     }
@@ -8243,16 +8243,16 @@ function Pn() {
                 if (((e = At), (At = null), (Ri = 0), H & 6))
                     throw Error(E(331));
                 var i = H;
-                for (H |= 4, T = e.current; T !== null; ) {
-                    var o = T,
+                for (H |= 4, _ = e.current; _ !== null; ) {
+                    var o = _,
                         s = o.child;
-                    if (T.flags & 16) {
+                    if (_.flags & 16) {
                         var a = o.deletions;
                         if (a !== null) {
                             for (var u = 0; u < a.length; u++) {
                                 var f = a[u];
-                                for (T = f; T !== null; ) {
-                                    var g = T;
+                                for (_ = f; _ !== null; ) {
+                                    var g = _;
                                     switch (g.tag) {
                                         case 0:
                                         case 11:
@@ -8260,21 +8260,21 @@ function Pn() {
                                             rr(8, g, o);
                                     }
                                     var h = g.child;
-                                    if (h !== null) (h.return = g), (T = h);
+                                    if (h !== null) (h.return = g), (_ = h);
                                     else
-                                        for (; T !== null; ) {
-                                            g = T;
+                                        for (; _ !== null; ) {
+                                            g = _;
                                             var m = g.sibling,
                                                 y = g.return;
                                             if ((Hc(g), g === f)) {
-                                                T = null;
+                                                _ = null;
                                                 break;
                                             }
                                             if (m !== null) {
-                                                (m.return = y), (T = m);
+                                                (m.return = y), (_ = m);
                                                 break;
                                             }
-                                            T = y;
+                                            _ = y;
                                         }
                                 }
                             }
@@ -8289,14 +8289,14 @@ function Pn() {
                                     } while (x !== null);
                                 }
                             }
-                            T = o;
+                            _ = o;
                         }
                     }
                     if (o.subtreeFlags & 2064 && s !== null)
-                        (s.return = o), (T = s);
+                        (s.return = o), (_ = s);
                     else
-                        e: for (; T !== null; ) {
-                            if (((o = T), o.flags & 2048))
+                        e: for (; _ !== null; ) {
+                            if (((o = _), o.flags & 2048))
                                 switch (o.tag) {
                                     case 0:
                                     case 11:
@@ -8305,21 +8305,21 @@ function Pn() {
                                 }
                             var d = o.sibling;
                             if (d !== null) {
-                                (d.return = o.return), (T = d);
+                                (d.return = o.return), (_ = d);
                                 break e;
                             }
-                            T = o.return;
+                            _ = o.return;
                         }
                 }
                 var c = e.current;
-                for (T = c; T !== null; ) {
-                    s = T;
+                for (_ = c; _ !== null; ) {
+                    s = _;
                     var p = s.child;
                     if (s.subtreeFlags & 2064 && p !== null)
-                        (p.return = s), (T = p);
+                        (p.return = s), (_ = p);
                     else
-                        e: for (s = c; T !== null; ) {
-                            if (((a = T), a.flags & 2048))
+                        e: for (s = c; _ !== null; ) {
+                            if (((a = _), a.flags & 2048))
                                 try {
                                     switch (a.tag) {
                                         case 0:
@@ -8331,15 +8331,15 @@ function Pn() {
                                     ne(a, a.return, v);
                                 }
                             if (a === s) {
-                                T = null;
+                                _ = null;
                                 break e;
                             }
-                            var k = a.sibling;
-                            if (k !== null) {
-                                (k.return = a.return), (T = k);
+                            var S = a.sibling;
+                            if (S !== null) {
+                                (S.return = a.return), (_ = S);
                                 break e;
                             }
-                            T = a.return;
+                            _ = a.return;
                         }
                 }
                 if (
@@ -11353,7 +11353,7 @@ const wh = B.forwardRef((e, t) => {
                 type: "electricity",
             }),
             [d, c] = B.useState("Street");
-        function p(v, C) {
+        function p(v, P) {
             const w = document.getElementById("dice-panel");
             var R = !0;
             function b() {
@@ -11366,25 +11366,25 @@ const wh = B.forwardRef((e, t) => {
                 
                 `;
             }
-            function F() {
-                if (R) b(), requestAnimationFrame(F);
+            function z() {
+                if (R) b(), requestAnimationFrame(z);
                 else {
                     var $ = "./c";
                     w.innerHTML = `
                 <img src="${$}${v}.png" />
-                <img src="${$}${C}.png" />
+                <img src="${$}${P}.png" />
                 `;
                 }
             }
             setTimeout(() => {
                 R = !1;
             }, 1e3),
-                requestAnimationFrame(F);
+                requestAnimationFrame(z);
         }
-        function k(v) {
-            const C = document.querySelector("img#moneyAnimations");
-            if (C === null) return;
-            const w = C;
+        function S(v) {
+            const P = document.querySelector("img#moneyAnimations");
+            if (P === null) return;
+            const w = P;
             w.setAttribute("data-anim", "0"),
                 requestAnimationFrame(() => {
                     w.setAttribute("data-anim", v.toString()),
@@ -11407,7 +11407,7 @@ const wh = B.forwardRef((e, t) => {
                     (v.innerHTML = ""), s(!1);
                 },
                 setStreet: (v) => {
-                    const C = e.players.filter(($) => $.id === e.socket.id)[0],
+                    const P = e.players.filter(($) => $.id === e.socket.id)[0],
                         w = n.get(v.location);
                     if (
                         w &&
@@ -11418,10 +11418,10 @@ const wh = B.forwardRef((e, t) => {
                         let $ = function (V, j) {
                             function N() {
                                 if (V) {
-                                    const M = document.querySelector(
+                                    const F = document.querySelector(
                                         "div#advanced-responses"
                                     );
-                                    if (M) {
+                                    if (F) {
                                         let I = function (O) {
                                             switch (O) {
                                                 case "h":
@@ -11430,14 +11430,14 @@ const wh = B.forwardRef((e, t) => {
                                                     return O;
                                             }
                                         };
-                                        const _ = n.get(j);
-                                        if (!_) return;
-                                        const P = M;
-                                        for (; P.firstChild; )
-                                            P.removeChild(P.firstChild);
-                                        const S = Array.from(
+                                        const L = n.get(j);
+                                        if (!L) return;
+                                        const C = F;
+                                        for (; C.firstChild; )
+                                            C.removeChild(C.firstChild);
+                                        const k = Array.from(
                                                 new Map(
-                                                    C.properties.map((O, J) => [
+                                                    P.properties.map((O, J) => [
                                                         J,
                                                         O,
                                                     ])
@@ -11447,8 +11447,8 @@ const wh = B.forwardRef((e, t) => {
                                                     O[1].posistion ===
                                                     v.location
                                             )[0][0],
-                                            L = I(C.properties[S].count);
-                                        for (let O = L + 1; O < 6; O++) {
+                                            T = I(P.properties[k].count);
+                                        for (let O = T + 1; O < 6; O++) {
                                             const J =
                                                 document.createElement(
                                                     "button"
@@ -11456,8 +11456,8 @@ const wh = B.forwardRef((e, t) => {
                                             O === 5
                                                 ? ((J.innerHTML = "buy hotel"),
                                                   (J.disabled =
-                                                      O !== L + 1 ||
-                                                      (_.ohousecost ?? 0) >
+                                                      O !== T + 1 ||
+                                                      (L.ohousecost ?? 0) >
                                                           (e.players.filter(
                                                               (Y) =>
                                                                   Y.id ===
@@ -11478,36 +11478,36 @@ const wh = B.forwardRef((e, t) => {
                                                           "advance-buy",
                                                           {
                                                               state: O,
-                                                              money: O - L,
+                                                              money: O - T,
                                                           }
                                                       ),
                                                           u(!1);
                                                   }),
                                                   (J.disabled =
-                                                      (O - L) *
-                                                          (_.housecost ?? 0) >
+                                                      (O - T) *
+                                                          (L.housecost ?? 0) >
                                                       (e.players.filter(
                                                           (Y) =>
                                                               Y.id ===
                                                               e.socket.id
                                                       )[0].balance ?? 0))),
-                                                P.appendChild(J);
+                                                C.appendChild(J);
                                         }
-                                        const z =
+                                        const M =
                                             document.createElement("button");
-                                        (z.innerHTML = "CONTINUE"),
-                                            (z.onclick = () => {
+                                        (M.innerHTML = "CONTINUE"),
+                                            (M.onclick = () => {
                                                 v.onResponse("nothing", {}),
                                                     u(!1);
                                             }),
-                                            P.appendChild(z);
+                                            C.appendChild(M);
                                     } else requestAnimationFrame(N);
                                 } else {
-                                    const M = document.querySelector(
+                                    const F = document.querySelector(
                                         "button#card-response-yes"
                                     );
-                                    M
-                                        ? ((M.onclick = () => {
+                                    F
+                                        ? ((F.onclick = () => {
                                               v.onResponse("buy", {}), u(!1);
                                           }),
                                           (document.querySelector(
@@ -11523,7 +11523,7 @@ const wh = B.forwardRef((e, t) => {
                         };
                         var R = !1,
                             b = 0;
-                        for (const V of C.properties)
+                        for (const V of P.properties)
                             !R &&
                                 V.posistion === v.location &&
                                 ((R = !0), (b = V.count));
@@ -11560,7 +11560,7 @@ const wh = B.forwardRef((e, t) => {
                         else {
                             if (
                                 !R &&
-                                C.balance -
+                                P.balance -
                                     ((w == null ? void 0 : w.price) ?? 0) <
                                     0
                             ) {
@@ -11568,11 +11568,11 @@ const wh = B.forwardRef((e, t) => {
                                 return;
                             }
                             if (!R) {
-                                var F = !1;
+                                var z = !1;
                                 for (const j of e.players)
                                     for (const N of j.properties)
-                                        N.posistion === v.location && (F = !0);
-                                if (F) {
+                                        N.posistion === v.location && (z = !0);
+                                if (z) {
                                     v.onResponse("someones", {}), u(!1);
                                     return;
                                 }
@@ -11607,8 +11607,8 @@ const wh = B.forwardRef((e, t) => {
                         }
                     } else v.onResponse("nothing", {}), u(!1);
                 },
-                chorch(v, C, w) {
-                    c(C ? "Chance" : "CommunityChest"),
+                chorch(v, P, w) {
+                    c(P ? "Chance" : "CommunityChest"),
                         D({ title: v.title }),
                         u(!0),
                         setTimeout(() => {
@@ -11616,10 +11616,10 @@ const wh = B.forwardRef((e, t) => {
                         }, w);
                 },
                 applyAnimation(v) {
-                    k(v);
+                    S(v);
                 },
                 showJailsButtons: (v) => {
-                    const C = document.querySelector(
+                    const P = document.querySelector(
                             'button.roll-button[data-button-type="pay"]'
                         ),
                         w = document.querySelector(
@@ -11629,7 +11629,7 @@ const wh = B.forwardRef((e, t) => {
                             'button.roll-button[data-button-type="roll"]'
                         );
                     function b() {
-                        (C.onclick = () => {
+                        (P.onclick = () => {
                             e.socket.emit("roll_dice"), s(!0);
                         }),
                             s(!0),
@@ -11639,29 +11639,29 @@ const wh = B.forwardRef((e, t) => {
                             setTimeout(() => {
                                 w.setAttribute("aria-disabled", "true");
                             }, 300),
-                            (C.style.translate = "0px 0px"),
-                            (C.onclick = () => {}),
-                            C.setAttribute("aria-disabled", "true"),
+                            (P.style.translate = "0px 0px"),
+                            (P.onclick = () => {}),
+                            P.setAttribute("aria-disabled", "true"),
                             setTimeout(() => {
-                                C.setAttribute("aria-disabled", "true");
+                                P.setAttribute("aria-disabled", "true");
                             }, 300);
                     }
                     if (
-                        (C.setAttribute("aria-disabled", "false"),
-                        (C.style.translate = "0px -80px"),
-                        (C.onclick = () => {
-                            k(1),
+                        (P.setAttribute("aria-disabled", "false"),
+                        (P.style.translate = "0px -80px"),
+                        (P.onclick = () => {
+                            S(1),
                                 e.socket.emit("unjail", "pay"),
                                 e.socket.emit("roll_dice"),
                                 b();
                         }),
                         v)
                     ) {
-                        const F = w;
-                        F.setAttribute("aria-disabled", "false"),
-                            (F.style.translate = "0px -160px"),
-                            (F.style.backgroundColor = "gold"),
-                            (F.onclick = () => {
+                        const z = w;
+                        z.setAttribute("aria-disabled", "false"),
+                            (z.style.translate = "0px -160px"),
+                            (z.style.backgroundColor = "gold"),
+                            (z.onclick = () => {
                                 e.socket.emit("unjail", "card"),
                                     e.socket.emit("roll_dice"),
                                     b();
@@ -11673,22 +11673,22 @@ const wh = B.forwardRef((e, t) => {
                 },
             })),
             B.useEffect(() => {
-                document.getElementById("locations").onwheel = (C) => {
-                    C.shiftKey
-                        ? A((w) => w + C.deltaY / 1e3)
-                        : m((w) => w + (C.deltaY * 22.5) / 100);
+                document.getElementById("locations").onwheel = (P) => {
+                    P.shiftKey
+                        ? A((w) => w + P.deltaY / 1e3)
+                        : m((w) => w + (P.deltaY * 22.5) / 100);
                 };
                 const v = Array.from(n.values()).filter(
-                    (C) => C.group != "Special"
+                    (P) => P.group != "Special"
                 );
-                for (const C of v) {
+                for (const P of v) {
                     const w = document
                         .getElementById("locations")
                         .querySelector(
-                            `div.street[data-position="${C.posistion}"]`
+                            `div.street[data-position="${P.posistion}"]`
                         );
                     (w.onclick = () => {
-                        e.clickedOnBoard(C.posistion);
+                        e.clickedOnBoard(P.posistion);
                     }),
                         (w.onmousemove = () => {
                             (w.style.cursor = "pointer"),
@@ -11703,74 +11703,82 @@ const wh = B.forwardRef((e, t) => {
             }, []),
             B.useEffect(() => {
                 var v = !0,
-                    C = () => {
-                        var R, b, F, $;
+                    P = () => {
+                        var R, b, z, $;
                         for (const V of e.players.filter(
                             (j) => j.balance >= 0
                         )) {
                             const j = V.position,
                                 N = V.icon + 1,
-                                M = V.isInJail,
+                                F = V.isInJail,
                                 I = document.querySelector(
                                     `div.player[player-id="${V.id}"]`
                                 );
                             if (I !== null) {
-                                const _ =
+                                const L = `${h}deg`,
+                                    C = I;
+                                C.style.rotate
+                                    .replace(";", "")
+                                    .replace(" ", " ") !==
+                                    L.replace(";", "").replace(" ", " ") &&
+                                    (C.style.rotate = L);
+                                const k =
                                     (R = I.parentElement) == null
                                         ? void 0
                                         : R.getAttribute("data-position");
                                 if (
-                                    (parseInt(_) !== V.position &&
+                                    (parseInt(k) !== V.position &&
                                         ((b = I.parentElement) == null ||
                                             b.removeChild(I),
-                                        (F = document.querySelector(
+                                        (z = document.querySelector(
                                             `div.street[data-position="${j}"]`
-                                        )) == null || F.appendChild(I)),
-                                    !M &&
+                                        )) == null || z.appendChild(I)),
+                                    !F &&
                                         I.querySelector("img.jailIcon") != null)
                                 ) {
-                                    const P = I.querySelector("img.jailIcon");
-                                    I.removeChild(P);
+                                    const T = I.querySelector("img.jailIcon");
+                                    I.removeChild(T);
                                 }
                                 if (
-                                    M &&
+                                    F &&
                                     I.querySelector("img.jailIcon") == null
                                 ) {
                                     for (; I.firstChild; )
                                         I.removeChild(I.firstChild);
-                                    const P = document.createElement("img");
-                                    (P.src = `./p${N}.png`), I.appendChild(P);
-                                    const S = document.createElement("img");
-                                    (S.src = "./jail.png"),
-                                        (S.className = "jailIcon"),
-                                        I.appendChild(S);
+                                    const T = document.createElement("img");
+                                    (T.src = `./p${N}.png`), I.appendChild(T);
+                                    const M = document.createElement("img");
+                                    (M.src = "./jail.png"),
+                                        (M.className = "jailIcon"),
+                                        I.appendChild(M);
                                 }
                             } else {
-                                const _ = document.createElement("div");
-                                (_.className = "player"),
-                                    _.setAttribute("player-id", V.id),
-                                    _.setAttribute(
+                                const L = document.createElement("div");
+                                (L.className = "player"),
+                                    L.setAttribute("player-id", V.id),
+                                    L.setAttribute(
                                         "player-position",
                                         V.position.toString()
                                     ),
-                                    _.setAttribute(
+                                    L.setAttribute(
                                         "data-tooltip-hover",
                                         V.username
-                                    );
-                                const P = document.createElement("img");
+                                    ),
+                                    (L.style.rotate = `${h}deg`);
+                                const C = document.createElement("img");
                                 if (
-                                    ((P.src = `./p${N}.png`),
-                                    _.appendChild(P),
-                                    M)
+                                    ((C.src = `./p${N}.png`),
+                                    L.appendChild(C),
+                                    F)
                                 ) {
-                                    const S = document.createElement("img");
-                                    (S.src = "./jail.png"),
-                                        (S.className = "jailIcon"),
-                                        _.appendChild(S);
+                                    const k = document.createElement("img");
+                                    (k.src = "./jail.png"),
+                                        (k.className = "jailIcon"),
+                                        L.appendChild(k);
                                 }
                                 ($ = document.querySelector(
                                     `div.street[data-position="${j}"]`
-                                )) == null || $.appendChild(_);
+                                )) == null || $.appendChild(L);
                             }
                         }
                         function w() {
@@ -11779,54 +11787,54 @@ const wh = B.forwardRef((e, t) => {
                                     V.querySelectorAll("div.street-houses")
                                 );
                             for (const N of j) {
-                                const M = N;
-                                for (; M.firstChild; )
-                                    M.removeChild(M.firstChild);
-                                (M.onclick = () => {}),
-                                    (M.style.cursor = "unset"),
-                                    (M.style.backgroundColor =
+                                const F = N;
+                                for (; F.firstChild; )
+                                    F.removeChild(F.firstChild);
+                                (F.onclick = () => {}),
+                                    (F.style.cursor = "unset"),
+                                    (F.style.backgroundColor =
                                         "rgba(0,0,0,0%)"),
-                                    M.setAttribute("data-tooltip-hover", ""),
-                                    (M.style.zIndex = "unset");
+                                    F.setAttribute("data-tooltip-hover", ""),
+                                    (F.style.zIndex = "unset");
                             }
                             for (const N of e.players)
-                                for (const M of N.properties) {
-                                    const I = M.posistion,
-                                        _ = M.count,
-                                        P = V.querySelector(
+                                for (const F of N.properties) {
+                                    const I = F.posistion,
+                                        L = F.count,
+                                        C = V.querySelector(
                                             `div.street-houses[data-position="${I}"`
                                         );
-                                    if (P != null) {
-                                        const S = P;
+                                    if (C != null) {
+                                        const k = C;
                                         switch (
-                                            (S.setAttribute(
+                                            (k.setAttribute(
                                                 "data-tooltip-hover",
                                                 N.username
                                             ),
-                                            (S.onclick = () => {
-                                                const L =
+                                            (k.onclick = () => {
+                                                const T =
                                                     document.querySelector(
                                                         `div.player[player-id="${N.id}"]`
                                                     );
-                                                (L.style.animation =
+                                                (T.style.animation =
                                                     "spin2 1s cubic-bezier(.21, 1.57, .55, 1) infinite"),
                                                     setTimeout(() => {
-                                                        L.style.animation = "";
+                                                        T.style.animation = "";
                                                     }, 1 * 1e3);
                                             }),
-                                            (S.style.cursor = "pointer"),
-                                            (S.style.zIndex = "5"),
-                                            _)
+                                            (k.style.cursor = "pointer"),
+                                            (k.style.zIndex = "5"),
+                                            L)
                                         ) {
                                             case 0:
-                                                S.style.backgroundColor =
+                                                k.style.backgroundColor =
                                                     "rgba(0,0,0,25%)";
                                                 break;
                                             case 1:
                                             case 2:
                                             case 3:
                                             case 4:
-                                                for (let z = 0; z < _; z++) {
+                                                for (let M = 0; M < L; M++) {
                                                     const O =
                                                         document.createElement(
                                                             "img"
@@ -11835,28 +11843,28 @@ const wh = B.forwardRef((e, t) => {
                                                         "public/",
                                                         ""
                                                     )),
-                                                        S.appendChild(O);
+                                                        k.appendChild(O);
                                                 }
                                                 break;
                                             case "h":
-                                                const L =
+                                                const T =
                                                     document.createElement(
                                                         "img"
                                                     );
-                                                (L.src = wl.replace(
+                                                (T.src = wl.replace(
                                                     "public/",
                                                     ""
                                                 )),
-                                                    S.appendChild(L);
+                                                    k.appendChild(T);
                                                 break;
                                         }
                                     }
                                 }
                         }
-                        w(), v && requestAnimationFrame(C);
+                        w(), v && requestAnimationFrame(P);
                     };
                 return (
-                    requestAnimationFrame(C),
+                    requestAnimationFrame(P),
                     () => {
                         v = !1;
                     }
@@ -12747,7 +12755,7 @@ function Sh({ socket: e, name: t }) {
                         });
                 }
                 N();
-                function M() {
+                function F() {
                     const I = document.querySelector(
                         `div.player[player-id="${j}"]`
                     );
@@ -12757,48 +12765,48 @@ function Sh({ socket: e, name: t }) {
                         requestAnimationFrame(() => {
                             document.querySelector(
                                 `div.player[player-id="${j}"]`
-                            ) !== null && requestAnimationFrame(M);
+                            ) !== null && requestAnimationFrame(F);
                         }));
                 }
-                M();
+                F();
             }
-            function D(j, N, M = !0, I) {
-                var _ = (j - N.position) % 40;
-                (j < N.position || _ < 0) && (_ = 40 - N.position + j);
-                const P = 0.35 * 1e3 * _;
+            function D(j, N, F = !0, I) {
+                var L = (j - N.position) % 40;
+                (j < N.position || L < 0) && (L = 40 - N.position + j);
+                const C = 0.35 * 1e3 * L;
                 console.log(
-                    `generator target ${j} time ${P} current ${N.position}`
+                    `generator target ${j} time ${C} current ${N.position}`
                 );
-                const S = Math.random();
-                function L() {
-                    var z = 0,
+                const k = Math.random();
+                function T() {
+                    var M = 0,
                         O = !1,
                         J = 0;
                     const Y = document.querySelector(
                         `div.player[player-id="${N.id}"]`
                     );
-                    (z = N.position),
+                    (M = N.position),
                         (N.position += 1),
                         (Y.style.animation =
                             "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)");
                     const ue = () => {
                         var ye, fe;
-                        J < _ &&
+                        J < L &&
                             ((J += 1),
-                            console.log(`${S} adding one to ${N.position}`),
+                            console.log(`${k} adding one to ${N.position}`),
                             (N.position = (N.position + 1) % 40),
                             console.log(
-                                `${S}  result of adding one to ${N.position}`
+                                `${k}  result of adding one to ${N.position}`
                             ),
                             N.position == 0 &&
-                                M &&
+                                F &&
                                 ((N.balance += 200),
                                 N.id === e.id &&
                                     ((ye = h.current) == null ||
                                         ye.applyAnimation(2)),
                                 (O = !0),
                                 r(new Map(n.set(N.id, N)))),
-                            J == _ - 1
+                            J == L - 1
                                 ? ((N.position = j),
                                   (Y.style.animation =
                                       "part 0.9s cubic-bezier(0,.7,.57,1)"),
@@ -12806,8 +12814,8 @@ function Sh({ socket: e, name: t }) {
                                       Y.style.animation = "";
                                   }, 900),
                                   !O &&
-                                      z > N.position &&
-                                      M &&
+                                      M > N.position &&
+                                      F &&
                                       ((N.balance += 200),
                                       N.id === e.id &&
                                           ((fe = h.current) == null ||
@@ -12821,7 +12829,7 @@ function Sh({ socket: e, name: t }) {
                     };
                     setTimeout(ue, 0.35 * 1e3);
                 }
-                return { func: L, time: P };
+                return { func: T, time: C };
             }
             const d = (j) => {
                     s(j.turn_id.toString());
@@ -12840,37 +12848,37 @@ function Sh({ socket: e, name: t }) {
                     N !== void 0 &&
                         ((N.ready = j.state), r(new Map(n.set(N.id, N))));
                 },
-                k = () => {
+                S = () => {
                     u(!0);
                 },
                 v = (j) => {
-                    var N, M, I;
+                    var N, F, I;
                     if ((x(j.id), s(j.turn), n.size > 2)) {
-                        const _ =
+                        const L =
                             ((N = n.get(j.id)) == null ? void 0 : N.username) ??
                             "player";
-                        (M = y.current) == null ||
-                            M.message(`${_} disconected`, "error");
+                        (F = y.current) == null ||
+                            F.message(`${L} disconected`, "error");
                     } else
                         (I = y.current) == null ||
-                            I.dialog((_, P) => {
-                                var S;
+                            I.dialog((L, C) => {
+                                var k;
                                 return {
                                     innerHTML: `<h3> YOU WON! </h3> <p> your the only left player with the balance of ${
-                                        ((S = n.get(e.id)) == null
+                                        ((k = n.get(e.id)) == null
                                             ? void 0
-                                            : S.balance) ?? 0
+                                            : k.balance) ?? 0
                                     } </p>`,
                                     buttons: [
-                                        P("PLAY ANOTHER GAME", () => {
-                                            _(), document.location.reload();
+                                        C("PLAY ANOTHER GAME", () => {
+                                            L(), document.location.reload();
                                         }),
                                     ],
                                 };
                             });
                 },
-                C = (j) => {
-                    var M, I, _, P, S, L;
+                P = (j) => {
+                    var F, I, L, C, k, T;
                     const N = n.get(j.from);
                     if (
                         (j.from !== e.id &&
@@ -12881,12 +12889,12 @@ function Sh({ socket: e, name: t }) {
                     ) {
                         if (j.pJson.id !== e.id)
                             if (n.size > 2) {
-                                const z = j.pJson.username;
-                                (M = y.current) == null ||
-                                    M.message(`${z} lost`, "info");
+                                const M = j.pJson.username;
+                                (F = y.current) == null ||
+                                    F.message(`${M} lost`, "info");
                             } else if (n.has(e.id))
                                 (I = y.current) == null ||
-                                    I.dialog((z, O) => {
+                                    I.dialog((M, O) => {
                                         var J;
                                         return {
                                             innerHTML: `<h3> YOU WON! </h3> <p> your the only left player with the balance of ${
@@ -12896,7 +12904,7 @@ function Sh({ socket: e, name: t }) {
                                             } </p>`,
                                             buttons: [
                                                 O("PLAY ANOTHER GAME", () => {
-                                                    z(),
+                                                    M(),
                                                         document.location.reload();
                                                 }),
                                             ],
@@ -12907,8 +12915,8 @@ function Sh({ socket: e, name: t }) {
                                     Array.from(n.values()).filter(
                                         (J) => J.id !== j.pJson.id
                                     )[0].username ?? 0;
-                                (_ = y.current) == null ||
-                                    _.dialog((J, Y) => {
+                                (L = y.current) == null ||
+                                    L.dialog((J, Y) => {
                                         var ue;
                                         return {
                                             innerHTML: `<h3> ${O} WON! </h3> <p> ${O} won with the balance of ${
@@ -12926,8 +12934,8 @@ function Sh({ socket: e, name: t }) {
                                     });
                             }
                         else
-                            (P = y.current) == null ||
-                                P.dialog((z, O) => {
+                            (C = y.current) == null ||
+                                C.dialog((M, O) => {
                                     var J;
                                     return {
                                         innerHTML: `<h3> YOU LOST! </h3> <p> you lost your money and lost the monopol with a wanted balance of ${-(
@@ -12937,10 +12945,10 @@ function Sh({ socket: e, name: t }) {
                                         )} </p>`,
                                         buttons: [
                                             O("CONTINUE WATCHING", () => {
-                                                z();
+                                                M();
                                             }),
                                             O("PLAY ANOTHER GAME", () => {
-                                                z(), document.location.reload();
+                                                M(), document.location.reload();
                                             }),
                                         ],
                                     };
@@ -12948,48 +12956,48 @@ function Sh({ socket: e, name: t }) {
                         x(j.pJson.id);
                     }
                     if ((s(j.turnId), j.turnId === e.id)) {
-                        const z = n.get(j.turnId);
-                        z &&
-                            z.isInJail &&
-                            ((S = h.current) == null ||
-                                S.showJailsButtons(
-                                    ((z == null ? void 0 : z.getoutCards) ??
+                        const M = n.get(j.turnId);
+                        M &&
+                            M.isInJail &&
+                            ((k = h.current) == null ||
+                                k.showJailsButtons(
+                                    ((M == null ? void 0 : M.getoutCards) ??
                                         -1) > 0
                                 ));
                     }
-                    (L = m.current) == null || L.reRenderPlayerList();
+                    (T = m.current) == null || T.reRenderPlayerList();
                 },
                 w = (j) => {
                     var N;
                     (N = m.current) == null || N.addMessage(j);
                 },
                 R = (j) => {
-                    var _;
+                    var L;
                     const N = n.get(e.id),
-                        M = n.get(j.turnId),
-                        I = D(j.listOfNums[2], M, !0);
-                    (_ = h.current) == null ||
-                        _.diceResults({
+                        F = n.get(j.turnId),
+                        I = D(j.listOfNums[2], F, !0);
+                    (L = h.current) == null ||
+                        L.diceResults({
                             l: [j.listOfNums[0], j.listOfNums[1]],
                             time: N.isInJail ? 2e3 : I.time + 2e3 + 800,
                             onDone: () => {
-                                var L, z;
+                                var T, M;
                                 if (e.id !== j.turnId) return;
-                                const P =
-                                        ((L = n.get(e.id)) == null
+                                const C =
+                                        ((T = n.get(e.id)) == null
                                             ? void 0
-                                            : L.position) ?? -1,
-                                    S = A.get(P);
-                                S != null &&
-                                    (S.id === "communitychest" ||
-                                    S.id === "chance"
+                                            : T.position) ?? -1,
+                                    k = A.get(C);
+                                k != null &&
+                                    (k.id === "communitychest" ||
+                                    k.id === "chance"
                                         ? e.emit(
                                               "chorch_roll",
-                                              S.id === "chance"
+                                              k.id === "chance"
                                           )
-                                        : (z = h.current) == null ||
-                                          z.setStreet({
-                                              location: P,
+                                        : (M = h.current) == null ||
+                                          M.setStreet({
+                                              location: C,
                                               onResponse: (O, J) => {
                                                   var ye,
                                                       fe,
@@ -13002,9 +13010,9 @@ function Sh({ socket: e, name: t }) {
                                                   var Y = 0;
                                                   if (O === "buy")
                                                       (N.balance -=
-                                                          ((S == null
+                                                          ((k == null
                                                               ? void 0
-                                                              : S.price) ?? 0) *
+                                                              : k.price) ?? 0) *
                                                           1),
                                                           (ye = h.current) ==
                                                               null ||
@@ -13042,7 +13050,7 @@ function Sh({ socket: e, name: t }) {
                                                               (nt) =>
                                                                   nt[1]
                                                                       .posistion ===
-                                                                  P
+                                                                  C
                                                           )[0][0],
                                                           tt = J;
                                                       (N.properties[ke].count =
@@ -13051,7 +13059,7 @@ function Sh({ socket: e, name: t }) {
                                                               : tt.state),
                                                           tt.state === 5
                                                               ? ((N.balance -=
-                                                                    S.ohousecost ??
+                                                                    k.ohousecost ??
                                                                     0),
                                                                 (bt =
                                                                     h.current) ==
@@ -13059,9 +13067,9 @@ function Sh({ socket: e, name: t }) {
                                                                     bt.applyAnimation(
                                                                         1
                                                                     ))
-                                                              : (S.housecost,
+                                                              : (k.housecost,
                                                                 (N.balance -=
-                                                                    (S.housecost ??
+                                                                    (k.housecost ??
                                                                         0) *
                                                                     tt.money),
                                                                 (et =
@@ -13078,26 +13086,26 @@ function Sh({ socket: e, name: t }) {
                                                           for (const nt of tt.properties)
                                                               if (
                                                                   nt.posistion ===
-                                                                  P
+                                                                  C
                                                               ) {
                                                                   var ue = 0;
                                                                   nt.count ===
                                                                       0 &&
                                                                       (ue =
-                                                                          (S ==
+                                                                          (k ==
                                                                           null
                                                                               ? void 0
-                                                                              : S.rent) ??
+                                                                              : k.rent) ??
                                                                           0),
                                                                       typeof nt.count ==
                                                                           "number" &&
                                                                           nt.count >
                                                                               0 &&
                                                                           (ue =
-                                                                              ((S ==
+                                                                              ((k ==
                                                                               null
                                                                                   ? void 0
-                                                                                  : S.multpliedrent) ?? [
+                                                                                  : k.multpliedrent) ?? [
                                                                                   0,
                                                                                   0,
                                                                                   0,
@@ -13110,10 +13118,10 @@ function Sh({ socket: e, name: t }) {
                                                                       nt.count ===
                                                                           "h" &&
                                                                           (ue =
-                                                                              ((S ==
+                                                                              ((k ==
                                                                               null
                                                                                   ? void 0
-                                                                                  : S.multpliedrent) ?? [
+                                                                                  : k.multpliedrent) ?? [
                                                                                   0,
                                                                                   0,
                                                                                   0,
@@ -13147,28 +13155,28 @@ function Sh({ socket: e, name: t }) {
                                                               }
                                                   } else if (O === "nothing") {
                                                       if (
-                                                          ((S == null
+                                                          ((k == null
                                                               ? void 0
-                                                              : S.id) ?? "") ==
+                                                              : k.id) ?? "") ==
                                                           "gotojail"
                                                       ) {
                                                           const ke = D(
                                                               10,
-                                                              M,
+                                                              F,
                                                               !1,
                                                               () => {
-                                                                  (M.position = 10),
-                                                                      (M.isInJail =
+                                                                  (F.position = 10),
+                                                                      (F.isInJail =
                                                                           !0),
-                                                                      (M.jailTurnsRemaining = 3);
+                                                                      (F.jailTurnsRemaining = 3);
                                                               }
                                                           );
                                                           (Y = ke.time),
                                                               ke.func();
                                                       }
-                                                      (S == null
+                                                      (k == null
                                                           ? void 0
-                                                          : S.id) ===
+                                                          : k.id) ===
                                                           "incometax" &&
                                                           ((N.balance -= 200),
                                                           (Ut = h.current) ==
@@ -13176,9 +13184,9 @@ function Sh({ socket: e, name: t }) {
                                                               Ut.applyAnimation(
                                                                   1
                                                               )),
-                                                          (S == null
+                                                          (k == null
                                                               ? void 0
-                                                              : S.id) ===
+                                                              : k.id) ===
                                                               "luxerytax" &&
                                                               ((N.balance -= 100),
                                                               (ze =
@@ -13207,18 +13215,18 @@ function Sh({ socket: e, name: t }) {
                                           }));
                             },
                         }),
-                        M.isInJail
+                        F.isInJail
                             ? setTimeout(() => {
                                   j.listOfNums[0] == j.listOfNums[1]
-                                      ? ((M.isInJail = !1),
+                                      ? ((F.isInJail = !1),
                                         setTimeout(() => {
                                             I.func();
                                         }, 2e3))
-                                      : M.jailTurnsRemaining > 0 &&
-                                        ((M.jailTurnsRemaining -= 1),
-                                        M.jailTurnsRemaining === 0 &&
-                                            (M.isInJail = !1)),
-                                      r(new Map(n.set(j.turnId, M)));
+                                      : F.jailTurnsRemaining > 0 &&
+                                        ((F.jailTurnsRemaining -= 1),
+                                        F.jailTurnsRemaining === 0 &&
+                                            (F.isInJail = !1)),
+                                      r(new Map(n.set(j.turnId, F)));
                               }, 1500)
                             : setTimeout(() => {
                                   I.func();
@@ -13234,33 +13242,33 @@ function Sh({ socket: e, name: t }) {
                         (N.jailTurnsRemaining = 0),
                         r(new Map(n.set(j.to, N))));
                 },
-                F = (j) => {
-                    var M;
+                z = (j) => {
+                    var F;
                     const N = n.get(j.playerId);
                     N == null || N.recieveJson(j.pJson),
                         e.id === j.playerId &&
-                            ((M = h.current) == null || M.applyAnimation(2));
+                            ((F = h.current) == null || F.applyAnimation(2));
                 },
                 $ = (j) => {
-                    var M;
-                    (M = h.current) == null ||
-                        M.chorch(j.element, j.is_chance, 3e3),
+                    var F;
+                    (F = h.current) == null ||
+                        F.chorch(j.element, j.is_chance, 3e3),
                         setTimeout(() => {
                             var O, J, Y, ue, ye;
                             const I = j.element,
-                                _ = n.get(j.turnId);
-                            if (_ === void 0) return;
-                            function P(fe) {
-                                if (_ === void 0) return 0;
+                                L = n.get(j.turnId);
+                            if (L === void 0) return;
+                            function C(fe) {
+                                if (L === void 0) return 0;
                                 const bt = Array.from(n.values()).filter(
-                                    (et) => et.id !== _.id
+                                    (et) => et.id !== L.id
                                 );
                                 for (const et of bt)
                                     (et.balance += fe),
                                         r(new Map(n.set(et.id, et)));
                                 return bt.length;
                             }
-                            var S = 0;
+                            var k = 0;
                             switch (I.action) {
                                 case "move":
                                     if (I.tileid) {
@@ -13279,16 +13287,16 @@ function Sh({ socket: e, name: t }) {
                                             console.log(ke);
                                             break;
                                         }
-                                        const ze = D(Ut, _);
-                                        (S = ze.time), ze.func();
+                                        const ze = D(Ut, L);
+                                        (k = ze.time), ze.func();
                                     } else if (I.count) {
-                                        const re = D(_.position + I.count, _);
-                                        (S = re.time), re.func();
+                                        const re = D(L.position + I.count, L);
+                                        (k = re.time), re.func();
                                     }
                                     break;
                                 case "addfunds":
-                                    (_.balance += I.amount ?? 0),
-                                        _.id === e.id &&
+                                    (L.balance += I.amount ?? 0),
+                                        L.id === e.id &&
                                             ((J = h.current) == null ||
                                                 J.applyAnimation(2));
                                     break;
@@ -13296,37 +13304,37 @@ function Sh({ socket: e, name: t }) {
                                     if (I.subaction !== void 0) {
                                         switch (I.subaction) {
                                             case "getout":
-                                                _.getoutCards += 1;
+                                                L.getoutCards += 1;
                                                 break;
                                             case "goto":
-                                                const re = D(10, _, !1, () => {
-                                                    (_.position = 10),
-                                                        (_.isInJail = !0),
-                                                        (_.jailTurnsRemaining = 3);
+                                                const re = D(10, L, !1, () => {
+                                                    (L.position = 10),
+                                                        (L.isInJail = !0),
+                                                        (L.jailTurnsRemaining = 3);
                                                 });
-                                                (S = re.time), re.func();
+                                                (k = re.time), re.func();
                                                 break;
                                         }
-                                        r(new Map(n.set(_.id, _)));
+                                        r(new Map(n.set(L.id, L)));
                                     }
                                     break;
                                 case "removefunds":
-                                    (_.balance -= I.amount ?? 0),
-                                        _.id === e.id &&
+                                    (L.balance -= I.amount ?? 0),
+                                        L.id === e.id &&
                                             ((Y = h.current) == null ||
                                                 Y.applyAnimation(1));
                                     break;
                                 case "removefundstoplayers":
-                                    var L = P(I.amount ?? 0);
-                                    (_.balance -= (I.amount ?? 0) * L),
-                                        _.id === e.id &&
+                                    var T = C(I.amount ?? 0);
+                                    (L.balance -= (I.amount ?? 0) * T),
+                                        L.id === e.id &&
                                             ((ue = h.current) == null ||
                                                 ue.applyAnimation(1));
                                     break;
                                 case "addfundsfromplayers":
-                                    var L = P(-(I.amount ?? 0));
-                                    (_.balance += (I.amount ?? 0) * L),
-                                        _.id === e.id &&
+                                    var T = C(-(I.amount ?? 0));
+                                    (L.balance += (I.amount ?? 0) * T),
+                                        L.id === e.id &&
                                             ((ye = h.current) == null ||
                                                 ye.applyAnimation(2));
                                     break;
@@ -13338,41 +13346,41 @@ function Sh({ socket: e, name: t }) {
                                         return re[0];
                                     };
                                     if (!I.groupid) return;
-                                    var z = "";
+                                    var M = "";
                                     I.groupid === "utility"
-                                        ? (z = "Utilities")
-                                        : (z = "Railroad");
+                                        ? (M = "Utilities")
+                                        : (M = "Railroad");
                                     const bt = Qt.properties
-                                            .filter((re) => re.group === z)
+                                            .filter((re) => re.group === M)
                                             .map((re) => re.posistion),
-                                        et = fe(bt, _.position),
-                                        Fn = D(et, _);
-                                    (S = Fn.time), Fn.func();
+                                        et = fe(bt, L.position),
+                                        Fn = D(et, L);
+                                    (k = Fn.time), Fn.func();
                                     break;
                             }
                             setTimeout(() => {
                                 var fe;
-                                r(new Map(n.set(_.id, _))),
-                                    _.id === e.id &&
+                                r(new Map(n.set(L.id, L))),
+                                    L.id === e.id &&
                                         ((fe = h.current) == null ||
                                             fe.freeDice(),
                                         e.emit(
                                             "finish-turn",
                                             n.get(e.id).toJson()
                                         ));
-                            }, S);
+                            }, k);
                         }, 3e3);
                 };
             e.on("initials", d),
                 e.on("new-player", c),
                 e.on("ready", p),
-                e.on("start-game", k),
+                e.on("start-game", S),
                 e.on("disconnected-player", v),
-                e.on("turn-finished", C),
+                e.on("turn-finished", P),
                 e.on("message", w),
                 e.on("dice_roll_result", R),
                 e.on("unjail", b),
-                e.on("member_updating", F),
+                e.on("member_updating", z),
                 e.on("chorch_result", $);
             var V = !0;
             return (
@@ -13382,13 +13390,13 @@ function Sh({ socket: e, name: t }) {
                         e.off("initials", d),
                         e.off("new-player", c),
                         e.off("ready", p),
-                        e.off("start-game", k),
+                        e.off("start-game", S),
                         e.off("disconnected-player", v),
-                        e.off("turn-finished", C),
+                        e.off("turn-finished", P),
                         e.off("message", w),
                         e.off("dice_roll_result", R),
                         e.off("unjail", b),
-                        e.off("member_updating", F),
+                        e.off("member_updating", z),
                         e.off("chorch_result", $);
                 }
             );
@@ -15608,14 +15616,14 @@ function dm() {
             const c = li(s, { rejectUnauthorized: !1 });
             y(!0),
                 c.on("state", (p) => {
-                    var k, v, C;
+                    var S, v, P;
                     switch (p) {
                         case 0:
                             r(c), x(!0), y(!1);
                             break;
                         case 1:
-                            (k = t.current) == null ||
-                                k.message(
+                            (S = t.current) == null ||
+                                S.message(
                                     "the game has already begun",
                                     "error",
                                     2,
@@ -15638,8 +15646,8 @@ function dm() {
                                 c.disconnect();
                             break;
                         default:
-                            (C = t.current) == null ||
-                                C.message("unkown error", "error", 2),
+                            (P = t.current) == null ||
+                                P.message("unkown error", "error", 2),
                                 c.disconnect(),
                                 y(!1);
                             break;
