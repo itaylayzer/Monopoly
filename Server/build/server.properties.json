@@ -1,8 +1,0 @@
-{
-  "port": 25565,
-  "maxPlayers": 6,
-  "cors": [
-    "https://coder-1t45.github.io",
-    "http://localhost:5173"
-  ]
-}
