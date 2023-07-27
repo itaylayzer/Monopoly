@@ -443,7 +443,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                             "Utilities" &&
                                                         prp.rent
                                                     ) {
-
                                                         const multy_ =
                                                             p.properties.filter(
                                                                 (v) =>
@@ -452,17 +451,27 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                             ).length === 2
                                                                 ? 10
                                                                 : 4;
-                                                                payment_ammount =
-                                                                prp.rent * multy_;
-                                                                console.warn(`payment_ammount ${payment_ammount} && rent was ${prp.rent}`)
-                                                    }
-                                                    else if (proprety.group === "Railroad"){
-                                                        const count = p.properties.filter(v=> v.group === "Railroad").length;
-                                                        const rents = [25,50,100,200];
-                                                        payment_ammount = rents[count];
-
-                                                    } 
-                                                    else if (
+                                                        payment_ammount =
+                                                            prp.rent * multy_;
+                                                        console.warn(
+                                                            `payment_ammount ${payment_ammount} && rent was ${prp.rent}`
+                                                        );
+                                                    } else if (
+                                                        proprety.group ===
+                                                        "Railroad"
+                                                    ) {
+                                                        const count =
+                                                            p.properties.filter(
+                                                                (v) =>
+                                                                    v.group ===
+                                                                    "Railroad"
+                                                            ).length;
+                                                        const rents = [
+                                                            25, 50, 100, 200,
+                                                        ];
+                                                        payment_ammount =
+                                                            rents[count];
+                                                    } else if (
                                                         prp.count === 0
                                                     ) {
                                                         payment_ammount =
@@ -657,16 +666,28 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 function addBalanceToOthers(amnout: number) {
                     if (xplayer === undefined) return 0;
 
-                    if (xplayer.id === socket.id) {
-                        socket.emit("pay");
-                    }
-
                     const other_players = Array.from(clients.values()).filter(
                         (v) => v.id !== xplayer.id
                     );
                     for (const p of other_players) {
                         p.balance += amnout;
                         SetClients(new Map(clients.set(p.id, p)));
+
+                        if (xplayer.id === socket.id) {
+                            if (amnout > 0) {
+                                socket.emit("pay", {
+                                    balance: amnout,
+                                    from: socket.id,
+                                    to: xplayer.id,
+                                });
+                            } else {
+                                socket.emit("pay", {
+                                    balance: amnout,
+                                    from: xplayer.id,
+                                    to: socket.id,
+                                });
+                            }
+                        }
                     }
                     return other_players.length;
                 }
@@ -745,17 +766,17 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                         break;
                     // amount
                     case "removefundstoplayers":
-                        var l = addBalanceToOthers(c.amount ?? 0);
-                        xplayer.balance -= (c.amount ?? 0) * l;
+                        addBalanceToOthers(c.amount ?? 0);
+                        // xplayer.balance -= (c.amount ?? 0) * l;
                         if (xplayer.id === socket.id)
                             engineRef.current?.applyAnimation(1);
                         break;
 
                     case "addfundsfromplayers":
-                        var l = addBalanceToOthers(-(c.amount ?? 0));
-                        xplayer.balance += (c.amount ?? 0) * l;
-                        if (xplayer.id === socket.id)
-                            engineRef.current?.applyAnimation(2);
+                        addBalanceToOthers(-(c.amount ?? 0));
+                        // xplayer.balance += (c.amount ?? 0) * l;
+                        // if (xplayer.id === socket.id)
+                        //     engineRef.current?.applyAnimation(2);
                         break;
 
                     case "movenearest":

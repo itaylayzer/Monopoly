@@ -1202,7 +1202,7 @@ io.on("connection", (socket: Socket) => {
                         saveMapToJsonFile(
                             Clients,
                             logs_strings,
-                            "../clients.json"
+                            "clients.json"
                         );
                     } catch (e) {
                         console.log(bgRed(black(e)));
