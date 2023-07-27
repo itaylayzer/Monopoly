@@ -954,10 +954,14 @@ import {
     bgBlueBright,
     bgRed,
     white,
-    cyan
+    cyan,
 } from "colorette";
 
-function saveMapToJsonFile(map: Map<string, Client>, filePath) {
+function saveMapToJsonFile(
+    map: Map<string, Client>,
+    logs: Array<string>,
+    filePath
+) {
     try {
         const newMap = new Map<string, PlayerJSON>(
             Array.from(map.entries()).map((v) => [v[0], v[1].player.to_json()])
@@ -966,7 +970,14 @@ function saveMapToJsonFile(map: Map<string, Client>, filePath) {
         const mapAsObject = Object.fromEntries(newMap);
 
         // Convert the map object to a JSON string
-        const jsonString = JSON.stringify(mapAsObject, null, 2); // The third argument is for formatting the output with 2 spaces indentation
+        const jsonString = JSON.stringify(
+            {
+                clients: mapAsObject,
+                logs: logs,
+            },
+            null,
+            2
+        ); // The third argument is for formatting the output with 2 spaces indentation
 
         // Write the JSON string to the file
         fs.writeFileSync(filePath, jsonString);
@@ -978,12 +989,12 @@ function saveMapToJsonFile(map: Map<string, Client>, filePath) {
 interface ServerProperties {
     port: number;
     maxPlayers: number;
-    cors:string;
+    cors: Array<string>;
 }
 const defaultProperties: ServerProperties = {
     port: 25565,
     maxPlayers: 6,
-    cors:"https://coder-1t45.github.io/Monopoly/"
+    cors: ["https://coder-1t45.github.io", "http://localhost:5173"],
 };
 
 function readServerProperties(): ServerProperties {
@@ -1001,13 +1012,16 @@ function readServerProperties(): ServerProperties {
 const app = express();
 const properties = readServerProperties();
 
-console.log(`Starting the Server...`);
-
 const port = properties.port;
 const maxPlayers =
     properties.maxPlayers > 0 ? Math.min(properties.maxPlayers, 6) : 6;
-    const cors = properties.cors;
-const httpServer = createServer(
+const cors = properties.cors;
+
+console.log(`\nStarting the Server on port ${port}...`);
+console.log(`Allowed origins ${cors}...`);
+console.log(`Max Players is ${maxPlayers}...\n`);
+
+const httpsServer = createServer(
     {
         key: fs.readFileSync("server-key.pem"),
         cert: fs.readFileSync("server-cert.pem"),
@@ -1022,6 +1036,7 @@ interface Client {
 }
 
 const Clients = new Map<string, Client>();
+const logs_strings: Array<string> = [];
 
 //#region Game Variables!
 let currentId: string = "";
@@ -1030,12 +1045,27 @@ let messages: Array<{ from: string; message: string }> = [];
 
 //#endregion
 // Io
-const io = new Server(httpServer, {
+const io = new Server(httpsServer, {
     cors: {
-        origin: cors,
+        origin: (origin, callback) => {
+            if (cors.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
         methods: ["POST", "GET"],
     },
 });
+
+function getCurrentTime() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const currentTime = `${hours}:${minutes}`;
+
+    return currentTime;
+}
 
 //#region emits functions
 function EmitAll(event: string, args: any) {
@@ -1082,8 +1112,15 @@ io.on("connection", (socket: Socket) => {
                 });
                 console.log(
                     greenBright(
-                        `[${socket.id}] Player "${player.username}" has connected.`
+                        `{${getCurrentTime()}} [${socket.id}] Player "${
+                            player.username
+                        }" has connected.`
                     )
+                );
+                logs_strings.push(
+                    `{${getCurrentTime()}} [${socket.id}] Player "${
+                        player.username
+                    }" has connected.`
                 );
                 const other_players = [];
                 for (const x of Array.from(Clients.values())) {
@@ -1108,11 +1145,17 @@ io.on("connection", (socket: Socket) => {
                     try {
                         const first = Math.floor(Math.random() * 6) + 1;
                         const second = Math.floor(Math.random() * 6) + 1;
-                        console.log(
-                            `[${socket.id}] Player "${player.username}" rolled a [${first},${second}].`
-                        );
+
+                        
+                        const x = `{${getCurrentTime()}} [${
+                            socket.id
+                        }] Player "${
+                            player.username
+                        }" rolled a [${first},${second}].`;
+                        logs_strings.push(x);
+                        console.log(x);
                         const sum = first + second;
-                        const pos = (player.position + sum) % 40;
+                        var pos = (player.position + sum) % 40;
                         EmitAll("dice_roll_result", {
                             listOfNums: [first, second, pos],
                             turnId: currentId,
@@ -1141,10 +1184,6 @@ io.on("connection", (socket: Socket) => {
                 });
                 socket.on("finish-turn", (playerInfo: PlayerJSON) => {
                     try {
-                        console.log(playerInfo.getoutCards);
-                        if (playerInfo.getoutCards !== 0) {
-                            console.log(playerInfo);
-                        }
                         player.from_json(playerInfo);
                         if (currentId != socket.id) return;
                         const arr = Array.from(Clients.values())
@@ -1160,7 +1199,11 @@ io.on("connection", (socket: Socket) => {
                             pJson: player.to_json(),
                         });
 
-                        saveMapToJsonFile(Clients, "clients.json");
+                        saveMapToJsonFile(
+                            Clients,
+                            logs_strings,
+                            "../clients.json"
+                        );
                     } catch (e) {
                         console.log(bgRed(black(e)));
                     }
@@ -1168,9 +1211,13 @@ io.on("connection", (socket: Socket) => {
 
                 socket.on("message", (message: string) => {
                     try {
-                        console.log(cyan(`[${socket.id}] Player "${
-                            Clients.get(socket.id).player.username
-                        }" has messaged "${message}".`));
+                        console.log(
+                            cyan(
+                                `{${getCurrentTime()}} [${socket.id}] Player "${
+                                    Clients.get(socket.id).player.username
+                                }" has messaged "${message}".`
+                            )
+                        );
                         EmitAll("message", {
                             from: player.username,
                             message: message,
@@ -1184,13 +1231,15 @@ io.on("connection", (socket: Socket) => {
                     "pay",
                     (args: { balance: number; from: string; to: string }) => {
                         try {
-                            const p = Clients.get(args.to).player;
-                            p.balance += args.balance;
+                            const top = Clients.get(args.to).player;
+                            const fromp = Clients.get(args.from).player;
+                            top.balance += args.balance;
+                            fromp.balance += args.balance;
                             EmitAll("member_updating", {
                                 playerId: args.to,
                                 animation: "recieveMoney",
                                 additional_props: [args.from],
-                                pJson: p.to_json(),
+                                pJson: [top.to_json(), fromp.to_json()],
                             });
                         } catch (e) {
                             console.log(bgRed(black(e)));
@@ -1236,10 +1285,15 @@ io.on("connection", (socket: Socket) => {
             if (Clients.has(socket.id)) {
                 console.log(
                     redBright(
-                        `[${socket.id}] Player "${
+                        `{${getCurrentTime()}} [${socket.id}] Player "${
                             Clients.get(socket.id).player.username
                         }" has disconnected.`
                     )
+                );
+                logs_strings.push(
+                    `{${getCurrentTime()}} [${socket.id}] Player "${
+                        Clients.get(socket.id).player.username
+                    }" has disconnected.`
                 );
             }
             Clients.delete(socket.id);
@@ -1273,6 +1327,6 @@ io.on("connection", (socket: Socket) => {
 
 //#endregion
 
-httpServer.listen(port, () => {
+httpsServer.listen(port, () => {
     console.log(bgWhite(black(`Server is running on port ${port}`)));
 });

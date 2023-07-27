@@ -1,0 +1,31 @@
+{
+  "clients": {
+    "4JfAyGKf_b9BHRiRAAAB": {
+      "id": "4JfAyGKf_b9BHRiRAAAB",
+      "username": "itay",
+      "icon": 0,
+      "position": 15,
+      "balance": 1100,
+      "properties": [
+        {
+          "posistion": 5,
+          "count": 0,
+          "group": "Railroad"
+        },
+        {
+          "posistion": 15,
+          "count": 0,
+          "group": "Railroad"
+        }
+      ],
+      "isInJail": false,
+      "jailTurnsRemaining": 0,
+      "getoutCards": 0
+    }
+  },
+  "logs": [
+    "{11:20} [4JfAyGKf_b9BHRiRAAAB] Player \"itay\" has connected.",
+    "{11:20} [4JfAyGKf_b9BHRiRAAAB] Player \"itay\" rolled a [4,4].",
+    "{11:21} [4JfAyGKf_b9BHRiRAAAB] Player \"itay\" rolled a [1,2]."
+  ]
+}

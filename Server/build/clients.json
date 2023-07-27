@@ -1,19 +1,112 @@
 {
-  "j3dimWt3W4SXjbMcAAAJ": {
-    "id": "j3dimWt3W4SXjbMcAAAJ",
-    "username": "Itay",
-    "icon": 0,
-    "position": 8,
-    "balance": 1400,
-    "properties": [
-      {
-        "posistion": 8,
-        "count": 0,
-        "group": "lightgreen"
-      }
+  "clients": {
+    "SNHvjUsA7-TDlRQ6AAAH": {
+      "id": "SNHvjUsA7-TDlRQ6AAAH",
+      "username": "local",
+      "icon": 0,
+      "position": 36,
+      "balance": 880,
+      "properties": [
+        {
+          "posistion": 29,
+          "count": 0,
+          "group": "Yellow"
+        },
+        {
+          "posistion": 32,
+          "count": 0,
+          "group": "darkgreen"
+        }
+      ],
+      "isInJail": false,
+      "jailTurnsRemaining": 0,
+      "getoutCards": 1
+    },
+    "ebET0DBKnpu9a72uAAAJ": {
+      "id": "ebET0DBKnpu9a72uAAAJ",
+      "username": "online",
+      "icon": 1,
+      "position": 0,
+      "balance": 820,
+      "properties": [
+        {
+          "posistion": 9,
+          "count": 0,
+          "group": "lightgreen"
+        },
+        {
+          "posistion": 15,
+          "count": 0,
+          "group": "Railroad"
+        },
+        {
+          "posistion": 26,
+          "count": 0,
+          "group": "Yellow"
+        },
+        {
+          "posistion": 31,
+          "count": 0,
+          "group": "darkgreen"
+        }
+      ],
+      "isInJail": false,
+      "jailTurnsRemaining": 0,
+      "getoutCards": 0
+    }
+  },
+  "logs": [
+    [
+      "09:32:32 GMT+0300 (Israel Daylight Time)",
+      "[JoF9cT9t0DXxXHheAAAD] Player \"local\" rolled a [1,4]."
     ],
-    "isInJail": false,
-    "jailTurnsRemaining": 0,
-    "getoutCards": 0
-  }
+    [
+      "09:32:39 GMT+0300 (Israel Daylight Time)",
+      "[XGDno1pjqCKjqtBXAAAF] Player \"online\" rolled a [2,1]."
+    ],
+    [
+      "09:34:06 GMT+0300 (Israel Daylight Time)",
+      "[SNHvjUsA7-TDlRQ6AAAH] Player \"local\" rolled a [1,6]."
+    ],
+    [
+      "09:34:17 GMT+0300 (Israel Daylight Time)",
+      "[ebET0DBKnpu9a72uAAAJ] Player \"online\" rolled a [4,5]."
+    ],
+    [
+      "09:34:30 GMT+0300 (Israel Daylight Time)",
+      "[SNHvjUsA7-TDlRQ6AAAH] Player \"local\" rolled a [1,5]."
+    ],
+    [
+      "09:34:39 GMT+0300 (Israel Daylight Time)",
+      "[ebET0DBKnpu9a72uAAAJ] Player \"online\" rolled a [3,3]."
+    ],
+    [
+      "09:34:47 GMT+0300 (Israel Daylight Time)",
+      "[SNHvjUsA7-TDlRQ6AAAH] Player \"local\" rolled a [2,3]."
+    ],
+    [
+      "09:34:56 GMT+0300 (Israel Daylight Time)",
+      "[ebET0DBKnpu9a72uAAAJ] Player \"online\" rolled a [6,5]."
+    ],
+    [
+      "09:35:06 GMT+0300 (Israel Daylight Time)",
+      "[SNHvjUsA7-TDlRQ6AAAH] Player \"local\" rolled a [6,1]."
+    ],
+    [
+      "09:35:15 GMT+0300 (Israel Daylight Time)",
+      "[ebET0DBKnpu9a72uAAAJ] Player \"online\" rolled a [4,1]."
+    ],
+    [
+      "09:36:16 GMT+0300 (Israel Daylight Time)",
+      "[SNHvjUsA7-TDlRQ6AAAH] Player \"local\" rolled a [2,1]."
+    ],
+    [
+      "09:36:22 GMT+0300 (Israel Daylight Time)",
+      "[ebET0DBKnpu9a72uAAAJ] Player \"online\" rolled a [6,3]."
+    ],
+    [
+      "09:36:29 GMT+0300 (Israel Daylight Time)",
+      "[SNHvjUsA7-TDlRQ6AAAH] Player \"local\" rolled a [3,1]."
+    ]
+  ]
 }

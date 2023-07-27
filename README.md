@@ -40,12 +40,9 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 
 
 ## TODO List:
-1. Enhancement of [client] advanced chance/chest cards functionality.
-2. Implementation of railroad and utilities rent mechanics.
-3. Configuration and refinement of settings.
-4. Fixing walking animation issues 
-
-The reason i only care about TODO number 4 is beacuse when i played the game this advanced chance/cards didnt matter, also rairoad and utilities rent, and i dont find any settings to add to the game. maybe another day i will do so! im currently playing the game and debugin to understand why the walking got messed up in mid-game state. If this is ignored or you dont care, the game is ready to run!
+1. Enhancement of [client] advanced chance/chest cards functionality - when i played the game this advanced chance/cards didnt matter so maybe i will not add those
+2. Configuration and refinement of settings - I dont find any settings i can put in the game, excepts for 3d engine that maybe will be defined later on.
+3. Sound Effects
 
 ## Pictures and Videos of the game!
 for more pictures go to the pictures folder in this repo

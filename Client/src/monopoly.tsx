@@ -73,12 +73,24 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             final_position: number,
             _xplayer: Player,
             get200whengo: boolean = true,
-            afterFinished?: () => void
+            afterFinished?: () => void,
+            adding: boolean = true
         ) {
             var sum_moves = (final_position - _xplayer.position) % 40;
-            if (final_position < _xplayer.position || sum_moves < 0) {
+            if (
+                (final_position < _xplayer.position || sum_moves < 0) &&
+                adding
+            ) {
                 sum_moves = 40 - _xplayer.position + final_position;
             }
+
+            if (!adding) {
+                sum_moves = _xplayer.position - final_position;
+                if (sum_moves < 0) {
+                    sum_moves += 40;
+                }
+            }
+
             const time = 0.35 * 1000 * sum_moves;
 
             console.log(
@@ -104,7 +116,8 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                         console.log(
                             `${genId} adding one to ${_xplayer.position}`
                         );
-                        _xplayer.position = (_xplayer.position + 1) % 40;
+                        _xplayer.position =
+                            (_xplayer.position + (adding ? 1 : -1)) % 40;
                         console.log(
                             `${genId}  result of adding one to ${_xplayer.position}`
                         );
@@ -318,16 +331,34 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             // const sumTimes = args.listOfNums[0] + args.listOfNums[1];
             const localPlayer = clients.get(socket.id) as Player;
             const xplayer = clients.get(args.turnId) as Player;
-            const generatorResults = playerMoveGENERATOR(
+            const dice_generatorResults = playerMoveGENERATOR(
                 args.listOfNums[2],
                 xplayer,
-                true
+                true,
+                () => {
+                    if (args.turnId != socket.id && args.listOfNums[2] === 30) {
+                        setTimeout(() => {
+                            const generatorResults = playerMoveGENERATOR(
+                                10,
+                                xplayer,
+                                false,
+                                () => {
+                                    xplayer.position = 10;
+                                    xplayer.isInJail = true;
+                                    xplayer.jailTurnsRemaining = 3;
+                                }
+                            );
+                            generatorResults.func();
+                        }, 800);
+                    }
+                }
             );
+
             engineRef.current?.diceResults({
                 l: [args.listOfNums[0], args.listOfNums[1]],
                 time: localPlayer.isInJail
                     ? 2000
-                    : generatorResults.time + 2000 + 800,
+                    : dice_generatorResults.time + 2000 + 800,
                 onDone: () => {
                     if (socket.id !== args.turnId) return;
 
@@ -345,6 +376,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                         } else {
                             engineRef.current?.setStreet({
                                 location,
+                                rolls: args.listOfNums[1] + args.listOfNums[0],
                                 onResponse: (b, info) => {
                                     var time_till_free = 0;
                                     if (b === "buy") {
@@ -405,11 +437,37 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                     prp.posistion === location
                                                 ) {
                                                     var payment_ammount = 0;
-                                                    if (prp.count === 0) {
+
+                                                    if (
+                                                        proprety.group ===
+                                                            "Utilities" &&
+                                                        prp.rent
+                                                    ) {
+
+                                                        const multy_ =
+                                                            p.properties.filter(
+                                                                (v) =>
+                                                                    v.group ===
+                                                                    "Utilities"
+                                                            ).length === 2
+                                                                ? 10
+                                                                : 4;
+                                                                payment_ammount =
+                                                                prp.rent * multy_;
+                                                                console.warn(`payment_ammount ${payment_ammount} && rent was ${prp.rent}`)
+                                                    }
+                                                    else if (proprety.group === "Railroad"){
+                                                        const count = p.properties.filter(v=> v.group === "Railroad").length;
+                                                        const rents = [25,50,100,200];
+                                                        payment_ammount = rents[count];
+
+                                                    } 
+                                                    else if (
+                                                        prp.count === 0
+                                                    ) {
                                                         payment_ammount =
                                                             proprety?.rent ?? 0;
-                                                    }
-                                                    if (
+                                                    } else if (
                                                         typeof prp.count ===
                                                             "number" &&
                                                         prp.count > 0
@@ -419,8 +477,9 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                                 0, 0, 0, 0,
                                                             ])[prp.count - 1] ??
                                                             0;
-                                                    }
-                                                    if (prp.count === "h") {
+                                                    } else if (
+                                                        prp.count === "h"
+                                                    ) {
                                                         payment_ammount =
                                                             (proprety?.multpliedrent ?? [
                                                                 0, 0, 0, 0, 0,
@@ -464,6 +523,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                 generatorResults.time;
                                             generatorResults.func();
                                         }
+
                                         if (proprety?.id === "incometax") {
                                             localPlayer.balance -= 200;
                                             engineRef.current?.applyAnimation(
@@ -476,6 +536,25 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                 1
                                             );
                                         }
+                                    } else if (b === "special_action") {
+                                        localPlayer.balance -=
+                                            (proprety?.price ?? 0) * 1;
+                                        engineRef.current?.applyAnimation(1);
+
+                                        const _info = info as {
+                                            rolls: number;
+                                        };
+
+                                        const calculateRent = _info.rolls;
+                                        localPlayer.properties.push({
+                                            posistion: localPlayer.position,
+                                            count: 0,
+                                            rent: calculateRent,
+                                            group:
+                                                propretyMap.get(
+                                                    localPlayer.position
+                                                )?.group ?? "",
+                                        });
                                     }
 
                                     setTimeout(() => {
@@ -500,72 +579,12 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 },
             });
 
-            // function playerMove() {
-            //     var firstPosition = 0;
-            //     var addedMoney = false;
-            //     setTimeout(() => {
-            //         var i = 0;
-            //         const element = document.querySelector(
-            //             `div.player[player-id="${args.turnId}"]`
-            //         ) as HTMLDivElement;
-
-            //         firstPosition = xplayer.position;
-            //         xplayer.position += 1;
-            //         element.style.animation =
-            //             "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
-            //         const movingAnim = () => {
-            //             if (i < sumTimes) {
-            //                 i += 1;
-            //                 xplayer.position = (xplayer.position + 1) % 40;
-            //                 if (xplayer.position == 0) {
-            //                     xplayer.balance += 200;
-            //                     if (xplayer.id === socket.id)
-            //                         engineRef.current?.applyAnimation(2);
-            //                     addedMoney = true;
-            //                     SetClients(
-            //                         new Map(clients.set(args.turnId, xplayer))
-            //                     );
-            //                 }
-            //                 if (i == sumTimes - 1) {
-            //                     xplayer.position = args.listOfNums[2];
-            //                     element.style.animation =
-            //                         "part 0.9s cubic-bezier(0,.7,.57,1)";
-            //                     setTimeout(() => {
-            //                         element.style.animation = "";
-            //                     }, 900);
-
-            //                     if (
-            //                         !addedMoney &&
-            //                         firstPosition > xplayer.position
-            //                     ) {
-            //                         xplayer.balance += 200;
-            //                         if (xplayer.id === socket.id)
-            //                             engineRef.current?.applyAnimation(2);
-            //                         addedMoney = true;
-
-            //                         SetClients(
-            //                             new Map(
-            //                                 clients.set(args.turnId, xplayer)
-            //                             )
-            //                         );
-            //                     }
-            //                 } else {
-            //                     element.style.animation =
-            //                         "jumpstreet 0.35s cubic-bezier(.26,1.5,.65,1.02)";
-            //                     setTimeout(movingAnim, 0.35 * 1000);
-            //                 }
-            //             }
-            //         };
-            //         setTimeout(movingAnim, 0.35 * 1000);
-            //     }, 2000);
-            // }
-
             if (xplayer.isInJail) {
                 setTimeout(() => {
                     if (args.listOfNums[0] == args.listOfNums[1]) {
                         xplayer.isInJail = false;
                         setTimeout(() => {
-                            generatorResults.func();
+                            dice_generatorResults.func();
                         }, 2000);
                     } else if (xplayer.jailTurnsRemaining > 0) {
                         xplayer.jailTurnsRemaining -= 1;
@@ -577,7 +596,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 }, 1500);
             } else {
                 setTimeout(() => {
-                    generatorResults.func();
+                    dice_generatorResults.func();
                 }, 2000);
             }
         };
@@ -601,10 +620,12 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             playerId: string;
             animation: "recieveMoney";
             additional_props: any[];
-            pJson: PlayerJSON;
+            pJson: [PlayerJSON, PlayerJSON];
         }) => {
-            const p = clients.get(args.playerId);
-            p?.recieveJson(args.pJson);
+            for (const x of args.pJson) {
+                const p = clients.get(x.id);
+                p?.recieveJson(x);
+            }
 
             if (socket.id === args.playerId) {
                 engineRef.current?.applyAnimation(2);
@@ -635,6 +656,11 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 if (xplayer === undefined) return;
                 function addBalanceToOthers(amnout: number) {
                     if (xplayer === undefined) return 0;
+
+                    if (xplayer.id === socket.id) {
+                        socket.emit("pay");
+                    }
+
                     const other_players = Array.from(clients.values()).filter(
                         (v) => v.id !== xplayer.id
                     );
@@ -656,24 +682,26 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             );
                             const targetPos = p.get(c.tileid)?.posistion;
                             if (targetPos === undefined) {
-                                
                                 const _arr = Array.from(p.keys());
                                 console.log(_arr);
                                 break;
                             }
-                            const generatorResults = playerMoveGENERATOR(
+                            const _generatorResults = playerMoveGENERATOR(
                                 targetPos,
                                 xplayer
                             );
-                            time_till_finish = generatorResults.time;
-                            generatorResults.func();
+                            time_till_finish = _generatorResults.time;
+                            _generatorResults.func();
                         } else if (c.count) {
-                            const generatorResults = playerMoveGENERATOR(
-                                xplayer.position + c.count,
-                                xplayer
+                            const _generatorResults = playerMoveGENERATOR(
+                                (xplayer.position + c.count) % 40,
+                                xplayer,
+                                true,
+                                () => {},
+                                c.count >= 0
                             );
-                            time_till_finish = generatorResults.time;
-                            generatorResults.func();
+                            time_till_finish = _generatorResults.time;
+                            _generatorResults.func();
                         }
                         break;
 
@@ -689,7 +717,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                     xplayer.getoutCards += 1;
                                     break;
                                 case "goto":
-                                    const generatorResults =
+                                    const _generatorResults =
                                         playerMoveGENERATOR(
                                             10,
                                             xplayer,
@@ -700,8 +728,8 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                 xplayer.jailTurnsRemaining = 3;
                                             }
                                         );
-                                    time_till_finish = generatorResults.time;
-                                    generatorResults.func();
+                                    time_till_finish = _generatorResults.time;
+                                    _generatorResults.func();
                                     break;
                             }
                             SetClients(
@@ -762,12 +790,12 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             arr,
                             xplayer.position
                         );
-                        const generatorResults = playerMoveGENERATOR(
+                        const _generatorResults = playerMoveGENERATOR(
                             ongoingLocation,
                             xplayer
                         );
-                        time_till_finish = generatorResults.time;
-                        generatorResults.func();
+                        time_till_finish = _generatorResults.time;
+                        _generatorResults.func();
                         break;
 
                     case "propertycharges":

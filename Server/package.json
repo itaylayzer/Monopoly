@@ -2,7 +2,7 @@
   "name": "monopoly-server",
   "version": "1.0.0",
   "scripts": {
-    "start": "nodemon --exec ts-node ./src/server.ts --delay 2sec",
+    "start": "nodemon --exec ts-node ./src/server.ts --delay 2sec --ignore '*.json'",
     "build": "tsc && pkg dist/server.js --targets node16-win-x64"
   },
   "devDependencies": {

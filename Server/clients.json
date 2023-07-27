@@ -1,0 +1,38 @@
+{
+  "clients": {
+    "hICUBjsGh2_cmaTvAAAF": {
+      "id": "hICUBjsGh2_cmaTvAAAF",
+      "username": "local",
+      "icon": 0,
+      "position": 6,
+      "balance": 1400,
+      "properties": [
+        {
+          "posistion": 6,
+          "count": 0,
+          "group": "lightgreen"
+        }
+      ],
+      "isInJail": false,
+      "jailTurnsRemaining": 0,
+      "getoutCards": 0
+    },
+    "XYWAwhn9eBk5KzcwAAAH": {
+      "id": "XYWAwhn9eBk5KzcwAAAH",
+      "username": "amit",
+      "icon": 1,
+      "position": 0,
+      "balance": 1500,
+      "properties": [],
+      "isInJail": false,
+      "jailTurnsRemaining": 0,
+      "getoutCards": 0
+    }
+  },
+  "logs": [
+    [
+      "09:47:21 GMT+0300 (Israel Daylight Time)",
+      "[hICUBjsGh2_cmaTvAAAF] Player \"local\" rolled a [3,3]."
+    ]
+  ]
+}

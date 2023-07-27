@@ -120,6 +120,7 @@ function App() {
 
             <div className="entry">
                 <header>
+                    <p style={{fontSize:9}}>27.7.23</p>
                     Welcome to the <h3>MONOPOLY</h3> Game
                 </header>
                 <br></br>

@@ -702,7 +702,15 @@ div.board div#display-houses div.street-houses {
     z-index: 1;
     display: flex;
     justify-content: center;
+
+    
 }
+div.board div#display-houses div.street-houses p{
+    color:white;
+    margin:0;
+    scale:0.8;
+}
+
 
 div.board div#display-houses div.street-houses[data-rotate="1"] {
     translate: 0px -45.5px;
