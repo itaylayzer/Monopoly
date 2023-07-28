@@ -1,14 +1,14 @@
 {
   "clients": {
-    "hICUBjsGh2_cmaTvAAAF": {
-      "id": "hICUBjsGh2_cmaTvAAAF",
-      "username": "local",
+    "8HTN6NLl0u77WPWAAAAF": {
+      "id": "8HTN6NLl0u77WPWAAAAF",
+      "username": "Itay",
       "icon": 0,
-      "position": 6,
+      "position": 8,
       "balance": 1400,
       "properties": [
         {
-          "posistion": 6,
+          "posistion": 8,
           "count": 0,
           "group": "lightgreen"
         }
@@ -16,23 +16,13 @@
       "isInJail": false,
       "jailTurnsRemaining": 0,
       "getoutCards": 0
-    },
-    "XYWAwhn9eBk5KzcwAAAH": {
-      "id": "XYWAwhn9eBk5KzcwAAAH",
-      "username": "amit",
-      "icon": 1,
-      "position": 0,
-      "balance": 1500,
-      "properties": [],
-      "isInJail": false,
-      "jailTurnsRemaining": 0,
-      "getoutCards": 0
     }
   },
   "logs": [
-    [
-      "09:47:21 GMT+0300 (Israel Daylight Time)",
-      "[hICUBjsGh2_cmaTvAAAF] Player \"local\" rolled a [3,3]."
-    ]
+    "{18:39} [mojrwIvW3VjhxFPoAAAD] Player \"Itay\" has connected.",
+    "{18:39} [mojrwIvW3VjhxFPoAAAD] Player \"Itay\" rolled a [6,1].",
+    "{18:39} [mojrwIvW3VjhxFPoAAAD] Player \"Itay\" has disconnected.",
+    "{18:39} [8HTN6NLl0u77WPWAAAAF] Player \"Itay\" has connected.",
+    "{18:39} [8HTN6NLl0u77WPWAAAAF] Player \"Itay\" rolled a [4,4]."
   ]
 }

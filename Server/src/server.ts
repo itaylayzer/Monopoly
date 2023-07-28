@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "https";
 import { Server, Socket } from "socket.io";
 import { Player, PlayerJSON } from "./player";
+import * as axios from "axios";
 const monopolyJSON = {
     properties: [
         {
@@ -990,11 +991,16 @@ interface ServerProperties {
     port: number;
     maxPlayers: number;
     cors: Array<string>;
+    redirect: boolean;
+    redirectURL?: string;
 }
 const defaultProperties: ServerProperties = {
     port: 25565,
     maxPlayers: 6,
     cors: ["https://coder-1t45.github.io", "http://localhost:5173"],
+    redirect: true,
+    // redirectURL:"https://coder-1t45.github.io/Monopoly"
+    redirectURL: "http://localhost:5173",
 };
 
 function readServerProperties(): ServerProperties {
@@ -1012,13 +1018,10 @@ function readServerProperties(): ServerProperties {
 const app = express();
 const properties = readServerProperties();
 
-const port = properties.port;
 const maxPlayers =
     properties.maxPlayers > 0 ? Math.min(properties.maxPlayers, 6) : 6;
-const cors = properties.cors;
-
-console.log(`\nStarting the Server on port ${port}...`);
-console.log(`Allowed origins ${cors}...`);
+console.log(`\nStarting the Server on port ${properties.port}...`);
+console.log(`Allowed origins ${properties.cors}...`);
 console.log(`Max Players is ${maxPlayers}...\n`);
 
 const httpsServer = createServer(
@@ -1029,10 +1032,35 @@ const httpsServer = createServer(
     app
 );
 
+async function getGlobalIpAddress() {
+    try {
+        // @ts-ignore
+        const response = await axios.get("https://api.ipify.org?format=json");
+        return response.data.ip;
+    } catch (error) {
+        console.error("Error fetching global IP address:", error.message);
+        return null;
+    }
+}
+
+app.get("/", async (req, res) => {
+    if (properties.redirect && properties.redirectURL) {
+        const serverIP = await getGlobalIpAddress();
+        const redirectUrl = `${properties.redirectURL}?ip=${serverIP}:${properties.port}`;
+
+        res.status(200).redirect(redirectUrl);
+    } else {
+        res.status(200).send(
+            "<p> you are ready to play monopoly! chrome isnt blocking you from joinin! </p>"
+        );
+    }
+});
+
 interface Client {
     player: Player;
     socket: Socket;
     ready: boolean;
+    positions: { x: number; y: number };
 }
 
 const Clients = new Map<string, Client>();
@@ -1041,6 +1069,7 @@ const logs_strings: Array<string> = [];
 //#region Game Variables!
 let currentId: string = "";
 let gameStarted: boolean = false;
+let selectedMode: number = 0;
 let messages: Array<{ from: string; message: string }> = [];
 
 //#endregion
@@ -1048,7 +1077,7 @@ let messages: Array<{ from: string; message: string }> = [];
 const io = new Server(httpsServer, {
     cors: {
         origin: (origin, callback) => {
-            if (cors.includes(origin)) {
+            if (properties.cors.includes(origin)) {
                 callback(null, true);
             } else {
                 callback(new Error("Not allowed by CORS"));
@@ -1109,6 +1138,7 @@ io.on("connection", (socket: Socket) => {
                     player: player,
                     socket: socket,
                     ready: false,
+                    positions: { x: 0, y: 0 },
                 });
                 console.log(
                     greenBright(
@@ -1146,7 +1176,6 @@ io.on("connection", (socket: Socket) => {
                         const first = Math.floor(Math.random() * 6) + 1;
                         const second = Math.floor(Math.random() * 6) + 1;
 
-                        
                         const x = `{${getCurrentTime()}} [${
                             socket.id
                         }] Player "${
@@ -1234,7 +1263,7 @@ io.on("connection", (socket: Socket) => {
                             const top = Clients.get(args.to).player;
                             const fromp = Clients.get(args.from).player;
                             top.balance += args.balance;
-                            fromp.balance += args.balance;
+                            fromp.balance -= args.balance;
                             EmitAll("member_updating", {
                                 playerId: args.to,
                                 animation: "recieveMoney",
@@ -1246,20 +1275,41 @@ io.on("connection", (socket: Socket) => {
                         }
                     }
                 );
+
+                socket.on("mouse", (args: { x: number; y: number }) => {
+                    const client = Clients.get(socket.id);
+                    client.positions = args;
+                    Clients.set(socket.id, client);
+
+                    EmitExcepts(socket.id, "mouse", {
+                        id: socket.id,
+                        x: args.x,
+                        y: args.y,
+                    });
+                });
             } catch (e) {
                 console.log(bgRed(black(e)));
             }
         });
-        socket.on("ready", (args: boolean) => {
+        socket.on("ready", (args: { ready?: boolean; mode?: number }) => {
             try {
                 const client = Clients.get(socket.id);
-                client.ready = args;
+                if (args.ready !== undefined) {
+                    client.ready = args.ready;
+                }
+                if (args.mode !== undefined) {
+                    selectedMode = args.mode;
+                }
                 Clients.set(socket.id, client);
 
                 // Check if everyone Ready!
 
                 const readys = Array.from(Clients.values()).map((v) => v.ready);
-                EmitAll("ready", { id: socket.id, state: args });
+                EmitAll("ready", {
+                    id: socket.id,
+                    state: client.ready,
+                    selectedMode,
+                });
                 if (!readys.includes(false)) {
                     console.log(
                         bgBlueBright(
@@ -1327,6 +1377,6 @@ io.on("connection", (socket: Socket) => {
 
 //#endregion
 
-httpsServer.listen(port, () => {
-    console.log(bgWhite(black(`Server is running on port ${port}`)));
+httpsServer.listen(properties.port, () => {
+    console.log(bgWhite(black(`Server is running on port ${properties.port}`)));
 });

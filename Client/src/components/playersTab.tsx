@@ -1,4 +1,4 @@
-import { useState, forwardRef, useImperativeHandle } from "react";
+import { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { Socket } from "socket.io-client";
 import { Player } from "../assets/player";
 import DiceIcon from "../../public/roll.png";
@@ -6,6 +6,7 @@ import { translateGroup } from "./streetCard";
 import monopolyJSON from "../assets/monopoly.json";
 import HouseIcon from "../../public/h.png";
 import HotelIcon from "../../public/ho.png";
+import { MonopolyCookie, MonopolySettings } from "../assets/types";
 
 interface PlayersTabProps {
     socket: Socket;
@@ -28,6 +29,11 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
     );
 
     const [current, SetCurrentPlayer] = useState<Player | undefined>();
+    const [settings, SetSettings] = useState<MonopolySettings>();
+    useEffect(() => {
+        SetSettings((JSON.parse(document.cookie) as MonopolyCookie).settings)
+    }, [document.cookie]);
+
     useImperativeHandle(ref, () => ({
         clickdOnPlayer(playerId) {
             for (const x of props.players) {
@@ -118,6 +124,14 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
                                 <div
                                     key={i}
                                     className="playerInfo"
+                                    style={
+                                        settings !== undefined &&
+                                        settings.accessibility[4] === true
+                                            ? {
+                                                  backgroundColor: v.color,
+                                              }
+                                            : {}
+                                    }
                                     onClick={() => {
                                         const element = document.querySelector(
                                             `div.player[player-id="${v.id}"]`
@@ -132,7 +146,12 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
                                         SetCurrentPlayer(v);
                                     }}
                                 >
-                                    <p>{v.username}</p>
+                                    <p>
+                                        {settings?.accessibility[2]
+                                            ? `[${v.id}]`
+                                            : ""}{" "}
+                                        {v.username}
+                                    </p>
                                     {v.id === props.currentTurn ? (
                                         <img
                                             src={DiceIcon.replace(
@@ -162,7 +181,10 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
             {localPlayer !== undefined ? (
                 <>
                     <div className="container-bottom" style={{}}>
-                       <p style={{margin:0, marginTop:5}}> {localPlayer.balance} M</p>
+                        <p style={{ margin: 0, marginTop: 5 }}>
+                            {" "}
+                            {localPlayer.balance} M
+                        </p>
                     </div>
                 </>
             ) : (

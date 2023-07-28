@@ -15,6 +15,7 @@ export class Player {
     public jailTurnsRemaining: number;
     public getoutCards: number;
     public ready: boolean;
+    public positions:{x:number, y:number};
     constructor(_id: string, _name: string) {
         this.id = _id;
         this.username = _name;
@@ -26,6 +27,7 @@ export class Player {
         this.jailTurnsRemaining = 0;
         this.getoutCards = 0;
         this.ready = false;
+        this.positions = {x:0, y:0};
     }
     recieveJson(json: PlayerJSON) {
         this.username = json.username;
@@ -51,6 +53,24 @@ export class Player {
             username: this.username,
             getoutCards: this.getoutCards,
         } as PlayerJSON;
+    }
+
+    get color(){
+        switch(this.icon){
+            case 0:
+                return "#E0115F"
+            case 1:
+                return "#4169e1"
+            case 2:
+                return "#50C878"
+            case 3:
+                return "#FFC000"
+            case 5:
+                return "#FF7F50"
+            case 4:
+            default:
+                return ""
+        }
     }
 }
 export type PlayerJSON = {

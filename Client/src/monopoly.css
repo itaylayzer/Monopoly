@@ -73,6 +73,9 @@
     user-select: none;
     visibility: hidden;
 }
+*[data-tooltip-hover][data-tooltip-color]::after {
+    background-color: attr(data-tooltip-color);
+}
 
 *[data-tooltip-hover]:hover::after {
     visibility: visible;
@@ -105,6 +108,27 @@ body {
     user-select: none;
 }
 
+div.modes{
+    display: flex;
+    justify-content: center;
+    padding-inline:10px;
+    gap:10px;
+}
+div.modes p{
+display: inline-block;
+background-color: rgb(35,35,35);
+padding:10px 20px;
+border-radius: 5px;
+cursor:pointer;
+transition: scale .35s cubic-bezier(0, .6, .28, 1.47)
+}
+div.modes p[data-select="true"]{
+    background-color: #0075FF;
+}
+div.modes p:hover {
+    scale: 0.9
+}
+
 div.notify {
     display: block;
     position: absolute;
@@ -113,6 +137,7 @@ div.notify {
     min-width: 100px;
     min-height: 50px;
     transform: translateX(-50%) translateY(-150%);
+    z-index: 20;
 }
 
 div.notification {
@@ -130,7 +155,7 @@ div.notification {
     white-space: nowrap;
     translate: 0px 100px;
     padding-block: 10px;
-    z-index: 10;
+    z-index: 20;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 50%);
     transition: top 0.5s ease-out, translate 0.5s ease-out;
     transform: translateX(-50%);
@@ -368,6 +393,12 @@ main nav.content p,
 h3 {
     color: white;
 }
+h2 {
+    color: white;
+    font-size: 20px;
+    font-weight: 400;
+    text-align: center;
+}
 
 main nav.content {
     padding-inline: 15 px;
@@ -397,12 +428,14 @@ main nav.content div.propertyList{
     padding-right:5px;
     cursor:unset;
 }
+main nav.content[data-index="3"] div.scroll::-webkit-scrollbar,
 main nav.content div.main-chat div.messages::-webkit-scrollbar,
 main nav.content div.propertyList::-webkit-scrollbar,
 main nav.content div.container-top div.playersInfos::-webkit-scrollbar{
     width: 5px;
 }
 
+main nav.content[data-index="3"] div.scroll::-webkit-scrollbar-track,
 main nav.content div.main-chat div.messages::-webkit-scrollbar-track,
 main nav.content div.propertyList::-webkit-scrollbar-track,
 main nav.content div.container-top div.playersInfos::-webkit-scrollbar-track{
@@ -410,12 +443,14 @@ main nav.content div.container-top div.playersInfos::-webkit-scrollbar-track{
     border-radius: 100px;
     margin-block:20px;
 }
+main nav.content[data-index="3"] div.scroll::-webkit-scrollbar-thumb,
 main nav.content div.main-chat div.messages::-webkit-scrollbar-thumb,
 main nav.content div.propertyList::-webkit-scrollbar-thumb,
 main nav.content div.container-top div.playersInfos::-webkit-scrollbar-thumb{
     background-color: rgb(255,255,255,50%);
     border-radius: 100px;
 }
+main nav.content[data-index="3"] div.scroll::-webkit-scrollbar-thumb:hover,
 main nav.content div.main-chat div.messages::-webkit-scrollbar-thumb:hover,
 main nav.content div.propertyList::-webkit-scrollbar-thumb:hover,
 main nav.content div.container-top div.playersInfos::-webkit-scrollbar-thumb:hover{
@@ -513,6 +548,7 @@ select {
     color: white;
     background-color: rgba(0, 0, 0, 0);
     border: none;
+    font-family: "Josefin Sans";
     border-bottom: 1px solid white;
     padding: 1px 10px;
 }
@@ -530,6 +566,7 @@ option {
     background-color: rgb(20, 20, 20);
     outline: 0;
     border: 0;
+    font-family: "Josefin Sans";
 }
 
 main nav.content[data-index="2"] div.main-chat {
@@ -572,6 +609,18 @@ main nav.content[data-index="1"] input {
     margin-bottom: 5px;
     font-size: 17px;
     user-select: text;
+}
+main nav.content[data-index="3"]{
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+}
+main nav.content[data-index="3"] div.scroll{
+    overflow-y: auto;
+    display: block;
+    flex-grow: 1;
+    padding-right:10px;
+    padding-bottom:100px;
 }
 
 
@@ -802,6 +851,12 @@ div.roll-panel button p {
     transform: translateY(5px);
 }
 
+div.roll-panel button.roll-button[aria-disabled="false"]{
+    box-shadow: 0;
+    outline:0;
+    border:0;
+}
+
 div.roll-panel button.roll-button[aria-disabled="false"]:nth-child(1) {
     translate: 0px -160px;
 }
@@ -822,6 +877,7 @@ div.roll-panel button.roll-button img:nth-child(1) {
     top: 50%;
     transform: translateY(-50%) translateX(-100%);
     width: 50px;
+    border:0;
 }
 
 div.roll-panel button.roll-button[data-button-type][aria-disabled="true"] {
@@ -1351,4 +1407,55 @@ img#moneyAnimations[data-anim="2"] {
     100% {
         opacity: 0;
     }
+}
+
+
+div.settingsItem{
+    display: flex;
+    margin-bottom:10px;
+}
+div.settingsItem > p{
+    flex-grow: 1;
+    margin:0;
+}
+div.settingsItem div{
+    margin:0;
+    color:white;
+}
+div.settingsItem div input{
+    background-color: rgba(0,0,0,0);
+    border:0;
+    outline:0;
+    border-bottom:1px solid white;
+    color:white;
+    text-align: right;
+}
+div.settingsItem div input:focus{
+    outline:0;
+}
+div.settingsItem div input[type="range"]{
+    height: 1px;
+    margin-block:auto;
+    transform:translateY(-1.5px);
+}
+
+div.slider-component{
+    display: flex;
+    gap:10px;
+}
+div.slider-component input{
+    width: 150px;
+}
+div.cursors{
+    display: block;
+    overflow: hidden;
+}
+div.cursors >img{
+    position: absolute;
+    z-index: 100;
+    display: block;
+    height: 2vh;
+    transform:translateX(-2px);
+    opacity: 0.5;
+    transition:translate .5s ease-out;
 }

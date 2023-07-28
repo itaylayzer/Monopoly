@@ -6,7 +6,7 @@ import MonopolyNav, { MonopolyNavRef } from "./components/nav";
 import MonopolyGame, { MonopolyGameRef } from "./components/game";
 import NotifyElement, { NotificatorRef } from "./components/notificator";
 import monopolyJSON from "./assets/monopoly.json";
-
+import { MonopolyCookie, MonopolySettings } from "./assets/types";
 function App({ socket, name }: { socket: Socket; name: string }) {
     const [clients, SetClients] = useState<Map<string, Player>>(new Map());
     const players = Array.from(clients.values());
@@ -14,6 +14,40 @@ function App({ socket, name }: { socket: Socket; name: string }) {
     const [currentId, SetCurrent] = useState<string>("");
     const [gameStarted, SetGameStarted] = useState<boolean>(false);
     const [imReady, SetReady] = useState<boolean>(false);
+    const [selectedMode, SetMode] = useState<number>(0);
+    const [globalSettings, SetSettings] = useState<MonopolySettings>();
+    const [mainTheme, SetTheme] = useState(new Audio("./main-theme.mp3"));
+    useEffect(() => {
+        if (!gameStarted) return;
+        // Sound Effect
+        mainTheme.loop = true;
+        mainTheme.play();
+
+        mainTheme.volume = 0.25;
+        if (globalSettings !== undefined) {
+            mainTheme.volume =
+                (globalSettings.audio[0] / 100) *
+                (globalSettings.audio[2] / 100);
+        }
+        SetTheme(mainTheme);
+    }, [gameStarted]);
+    useEffect(() => {
+        const settings_interval = setInterval(() => {
+            const parsedCookie = JSON.parse(document.cookie)["settings"];
+            SetSettings(parsedCookie);
+        }, 1000);
+        return () => {
+            clearInterval(settings_interval);
+        };
+    }, [document.cookie]);
+
+    useEffect(() => {
+        if (globalSettings !== undefined) {
+            mainTheme.volume =
+                (globalSettings.audio[0] / 100) *
+                (globalSettings.audio[2] / 100);
+        }
+    }, [globalSettings]);
 
     const engineRef = useRef<MonopolyGameRef>(null);
     const navRef = useRef<MonopolyNavRef>(null);
@@ -26,6 +60,19 @@ function App({ socket, name }: { socket: Socket; name: string }) {
     );
 
     useEffect(() => {
+        let settings: MonopolySettings | undefined = undefined;
+
+        const settings_interval = setInterval(() => {
+            settings = JSON.parse(document.cookie)["settings"];
+        }, 1000);
+
+        function mouseMove(e: MouseEvent) {
+            const _pos = { x: e.clientX, y: e.clientY };
+            const xplayer = clients.get(socket.id);
+            socket.emit("mouse", _pos);
+            xplayer ? (xplayer.positions = _pos) : "";
+        }
+
         function destroyPlayer(playerId: string) {
             // remove player from clients
             function removePlayer() {
@@ -94,9 +141,8 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             const time = 0.35 * 1000 * sum_moves;
 
             console.log(
-                `generator target ${final_position} time ${time} current ${_xplayer.position}`
+                `${new Date().toTimeString()} generator ${Math.random()} target ${final_position} time ${time} current ${_xplayer.position}`
             );
-            const genId = Math.random();
             function _playerMoveFunc() {
                 var firstPosition = 0;
                 var addedMoney = false;
@@ -113,18 +159,22 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     if (i < sum_moves) {
                         i += 1;
 
-                        console.log(
-                            `${genId} adding one to ${_xplayer.position}`
-                        );
                         _xplayer.position =
                             (_xplayer.position + (adding ? 1 : -1)) % 40;
-                        console.log(
-                            `${genId}  result of adding one to ${_xplayer.position}`
-                        );
                         if (_xplayer.position == 0 && get200whengo) {
                             _xplayer.balance += 200;
-                            if (_xplayer.id === socket.id)
+                            if (_xplayer.id === socket.id) {
+                                if (
+                                    settings !== undefined &&
+                                    settings.notifications === true
+                                )
+                                    notifyRef.current?.message(
+                                        `${200} of money is added to the account`,
+                                        "info",
+                                        2
+                                    );
                                 engineRef.current?.applyAnimation(2);
+                            }
                             addedMoney = true;
                             SetClients(
                                 new Map(clients.set(_xplayer.id, _xplayer))
@@ -144,8 +194,18 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                 get200whengo
                             ) {
                                 _xplayer.balance += 200;
-                                if (_xplayer.id === socket.id)
+                                if (_xplayer.id === socket.id) {
+                                    if (
+                                        settings !== undefined &&
+                                        settings.notifications === true
+                                    )
+                                        notifyRef.current?.message(
+                                            `${200} of money is added to the account`,
+                                            "info",
+                                            2
+                                        );
                                     engineRef.current?.applyAnimation(2);
+                                }
                                 addedMoney = true;
 
                                 SetClients(
@@ -196,11 +256,16 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             );
         };
 
-        const socket_Ready = (args: { id: string; state: boolean }) => {
+        const socket_Ready = (args: {
+            id: string;
+            state: boolean;
+            selectedMode: number;
+        }) => {
             const x = clients.get(args.id);
             if (x === undefined) return;
             x.ready = args.state;
             SetClients(new Map(clients.set(x.id, x)));
+            SetMode(args.selectedMode);
         };
         const socket_StartGame = () => {
             SetGameStarted(true);
@@ -380,6 +445,17 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                 onResponse: (b, info) => {
                                     var time_till_free = 0;
                                     if (b === "buy") {
+                                        if (
+                                            settings !== undefined &&
+                                            settings.notifications === true
+                                        )
+                                            notifyRef.current?.message(
+                                                `${
+                                                    (proprety?.price ?? 0) * 1
+                                                } of money is deducted from the account`,
+                                                "info",
+                                                2
+                                            );
                                         localPlayer.balance -=
                                             (proprety?.price ?? 0) * 1;
                                         engineRef.current?.applyAnimation(1);
@@ -413,13 +489,34 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                 : _info.state;
 
                                         if (_info.state === 5) {
+                                            if (
+                                                settings !== undefined &&
+                                                settings.notifications === true
+                                            )
+                                                notifyRef.current?.message(
+                                                    `${
+                                                        proprety.ohousecost ?? 0
+                                                    } of money is deducted from the account`,
+                                                    "info",
+                                                    2
+                                                );
                                             localPlayer.balance -=
                                                 proprety.ohousecost ?? 0;
                                             engineRef.current?.applyAnimation(
                                                 1
                                             );
                                         } else {
-                                            proprety.housecost;
+                                            if (
+                                                settings !== undefined &&
+                                                settings.notifications === true
+                                            )
+                                                notifyRef.current?.message(
+                                                    `${
+                                                        proprety.housecost ?? 0
+                                                    } of money is deducted from the account`,
+                                                    "info",
+                                                    2
+                                                );
                                             localPlayer.balance -=
                                                 (proprety.housecost ?? 0) *
                                                 _info.money;
@@ -453,9 +550,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                                 : 4;
                                                         payment_ammount =
                                                             prp.rent * multy_;
-                                                        console.warn(
-                                                            `payment_ammount ${payment_ammount} && rent was ${prp.rent}`
-                                                        );
                                                     } else if (
                                                         proprety.group ===
                                                         "Railroad"
@@ -494,7 +588,17 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                                                                 0, 0, 0, 0, 0,
                                                             ])[4] ?? 0;
                                                     }
-
+                                                    if (
+                                                        settings !==
+                                                            undefined &&
+                                                        settings.notifications ===
+                                                            true
+                                                    )
+                                                        notifyRef.current?.message(
+                                                            `${payment_ammount} of money is deducted from the account`,
+                                                            "info",
+                                                            2
+                                                        );
                                                     localPlayer.balance -=
                                                         payment_ammount;
                                                     engineRef.current?.applyAnimation(
@@ -535,17 +639,46 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
                                         if (proprety?.id === "incometax") {
                                             localPlayer.balance -= 200;
+                                            if (
+                                                settings !== undefined &&
+                                                settings.notifications === true
+                                            )
+                                                notifyRef.current?.message(
+                                                    `${200} of money is deducted from the account`,
+                                                    "info",
+                                                    2
+                                                );
                                             engineRef.current?.applyAnimation(
                                                 1
                                             );
                                         }
                                         if (proprety?.id === "luxerytax") {
                                             localPlayer.balance -= 100;
+                                            if (
+                                                settings !== undefined &&
+                                                settings.notifications === true
+                                            )
+                                                notifyRef.current?.message(
+                                                    `${100} of money is deducted from the account`,
+                                                    "info",
+                                                    2
+                                                );
                                             engineRef.current?.applyAnimation(
                                                 1
                                             );
                                         }
                                     } else if (b === "special_action") {
+                                        if (
+                                            settings !== undefined &&
+                                            settings.notifications === true
+                                        )
+                                            notifyRef.current?.message(
+                                                `${
+                                                    (proprety?.price ?? 0) * 1
+                                                } of money is deducted from the account`,
+                                                "info",
+                                                2
+                                            );
                                         localPlayer.balance -=
                                             (proprety?.price ?? 0) * 1;
                                         engineRef.current?.applyAnimation(1);
@@ -619,6 +752,16 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     x.getoutCards -= 1;
                 } else {
                     x.balance -= 50;
+                    if (
+                        x.id === socket.id &&
+                        settings !== undefined &&
+                        settings.notifications === true
+                    )
+                        notifyRef.current?.message(
+                            `${50} of money is deducted from the account`,
+                            "info",
+                            2
+                        );
                 }
                 x.isInJail = false;
                 x.jailTurnsRemaining = 0;
@@ -671,6 +814,17 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     );
                     for (const p of other_players) {
                         p.balance += amnout;
+                        if (
+                            p.id === socket.id &&
+                            settings !== undefined &&
+                            settings.notifications === true
+                        ) {
+                            notifyRef.current?.message(
+                                `${amnout} of money is added to the account`,
+                                "info",
+                                2
+                            );
+                        }
                         SetClients(new Map(clients.set(p.id, p)));
 
                         if (xplayer.id === socket.id) {
@@ -704,7 +858,6 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                             const targetPos = p.get(c.tileid)?.posistion;
                             if (targetPos === undefined) {
                                 const _arr = Array.from(p.keys());
-                                console.log(_arr);
                                 break;
                             }
                             const _generatorResults = playerMoveGENERATOR(
@@ -728,8 +881,20 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
                     case "addfunds":
                         xplayer.balance += c.amount ?? 0;
-                        if (xplayer.id === socket.id)
+                        if (xplayer.id === socket.id) {
+                            if (
+                                settings !== undefined &&
+                                settings.notifications === true
+                            )
+                                notifyRef.current?.message(
+                                    `${
+                                        c.amount ?? 0
+                                    } of money is added to the account`,
+                                    "info",
+                                    2
+                                );
                             engineRef.current?.applyAnimation(2);
+                        }
                         break;
                     case "jail":
                         if (c.subaction !== undefined) {
@@ -761,8 +926,20 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
                     case "removefunds":
                         xplayer.balance -= c.amount ?? 0;
-                        if (xplayer.id === socket.id)
+                        if (xplayer.id === socket.id) {
                             engineRef.current?.applyAnimation(1);
+                            if (
+                                settings !== undefined &&
+                                settings.notifications === true
+                            )
+                                notifyRef.current?.message(
+                                    `${
+                                        c.amount ?? 0
+                                    } of money is deducted from the account`,
+                                    "info",
+                                    2
+                                );
+                        }
                         break;
                     // amount
                     case "removefundstoplayers":
@@ -837,6 +1014,13 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                 }, time_till_finish);
             }, numOfTime);
         };
+        function socket_Mouse(args: { id: string; x: number; y: number }) {
+            const xplayer = clients.get(args.id);
+            if (xplayer === undefined) return;
+            xplayer.positions = { x: args.x, y: args.y };
+            clients.set(args.id, xplayer);
+        }
+        document.addEventListener("mousemove", mouseMove);
         socket.on("initials", socket_Initials);
         socket.on("new-player", socket_NewPlayer);
         socket.on("ready", socket_Ready);
@@ -848,6 +1032,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
         socket.on("unjail", socket_Unjail);
         socket.on("member_updating", socket_MemberUpdating);
         socket.on("chorch_result", socket_ChorchResult);
+        socket.on("mouse", socket_Mouse);
 
         var to_emit_name = true;
         //#endregion
@@ -855,7 +1040,8 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
         return () => {
             to_emit_name = false;
-
+            clearInterval(settings_interval);
+            document.removeEventListener("mousemove", mouseMove);
             socket.off("initials", socket_Initials);
             socket.off("new-player", socket_NewPlayer);
             socket.off("ready", socket_Ready);
@@ -867,6 +1053,7 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             socket.off("unjail", socket_Unjail);
             socket.off("member_updating", socket_MemberUpdating);
             socket.off("chorch_result", socket_ChorchResult);
+            socket.off("mouse", socket_Mouse);
         };
     }, [socket]);
 
@@ -876,6 +1063,26 @@ function App({ socket, name }: { socket: Socket; name: string }) {
 
     return gameStarted ? (
         <>
+            {globalSettings !== undefined && globalSettings.accessibility[3] ? (
+                <div className="cursors">
+                    {Array.from(clients.values())
+                        .filter((v) => v.id !== socket.id)
+                        .map((v, i) => {
+                            return (
+                                <img
+                                    src="./cursor.png"
+                                    style={{
+                                        translate: `${v.positions.x}px ${v.positions.y}px`,
+                                    }}
+                                    key={i}
+                                    className="cursor"
+                                />
+                            );
+                        })}
+                </div>
+            ) : (
+                <></>
+            )}
             <main>
                 <MonopolyNav
                     currentTurn={currentId}
@@ -916,10 +1123,27 @@ function App({ socket, name }: { socket: Socket; name: string }) {
                     );
                 })}
             </div>
+            <br />
+            choose the game mode that you desire
+            <div className="modes">
+                {(["Monopoly", "Ronopoly"] as Array<string>).map((v, k) => {
+                    return (
+                        <p
+                            data-select={k === selectedMode}
+                            key={k}
+                            onClick={() => {
+                                socket.emit("ready", { mode: k });
+                            }}
+                        >
+                            {v}
+                        </p>
+                    );
+                })}
+            </div>
             <center>
                 <button
                     onClick={() => {
-                        socket.emit("ready", !imReady);
+                        socket.emit("ready", { ready: !imReady });
                         SetReady(!imReady);
                     }}
                 >

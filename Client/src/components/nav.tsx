@@ -6,6 +6,8 @@ import PropretiesIcon from "../../public/proprety.png";
 import SettingsIcon from "../../public/settings.png";
 import MonopolyIcon from "../../public/icon.png";
 
+import { MonopolyCookie, MonopolySettings } from "../assets/types";
+
 import {
     forwardRef,
     useState,
@@ -17,6 +19,7 @@ import { Player } from "../assets/player";
 import { Socket } from "socket.io-client";
 import PropretyTab, { PropretyTabRef } from "./propretyTab";
 import PlayersTab, { PlayersTabRef } from "./playersTab";
+import SettingsNav from "./settingsNav";
 
 interface MonopolyNavProps {
     name: string;
@@ -37,6 +40,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
             Array<{ from: string; message: string }>
         >([]);
 
+        
         function reRenderPlayerList() {
             SetDisplays(prop.players);
         }
@@ -56,9 +60,9 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                     ) as HTMLImageElement;
                     imageElement.style.animation =
                         "spin3 2s cubic-bezier(.68,.05,.49,.95) infinite";
-                    imageElement.src = NChatIcon.replace('/public','');
+                    imageElement.src = NChatIcon.replace("/public", "");
                     iconElement.onclick = () => {
-                        imageElement.src = ChatIcon.replace('/public','');
+                        imageElement.src = ChatIcon.replace("/public", "");
                         imageElement.style.animation = "";
                         SetTab(2);
                         iconElement.onclick = () => {
@@ -84,25 +88,22 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
             prop.players.map((v) => v.balance),
         ]);
 
-        useEffect(()=>{
-            const keyDownHandle =(e:KeyboardEvent)=>{
+        useEffect(() => {
+            const keyDownHandle = (e: KeyboardEvent) => {
                 const x = parseInt(e.key);
-                if (!isNaN(x)){
+                if (!isNaN(x)) {
                     const activeElement = document.activeElement;
-                    if (activeElement === null)
-                        SetTab(x-1);
-                    else if (activeElement.tagName !== "INPUT"){
-                        SetTab(x-1);
+                    if (activeElement === null) SetTab(x - 1);
+                    else if (activeElement.tagName !== "INPUT") {
+                        SetTab(x - 1);
                     }
                 }
-
-                
-            }
-            document.addEventListener("keydown",keyDownHandle);
-            return (()=>{
-                document.removeEventListener("keydown",keyDownHandle);
-            })
-        },[])
+            };
+            document.addEventListener("keydown", keyDownHandle);
+            return () => {
+                document.removeEventListener("keydown", keyDownHandle);
+            };
+        }, []);
         return (
             <nav className="main">
                 <nav className="header">
@@ -162,6 +163,9 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                             data-tooltip="leave"
                             className="button color"
                             data-tooltip-hover="leave"
+                            onClick={() => {
+                                document.location.reload();
+                            }}
                         >
                             <img
                                 src={LeaveIcon.replace("public/", "")}
@@ -171,7 +175,10 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                     </div>
                 </nav>
 
-                <nav className="content" data-index={tabIndex>3?0:tabIndex <0 ? 0 :tabIndex}>
+                <nav
+                    className="content"
+                    data-index={tabIndex > 3 ? 0 : tabIndex < 0 ? 0 : tabIndex}
+                >
                     {tabIndex == 1 ? (
                         <PropretyTab
                             ref={propretyRef}
@@ -213,17 +220,8 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                             </div>
                         </>
                     ) : tabIndex == 3 ? (
-                        <>
-                            <h3 style={{ textAlign: "center" }}>Settings</h3>
-                            <p>
-                                Game Engine{" "}
-                                <select name="" id="">
-                                    <option>2D</option>
-                                    <option>3D</option>
-                                </select>
-                            </p>
-                        </>
-                    ) :  (
+                        <SettingsNav/>
+                    ) : (
                         <PlayersTab
                             ref={playersRef}
                             clickedOnPlayer={(position) => {
@@ -237,7 +235,8 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                             players={displayPlayers}
                             socket={prop.socket}
                             currentTurn={prop.currentTurn}
-                        />)}
+                        />
+                    )}
                 </nav>
             </nav>
         );

@@ -1,42 +1,40 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import Monopoly from "./monopoly.tsx";
 import "./index.css";
 import { Socket, io } from "socket.io-client";
 import NotifyElement, { NotificatorRef } from "./components/notificator";
-type MonopolyCookie = {
-    name: string;
-    host: string;
-    rememberHost: boolean;
-    rememberName: boolean;
-};
+import { MonopolyCookie } from "./assets/types.ts";
 
 function App() {
     var cookie: MonopolyCookie;
     try {
-        cookie = JSON.parse(document.cookie);
+        const obj = JSON.parse(document.cookie);
+        cookie = obj;
     } catch {
         cookie = {
-            rememberHost: false,
-            rememberName: false,
-            host: "",
-            name: "",
+            login: {
+                rememberHost: false,
+                rememberName: false,
+                host: "",
+                name: "",
+            },
         };
     }
 
     const notifyRef = useRef<NotificatorRef>(null);
     const [socket, SetSocket] = useState<Socket>();
     const [name, SetName] = useState<string>(
-        cookie.rememberName ? cookie.name : ""
+        cookie.login.rememberName ? cookie.login.name : ""
     );
     const [addr, SetAddress] = useState<string>(
-        cookie.rememberHost ? cookie.host : ""
+        cookie.login.rememberHost ? cookie.login.host : ""
     );
     const [rememberName, SetRememberName] = useState<boolean>(
-        cookie.rememberName
+        cookie.login.rememberName
     );
     const [rememberAdrr, SetRememberAdrr] = useState<boolean>(
-        cookie.rememberHost
+        cookie.login.rememberHost
     );
 
     const [disabled, SetDisabled] = useState<boolean>(false);
@@ -46,14 +44,26 @@ function App() {
         // @ts-ignore
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
-        document.cookie = JSON.stringify({
-            host: addr,
-            name: name,
-            rememberHost: rememberAdrr,
-            rememberName: rememberName,
-        } as MonopolyCookie);
+        if (name.replace(" ", "").length === 0) {
+            notifyRef.current?.message(
+                "please add your name before joining",
+                "info",
+                2
+            );
+            return;
+        }
+        const cookie = JSON.parse(document.cookie) as MonopolyCookie;
 
-        const socket = io(addr, {rejectUnauthorized:false});
+        cookie.login = {
+                host: addr,
+                name: name,
+                rememberHost: rememberAdrr,
+                rememberName: rememberName,
+            };
+        document.cookie = JSON.stringify(cookie)
+
+
+        const socket = io(addr, { rejectUnauthorized: false });
         SetDisabled(true);
         socket.on("state", (args: number) => {
             switch (args) {
@@ -66,7 +76,8 @@ function App() {
                     notifyRef.current?.message(
                         "the game has already begun",
                         "error",
-                        2,()=>{
+                        2,
+                        () => {
                             SetDisabled(false);
                         }
                     );
@@ -76,7 +87,8 @@ function App() {
                     notifyRef.current?.message(
                         "too many players on the server",
                         "error",
-                        2,()=>{
+                        2,
+                        () => {
                             SetDisabled(false);
                         }
                     );
@@ -88,13 +100,13 @@ function App() {
                     SetDisabled(false);
                     break;
             }
-           
         });
         socket.on("connect_error", () => {
             notifyRef.current?.message(
                 "the server does not exist or is unreachable",
                 "error",
-                2,()=>{
+                2,
+                () => {
                     SetDisabled(false);
                 }
             );
@@ -104,13 +116,21 @@ function App() {
             notifyRef.current?.message(
                 "the server took too long to respond",
                 "error",
-                2,()=>{
+                2,
+                () => {
                     SetDisabled(false);
                 }
             );
             socket.disconnect();
-        });        
+        });
     };
+
+    useEffect(() => {
+        const uriParams = new URLSearchParams(document.location.search);
+        if (uriParams.has("ip")) {
+            SetAddress("https://" + uriParams.get("ip") ?? "");
+        }
+    }, []);
 
     return socket !== undefined && isSignedIn === true ? (
         <Monopoly socket={socket} name={name} />
@@ -120,7 +140,7 @@ function App() {
 
             <div className="entry">
                 <header>
-                    <p style={{fontSize:9}}>27.7.23 (2)</p>
+                    <p style={{ fontSize: 9 }}>28.7.23</p>
                     Welcome to the <h3>MONOPOLY</h3> Game
                 </header>
                 <br></br>
@@ -166,7 +186,9 @@ function App() {
                 </h5>
 
                 <center>
-                    <button onClick={joinButtonClicked} disabled={disabled} >join</button>
+                    <button onClick={joinButtonClicked} disabled={disabled}>
+                        join
+                    </button>
                 </center>
             </div>
         </>

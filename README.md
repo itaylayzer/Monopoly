@@ -20,6 +20,17 @@ Participate in the property-buying process through the intuitive buy-in UI and s
 credit for danielstern for the monopoly.json file which i modified
 https://github.com/danielstern/science/blob/master/monopoly.json
 
+### Pascol Credits
+Main Theme : https://youtu.be/NaH_BiPeZ80
+
+#### Sound Effects:
+Rolling Dice: https://youtu.be/rVjCSaXhZTs
+Mouse Click: https://youtu.be/i0DON3AjhW4
+Buying: https://youtu.be/IVjC5fTeubA
+Dying: https://youtu.be/_asNhzXq72w
+Winning: https://youtu.be/K0ZNtpTYKpI
+Notification: https://youtu.be/84frnbTWGis
+
 ## Legal Disclaimer
 
 As the developer of this Monopoly game project, it is essential to clarify the following legal aspects:
@@ -41,8 +52,7 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 
 ## TODO List:
 1. Enhancement of [client] advanced chance/chest cards functionality - when i played the game this advanced chance/cards didnt matter so maybe i will not add those
-2. Configuration and refinement of settings - I dont find any settings i can put in the game, excepts for 3d engine that maybe will be defined later on.
-3. Sound Effects
+3. Continue Sound Effects
 
 ## Pictures and Videos of the game!
 for more pictures go to the pictures folder in this repo

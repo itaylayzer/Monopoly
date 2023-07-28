@@ -11,6 +11,7 @@ import StreetCard, {
 } from "./streetCard";
 import monopolyJSON from "../assets/monopoly.json";
 import ChacneCard, { ChanceDisplayInfo } from "./specialCards";
+import { MonopolyCookie, MonopolySettings } from "../assets/types";
 interface MonopolyGameProps {
     players: Array<Player>;
     myTurn: boolean;
@@ -26,7 +27,7 @@ export interface MonopolyGameRef {
     freeDice: () => void;
     setStreet: (args: {
         location: number;
-        rolls:number;
+        rolls: number;
         onResponse: (
             action:
                 | "nothing"
@@ -75,6 +76,19 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
         const [advnacedStreet, SetAdvancedStreet] = useState<boolean>(false);
         const [rotation, SetRotation] = useState<number>(0);
         const [scale, SetScale] = useState<number>(1);
+        const [settings, SetSettings] = useState<MonopolySettings>();
+
+        useEffect(() => {
+            const settings_interval = setInterval(() => {
+                SetSettings(
+                    (JSON.parse(document.cookie) as MonopolyCookie).settings
+                );
+            }, 200);
+
+            return () => {
+                clearInterval(settings_interval);
+            };
+        }, [document.cookie]);
 
         const [streetDisplay, SetStreetDisplay] = useState<{}>({
             cardCost: -1,
@@ -173,7 +187,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         advanced: boolean,
                         location: number,
                         fartherInfo?: {
-                            rolls:number
+                            rolls: number;
                         }
                     ) {
                         function func() {
@@ -278,11 +292,10 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
                                 if (b) {
                                     (b as HTMLButtonElement).onclick = () => {
-                                        if (fartherInfo !== undefined) 
+                                        if (fartherInfo !== undefined)
                                             args.onResponse("special_action", {
-                                                rolls:fartherInfo.rolls
+                                                rolls: fartherInfo.rolls,
                                             });
-                                        
                                         else args.onResponse("buy", {});
                                         ShowStreet(false);
                                     };
@@ -314,7 +327,10 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     }
                     for (const _p of prop.players) {
                         for (const _prp of _p.properties) {
-                            if (_prp.posistion === args.location && _p.id != localPlayer.id)
+                            if (
+                                _prp.posistion === args.location &&
+                                _p.id != localPlayer.id
+                            )
                                 belong_to_others = true;
                         }
                     }
@@ -328,8 +344,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                 args.onResponse("someones", {});
                                 ShowStreet(false);
                                 return;
-                            }
-                            else {
+                            } else {
                                 SetStreetType("Utilities");
                                 const streetInfo = {
                                     cardCost: x.price ?? -1,
@@ -343,25 +358,20 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                 ShowStreet(true);
                                 requestAnimationFrame(
                                     searchForButtons(false, args.location, {
-                                        rolls:args.rolls
+                                        rolls: args.rolls,
                                     })
                                 );
                             }
-                            
                         } else {
                             args.onResponse("nothing", {});
                         }
                     } else if (x.group === "Railroad") {
                         if (!belong_to_me) {
-
-                            
-
                             if (belong_to_others) {
                                 args.onResponse("someones", {});
                                 ShowStreet(false);
                                 return;
-                            }
-                            else {
+                            } else {
                                 SetStreetType("Railroad");
                                 const streetInfo = {
                                     cardCost: x.price ?? -1,
@@ -373,7 +383,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                     searchForButtons(false, args.location)
                                 );
                             }
-                           
                         } else {
                             args.onResponse("nothing", {});
                         }
@@ -389,7 +398,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
                         if (belong_to_me) {
                         } else {
-
                             if (belong_to_others) {
                                 args.onResponse("someones", {});
                                 ShowStreet(false);
@@ -461,7 +469,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 function returnToNormal() {
                     rollElement.onclick = () => {
                         SetSended(true);
-                        requestAnimationFrame(()=>{prop.socket.emit("roll_dice");})
+                        requestAnimationFrame(() => {
+                            prop.socket.emit("roll_dice");
+                        });
                     };
                     SetSended(true);
                     cardElement.onclick = () => {};
@@ -519,9 +529,25 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 e
             ) => {
                 if (e.shiftKey) {
-                    SetScale((old) => old + e.deltaY / 1000);
+                    SetScale(
+                        (old) =>
+                            old +
+                            (e.deltaY *
+                                (settings !== undefined
+                                    ? settings.accessibility[1]
+                                    : 5)) /
+                                5000
+                    );
                 } else {
-                    SetRotation((old) => old + (e.deltaY * 22.5) / 100);
+                    SetRotation(
+                        (old) =>
+                            old +
+                            (e.deltaY *
+                                (settings !== undefined
+                                    ? settings.accessibility[0]
+                                    : 45)) /
+                                100
+                    );
                 }
             };
             // Clicking Street
@@ -549,7 +575,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     element.style.backgroundColor = "rgba(0,0,0,0%)";
                 };
             }
-        }, []);
+        }, [settings]);
 
         useEffect(() => {
             var continue_to_animate = true;
@@ -563,7 +589,26 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         `div.player[player-id="${x.id}"]`
                     );
                     if (elementSearch !== null) {
-                         
+                        const _img = elementSearch.querySelector(
+                            "div"
+                        ) as HTMLImageElement;
+                        _img.style.rotate = `${-rotation}deg`;
+                        _img.style.aspectRatio = "1";
+                        if (
+                            settings !== undefined &&
+                            settings.accessibility[4] === true
+                        ) {
+                            (
+                                _img.querySelector("img") as HTMLImageElement
+                            ).style.filter = `drop-shadow(0px 0px 5px ${x.color})`;
+                            _img.setAttribute("data-tooltip-color", x.color);
+                        } else if (_img.hasAttribute("data-tooltip-color")) {
+                            (
+                                _img.querySelector("img") as HTMLImageElement
+                            ).style.filter = ``;
+                            _img.removeAttribute("data-tooltip-color");
+                        }
+
                         // check if loaction is the same
                         const pos = elementSearch.parentElement?.getAttribute(
                             "data-position"
@@ -616,10 +661,15 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             "player-position",
                             x.position.toString()
                         );
-                        element.setAttribute("data-tooltip-hover", x.username);
+                        const secondDiv = document.createElement("div");
+                        secondDiv.setAttribute(
+                            "data-tooltip-hover",
+                            x.username
+                        );
                         const image = document.createElement("img");
                         image.src = `./p${icon}.png`;
-                        element.appendChild(image);
+                        secondDiv.appendChild(image);
+                        element.appendChild(secondDiv);
                         if (injail) {
                             const jimage = document.createElement("img");
                             jimage.src = `./jail.png`;
@@ -691,32 +741,34 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                         st.style.backgroundColor =
                                             "rgba(0,0,0,25%)";
 
-                                            var payment_ammount = 0;
-                                        if (_prp.group === "Railroad"){
-                                            
-                                            const count = _player.properties.filter(v=> v.group === "Railroad").length;
-                                                        const rents = [25,50,100,200];
-                                                        var payment_ammount = rents[count];
-                                        }
-                                        else if (_prp.group === "Utilities" && _prp.rent){
-
+                                        var payment_ammount = 0;
+                                        if (_prp.group === "Railroad") {
+                                            const count =
+                                                _player.properties.filter(
+                                                    (v) =>
+                                                        v.group === "Railroad"
+                                                ).length;
+                                            const rents = [25, 50, 100, 200];
+                                            var payment_ammount = rents[count];
+                                        } else if (
+                                            _prp.group === "Utilities" &&
+                                            _prp.rent
+                                        ) {
                                             const multy_ =
-                                            _player.properties.filter(
-                                                (v) =>
-                                                    v.group ===
-                                                    "Utilities"
-                                            ).length === 2
-                                                ? 10
-                                                : 4;
-                                                payment_ammount =
+                                                _player.properties.filter(
+                                                    (v) =>
+                                                        v.group === "Utilities"
+                                                ).length === 2
+                                                    ? 10
+                                                    : 4;
+                                            payment_ammount =
                                                 _prp.rent * multy_;
-                                                
                                         }
 
-                                        if (payment_ammount !== 0){
+                                        if (payment_ammount !== 0) {
                                             st.innerHTML = `<p>${payment_ammount}M</p>`;
                                             st.style.backgroundColor =
-                                            "rgba(0,0,0,75%)";
+                                                "rgba(0,0,0,75%)";
                                         }
                                         break;
 
@@ -764,17 +816,19 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             return () => {
                 continue_to_animate = false;
             };
-        }, [prop.players]);
+        }, [prop.players, rotation]);
 
-        useEffect(()=>{
+        useEffect(() => {
             const rollElement = document.querySelector(
                 `button.roll-button[data-button-type="roll"]`
             ) as HTMLButtonElement;
-                rollElement.onclick = ()=>{
-                        SetSended(true);
-                        requestAnimationFrame(()=>{prop.socket.emit("roll_dice");})
-                }
-        },[])
+            rollElement.onclick = () => {
+                SetSended(true);
+                requestAnimationFrame(() => {
+                    prop.socket.emit("roll_dice");
+                });
+            };
+        }, []);
         return (
             <>
                 <div className="game">
@@ -1476,7 +1530,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             style={
                                 prop.myTurn && !sended
                                     ? {}
-                                    : { translate: "0px 250px" }
+                                    : { translate: "0px 20vh" }
                             }
                         >
                             <p>CARD</p>
@@ -1488,7 +1542,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             style={
                                 prop.myTurn && !sended
                                     ? {}
-                                    : { translate: "0px 250px" }
+                                    : { translate: "0px 20vh" }
                             }
                         >
                             <p>PAY</p>
@@ -1500,7 +1554,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             style={
                                 prop.myTurn && !sended
                                     ? {}
-                                    : { translate: "0px 250px" }
+                                    : { translate: "0px 20vh" }
                             }
                         >
                             <img src={RollIcon.replace("public/", "")} />
@@ -1519,7 +1573,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             !showStreet
                                 ? {
                                       transform:
-                                          "translateY(-50%) translateX(-500%)",
+                                          "translateY(-50%) translateX(-60vw)",
                                   }
                                 : {}
                         }

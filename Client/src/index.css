@@ -5,6 +5,7 @@
     height: 100%;
     top: 0;
     left: 0;
+    overflow: hidden;
 }
 
 body {
@@ -75,11 +76,11 @@ div.entry button {
 }
 
 div.entry button:hover {
-    scale: 0.8
+    scale: 0.85
 }
 
 div.entry button:active {
-    scale: 0.9
+    scale: 0.925
 }
 div.entry button:disabled{
     animation:disabledAnim 1s ease-out infinite;
@@ -97,7 +98,7 @@ div.entry button:disabled:active{
         filter:blur(0px) grayscale(.5);
     }
     50%{
-        filter:blur(5px) grayscale(1);
+        filter:blur(2px) grayscale(1);
         scale:0.95;
     }
     100%{
@@ -134,11 +135,11 @@ div.lobby button {
 }
 
 div.lobby button:hover {
-    scale: 0.8
+    scale: 0.85
 }
 
 div.lobby button:active {
-    scale: 0.9
+    scale: 0.925
 }
 
 
