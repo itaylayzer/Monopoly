@@ -1,4 +1,5 @@
 import { forwardRef, useImperativeHandle } from "react";
+import { MonopolyCookie } from "../assets/types";
 
 interface NotificatorProps {}
 export interface NotificatorRef {
@@ -6,7 +7,8 @@ export interface NotificatorRef {
         message: string,
         type?: "info" | "warn" | "error",
         time?: number,
-        after?:()=>void
+        after?: () => void,
+        sfx?: boolean
     ) => void;
     dialog: (
         build_dialog_function: (
@@ -18,7 +20,8 @@ export interface NotificatorRef {
         ) => {
             innerHTML: string;
             buttons: Array<HTMLButtonElement>;
-        }
+        },
+        soundtrack: "winning" | "loosing"
     ) => void;
 }
 
@@ -27,11 +30,11 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
     // @ts-ignore
     (prop, ref) => {
         useImperativeHandle(ref, () => ({
-            message(message, type, time, after) {
+            message(message, type, time, after, sfx) {
                 const folder = document.querySelector(
                     "div.notify"
                 ) as HTMLDivElement;
-                    console.warn(message);
+                console.warn(message);
                 const element = document.createElement("div") as HTMLDivElement;
                 element.className = "notification";
                 element.innerHTML = message;
@@ -61,8 +64,19 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
                         }, 700);
                     }
                 }, (time ?? 2) * 1000);
+
+                if (sfx === undefined || (sfx !== undefined && sfx === true)) {
+                    const _settings = (
+                        JSON.parse(document.cookie) as MonopolyCookie
+                    ).settings;
+                    let audio = new Audio("./notifications.mp3");
+                    audio.volume =
+                        ((_settings?.audio[1] ?? 100) / 100) *
+                        ((_settings?.audio[0] ?? 100) / 100);
+                    audio.play();
+                }
             },
-            dialog(build_dialog_function) {
+            dialog(build_dialog_function, soundtrack) {
                 const dialogScreen = document.querySelector(
                     "div.dialog-screen"
                 ) as HTMLDivElement;
@@ -99,6 +113,32 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
                 textsElement.innerHTML = functionResults.innerHTML;
                 for (const x of functionResults.buttons) {
                     buttonsElement.appendChild(x);
+                }
+
+                const _settings = (
+                    JSON.parse(document.cookie) as MonopolyCookie
+                ).settings;
+
+                switch (soundtrack) {
+                    case "loosing":
+                        var audio = new Audio("./dying.mp3");
+                        audio.volume =
+                            0.16 *
+                            ((_settings?.audio[1] ?? 100) / 100) *
+                            ((_settings?.audio[0] ?? 100) / 100);
+                        audio.loop = false;
+                        audio.play();
+                        break;
+                    case "winning":
+                        var audio = new Audio("./winning.mp3");
+                        audio.volume =
+                            ((_settings?.audio[1] ?? 100) / 100) *
+                            ((_settings?.audio[0] ?? 100) / 100);
+                        audio.loop = false;
+                        audio.play();
+                        break;
+                    default:
+                        break;
                 }
             },
         }));

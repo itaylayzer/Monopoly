@@ -6,8 +6,6 @@ import PropretiesIcon from "../../public/proprety.png";
 import SettingsIcon from "../../public/settings.png";
 import MonopolyIcon from "../../public/icon.png";
 
-import { MonopolyCookie, MonopolySettings } from "../assets/types";
-
 import {
     forwardRef,
     useState,

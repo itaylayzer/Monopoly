@@ -52,16 +52,27 @@ function App() {
             );
             return;
         }
-        const cookie = JSON.parse(document.cookie) as MonopolyCookie;
+        try {
+            const cookie = JSON.parse(document.cookie) as MonopolyCookie;
 
-        cookie.login = {
+            cookie.login = {
                 host: addr,
                 name: name,
                 rememberHost: rememberAdrr,
                 rememberName: rememberName,
             };
-        document.cookie = JSON.stringify(cookie)
-
+            document.cookie = JSON.stringify(cookie);
+        } catch {
+            const cookie = {
+                login: {
+                    host: addr,
+                    name: name,
+                    rememberHost: rememberAdrr,
+                    rememberName: rememberName,
+                },
+            } as MonopolyCookie;
+            document.cookie = JSON.stringify(cookie);
+        }
 
         const socket = io(addr, { rejectUnauthorized: false });
         SetDisabled(true);
@@ -140,7 +151,7 @@ function App() {
 
             <div className="entry">
                 <header>
-                    <p style={{ fontSize: 9 }}>28.7.23</p>
+                    <p style={{ fontSize: 9 }}>29.7.23 - Settings & Sound Effects Update</p>
                     Welcome to the <h3>MONOPOLY</h3> Game
                 </header>
                 <br></br>

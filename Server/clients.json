@@ -1,28 +1,19 @@
 {
   "clients": {
-    "8HTN6NLl0u77WPWAAAAF": {
-      "id": "8HTN6NLl0u77WPWAAAAF",
+    "DN0Q57YOfwgXFBX8AAAB": {
+      "id": "DN0Q57YOfwgXFBX8AAAB",
       "username": "Itay",
       "icon": 0,
-      "position": 8,
-      "balance": 1400,
-      "properties": [
-        {
-          "posistion": 8,
-          "count": 0,
-          "group": "lightgreen"
-        }
-      ],
+      "position": 7,
+      "balance": 1500,
+      "properties": [],
       "isInJail": false,
       "jailTurnsRemaining": 0,
-      "getoutCards": 0
+      "getoutCards": 1
     }
   },
   "logs": [
-    "{18:39} [mojrwIvW3VjhxFPoAAAD] Player \"Itay\" has connected.",
-    "{18:39} [mojrwIvW3VjhxFPoAAAD] Player \"Itay\" rolled a [6,1].",
-    "{18:39} [mojrwIvW3VjhxFPoAAAD] Player \"Itay\" has disconnected.",
-    "{18:39} [8HTN6NLl0u77WPWAAAAF] Player \"Itay\" has connected.",
-    "{18:39} [8HTN6NLl0u77WPWAAAAF] Player \"Itay\" rolled a [4,4]."
+    "{12:22} [DN0Q57YOfwgXFBX8AAAB] Player \"Itay\" has connected.",
+    "{12:22} [DN0Q57YOfwgXFBX8AAAB] Player \"Itay\" rolled a [2,5]."
   ]
 }

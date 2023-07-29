@@ -993,14 +993,16 @@ interface ServerProperties {
     cors: Array<string>;
     redirect: boolean;
     redirectURL?: string;
+    logDebug: boolean;
 }
 const defaultProperties: ServerProperties = {
     port: 25565,
     maxPlayers: 6,
     cors: ["https://coder-1t45.github.io", "http://localhost:5173"],
     redirect: true,
-    // redirectURL:"https://coder-1t45.github.io/Monopoly"
-    redirectURL: "http://localhost:5173",
+    redirectURL:"https://coder-1t45.github.io/Monopoly",
+    // redirectURL: "http://localhost:5173",
+    logDebug: false,
 };
 
 function readServerProperties(): ServerProperties {
@@ -1228,11 +1230,12 @@ io.on("connection", (socket: Socket) => {
                             pJson: player.to_json(),
                         });
 
-                        saveMapToJsonFile(
-                            Clients,
-                            logs_strings,
-                            "clients.json"
-                        );
+                        if (properties.logDebug)
+                            saveMapToJsonFile(
+                                Clients,
+                                logs_strings,
+                                "clients.json"
+                            );
                     } catch (e) {
                         console.log(bgRed(black(e)));
                     }

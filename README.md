@@ -24,12 +24,18 @@ https://github.com/danielstern/science/blob/master/monopoly.json
 Main Theme : https://youtu.be/NaH_BiPeZ80
 
 #### Sound Effects:
-Rolling Dice: https://youtu.be/rVjCSaXhZTs
-Mouse Click: https://youtu.be/i0DON3AjhW4
-Buying: https://youtu.be/IVjC5fTeubA
-Dying: https://youtu.be/_asNhzXq72w
-Winning: https://youtu.be/K0ZNtpTYKpI
-Notification: https://youtu.be/84frnbTWGis
+* Rolling Dice: https://youtu.be/rVjCSaXhZTs
+* Buying: https://youtu.be/IVjC5fTeubA
+* Dying: https://youtu.be/_asNhzXq72w
+* Winning: https://youtu.be/K0ZNtpTYKpI
+* Notification: https://youtu.be/84frnbTWGis
+* Walking: https://youtu.be/7skwR49UhqA
+* Jail: https://youtu.be/h2CTMrzxe24
+* Money: https://www.epidemicsound.com/track/oKEES3Rkmk/
+* Swipe: https://youtu.be/4-lY0NT-bJs
+* Clicking: https://youtu.be/3c-yEJYQcgM
+
+Soundtrakcs Where edited using Adobe Audition
 
 ## Legal Disclaimer
 

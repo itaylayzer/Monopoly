@@ -154,6 +154,17 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 }, 1000);
             });
         }
+        function swipeSound() {
+            const _settings = (JSON.parse(document.cookie) as MonopolyCookie)
+                .settings;
+            let audio = new Audio("./card.mp3");
+            audio.volume =
+                ((_settings?.audio[1] ?? 100) / 100) *
+                ((_settings?.audio[0] ?? 100) / 100);
+            audio.loop = false;
+            audio.play();
+        }
+
         useImperativeHandle(ref, () => ({
             diceResults: (args) => {
                 diceAnimation(...args.l);
@@ -190,6 +201,17 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             rolls: number;
                         }
                     ) {
+                        function clickSound() {
+                            const _settings = (
+                                JSON.parse(document.cookie) as MonopolyCookie
+                            ).settings;
+                            let audio = new Audio("./click.mp3");
+                            audio.volume =
+                                ((_settings?.audio[1] ?? 100) / 100) *
+                                ((_settings?.audio[0] ?? 100) / 100);
+                            audio.loop = false;
+                            audio.play();
+                        }
                         function func() {
                             if (advanced) {
                                 const b = document.querySelector(
@@ -278,6 +300,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                         document.createElement("button");
                                     continueButtons.innerHTML = "CONTINUE";
                                     continueButtons.onclick = () => {
+                                        clickSound();
                                         args.onResponse("nothing", {});
                                         ShowStreet(false);
                                     };
@@ -304,6 +327,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                             "button#card-response-no"
                                         ) as HTMLButtonElement
                                     ).onclick = () => {
+                                        clickSound();
                                         args.onResponse("nothing", {});
                                         ShowStreet(false);
                                     };
@@ -355,6 +379,8 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                 } as UtilitiesDisplayInfo;
                                 SetStreetDisplay(streetInfo);
                                 SetAdvancedStreet(false);
+
+                                swipeSound();
                                 ShowStreet(true);
                                 requestAnimationFrame(
                                     searchForButtons(false, args.location, {
@@ -378,6 +404,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                     title: x.name ?? "error",
                                 } as UtilitiesDisplayInfo;
                                 SetStreetDisplay(streetInfo);
+                                swipeSound();
                                 ShowStreet(true);
                                 requestAnimationFrame(
                                     searchForButtons(false, args.location)
@@ -432,6 +459,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         belong_to_me
                             ? SetAdvancedStreet(true)
                             : SetAdvancedStreet(false);
+                        swipeSound();
                         ShowStreet(true);
                         requestAnimationFrame(
                             searchForButtons(belong_to_me, args.location)
@@ -447,6 +475,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 SetStreetDisplay({
                     title: element.title,
                 } as ChanceDisplayInfo);
+                swipeSound();
                 ShowStreet(true);
                 setTimeout(() => {
                     ShowStreet(false);
@@ -598,9 +627,6 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                             settings !== undefined &&
                             settings.accessibility[4] === true
                         ) {
-                            (
-                                _img.querySelector("img") as HTMLImageElement
-                            ).style.filter = `drop-shadow(0px 0px 5px ${x.color})`;
                             _img.setAttribute("data-tooltip-color", x.color);
                         } else if (_img.hasAttribute("data-tooltip-color")) {
                             (
@@ -705,6 +731,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         st.innerHTML = "";
                         st.setAttribute("data-tooltip-hover", "");
                         st.style.zIndex = "unset";
+                        st.style.boxShadow = "";
                     }
                     for (const _player of prop.players) {
                         for (const _prp of _player.properties) {
@@ -740,7 +767,15 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                     case 0:
                                         st.style.backgroundColor =
                                             "rgba(0,0,0,25%)";
-
+                                        if (
+                                            settings !== undefined &&
+                                            settings?.accessibility[4]
+                                        ) {
+                                            st.style.backgroundColor =
+                                                _player.color;
+                                            st.style.boxShadow =
+                                                "0px 0px 5px black";
+                                        }
                                         var payment_ammount = 0;
                                         if (_prp.group === "Railroad") {
                                             const count =
@@ -769,6 +804,14 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                                             st.innerHTML = `<p>${payment_ammount}M</p>`;
                                             st.style.backgroundColor =
                                                 "rgba(0,0,0,75%)";
+                                            if (
+                                                settings !== undefined &&
+                                                settings?.accessibility[4]
+                                            ) {
+                                                st.style.backgroundColor = `${_player.color}`;
+                                                st.style.boxShadow =
+                                                    "0px 0px 5px black";
+                                            }
                                         }
                                         break;
 

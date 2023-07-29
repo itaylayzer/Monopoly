@@ -4,5 +4,8 @@
   "cors": [
     "https://coder-1t45.github.io",
     "http://localhost:5173"
-  ]
+  ],
+  "redirect": true,
+  "redirectURL": "https://coder-1t45.github.io/Monopoly",
+  "logDebug": true
 }

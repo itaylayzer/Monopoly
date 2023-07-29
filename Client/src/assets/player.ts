@@ -9,13 +9,13 @@ export class Player {
         posistion: number;
         count: 0 | 1 | 2 | 3 | 4 | "h";
         group: string;
-        rent?:number;
+        rent?: number;
     }>;
     public isInJail: boolean;
     public jailTurnsRemaining: number;
     public getoutCards: number;
     public ready: boolean;
-    public positions:{x:number, y:number};
+    public positions: { x: number; y: number };
     constructor(_id: string, _name: string) {
         this.id = _id;
         this.username = _name;
@@ -27,7 +27,7 @@ export class Player {
         this.jailTurnsRemaining = 0;
         this.getoutCards = 0;
         this.ready = false;
-        this.positions = {x:0, y:0};
+        this.positions = { x: 0, y: 0 };
     }
     recieveJson(json: PlayerJSON) {
         this.username = json.username;
@@ -55,21 +55,21 @@ export class Player {
         } as PlayerJSON;
     }
 
-    get color(){
-        switch(this.icon){
+    get color() {
+        switch (this.icon) {
             case 0:
-                return "#E0115F"
+                return "#E0115F";
             case 1:
-                return "#4169e1"
+                return "#4169e1";
             case 2:
-                return "#50C878"
+                return "#50C878";
             case 3:
-                return "#FFC000"
+                return "#FFC000";
             case 5:
-                return "#FF7F50"
+                return "#FF7F50";
             case 4:
             default:
-                return ""
+                return "";
         }
     }
 }
