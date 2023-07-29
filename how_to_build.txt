@@ -7,4 +7,4 @@ in javascript change /assets/ to ./assets/
 
 and everything will work!
 
-after that move the css to the root
+after that move the css to the docs folder
