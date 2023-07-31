@@ -3,6 +3,8 @@ import { createServer } from "https";
 import { Server, Socket } from "socket.io";
 import { Player, PlayerJSON } from "./player";
 import * as axios from "axios";
+import * as natUpnp from "nat-upnp";
+
 const monopolyJSON = {
     properties: [
         {
@@ -994,6 +996,8 @@ interface ServerProperties {
     redirect: boolean;
     redirectURL?: string;
     logDebug: boolean;
+    useUPNP:boolean;
+    upnpnDuration?:number;
 }
 const defaultProperties: ServerProperties = {
     port: 25565,
@@ -1001,8 +1005,9 @@ const defaultProperties: ServerProperties = {
     cors: ["https://coder-1t45.github.io", "http://localhost:5173"],
     redirect: true,
     redirectURL:"https://coder-1t45.github.io/Monopoly",
-    // redirectURL: "http://localhost:5173",
     logDebug: false,
+    useUPNP:true,
+    upnpnDuration:3600
 };
 
 function readServerProperties(): ServerProperties {
@@ -1380,6 +1385,30 @@ io.on("connection", (socket: Socket) => {
 
 //#endregion
 
-httpsServer.listen(properties.port, () => {
+httpsServer.listen(properties.port, async () => {
     console.log(bgWhite(black(`Server is running on port ${properties.port}`)));
+    if (properties.useUPNP == false) return;
+    const upnpClient = natUpnp.createClient();
+    upnpClient.externalIp((error, res)=>{
+        if (error){
+            console.error('Error finding externalIP:', error.message);
+            return;
+        }
+        const externalIp = res
+
+        upnpClient.portMapping({
+            public: properties.port,
+            private: properties.port,
+            ttl: 3600 ?? properties.upnpnDuration, // Time-to-live in seconds, how long the mapping should last
+            description: 'Monopoly Game Server',
+          }, (err) => {
+            if (err) {
+              console.error('Error setting up port mapping:', err.message);
+            } else {
+              console.log(`Port ${properties.port} mapped to ${externalIp}:${properties.port}\nThe mapping will last for 1 hour. Have Fun!`);
+            }
+          });
+        
+    
+    })
 });

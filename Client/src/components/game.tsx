@@ -498,9 +498,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                 function returnToNormal() {
                     rollElement.onclick = () => {
                         SetSended(true);
-                        requestAnimationFrame(() => {
                             prop.socket.emit("roll_dice");
-                        });
+                            console.warn("roll after return to normal")
+        
                     };
                     SetSended(true);
                     cardElement.onclick = () => {};
@@ -526,6 +526,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
 
                     prop.socket.emit("unjail", "pay");
                     prop.socket.emit("roll_dice");
+                    console.warn("pay")
 
                     returnToNormal();
                 };
@@ -539,13 +540,13 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                         // take 1 card
                         prop.socket.emit("unjail", "card");
                         prop.socket.emit("roll_dice");
-
+                        console.warn("card")
                         returnToNormal();
                     };
                 }
                 rollElement.onclick = () => {
                     prop.socket.emit("roll_dice");
-
+                    console.warn("roll when in jail")
                     returnToNormal();
                     SetSended(true);
                 };
@@ -867,9 +868,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
             ) as HTMLButtonElement;
             rollElement.onclick = () => {
                 SetSended(true);
-                requestAnimationFrame(() => {
                     prop.socket.emit("roll_dice");
-                });
+                    console.warn("first roll")
+                ;
             };
         }, []);
         return (

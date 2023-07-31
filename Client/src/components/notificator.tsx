@@ -34,7 +34,6 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
                 const folder = document.querySelector(
                     "div.notify"
                 ) as HTMLDivElement;
-                console.warn(message);
                 const element = document.createElement("div") as HTMLDivElement;
                 element.className = "notification";
                 element.innerHTML = message;

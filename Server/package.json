@@ -15,12 +15,14 @@
   "dependencies": {
     "@types/axios": "^0.14.0",
     "@types/express": "^4.17.17",
+    "@types/nat-upnp": "^1.1.2",
     "@types/socket.io": "^3.0.2",
     "axios": "^0.27.2",
     "chalk": "^5.3.0",
     "colorette": "^2.0.20",
     "cors": "^2.8.5",
     "https": "^1.0.0",
+    "nat-upnp": "^1.1.1",
     "socket.io": "^4.7.1"
   }
 }

@@ -1,5 +1,6 @@
 # 🎲 Monopoly 🎲 - A Multiplayer React.js and Express.js Game
 the url of the game https://coder-1t45.github.io/Monopoly/
+for server setups you will need to go to the server folder, read the entire README.md.
 
 Welcome to my Monopoly, a thrilling online multiplayer game developed using React.js, Express.js, and TypeScript. This exciting rendition of the classic Monopoly game incorporates some intriguing rule changes. this Monopoly can only be played in multiplayer mode.
 
