@@ -4,951 +4,6 @@ import { Server, Socket } from "socket.io";
 import { Player, PlayerJSON } from "./player";
 import * as axios from "axios";
 import * as natUpnp from "nat-upnp";
-
-const monopolyJSON = {
-    properties: [
-        {
-            name: "Mediterranean Avenue",
-            id: "mediterraneanave",
-            posistion: 1,
-            price: 60,
-            rent: 2,
-            multpliedrent: [10, 30, 90, 160, 250],
-            housecost: 50,
-            group: "Purple",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            probability: 2.1314,
-            rel: {
-                Square: "Mediterranean Avenue",
-                "Probability % (Jail Short)": 2.1314,
-                Rank: 36,
-                "Probability % (Jail Long)": 2.0073,
-            },
-            ohousecost: 50,
-            oprice: 60,
-            averageProbability: 2.06935,
-        },
-        {
-            name: "Baltic Avenue",
-            id: "balticave",
-            posistion: 3,
-            price: 60,
-            rent: 4,
-            multpliedrent: [20, 60, 180, 320, 450],
-            housecost: 50,
-            group: "Purple",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            probability: 2.1624,
-            rel: {
-                Square: "Baltic Avenue",
-                "Probability % (Jail Short)": 2.1624,
-                Rank: 35,
-                "Probability % (Jail Long)": 2.0369,
-            },
-            ohousecost: 50,
-            oprice: 60,
-            averageProbability: 2.09965,
-        },
-        {
-            name: "Oriental Avenue",
-            id: "orientalave",
-            posistion: 6,
-            price: 100,
-            rent: 6,
-            multpliedrent: [30, 90, 270, 400, 550],
-            housecost: 50,
-            group: "lightgreen",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Oriental Avenue",
-                "Probability % (Jail Short)": 2.2621,
-                Rank: 32,
-                "Probability % (Jail Long)": 2.1317,
-            },
-            ohousecost: 50,
-            oprice: 100,
-            averageProbability: 2.1969000000000003,
-        },
-        {
-            name: "Vermont Avenue",
-            id: "vermontave",
-            posistion: 8,
-            price: 100,
-            rent: 6,
-            multpliedrent: [30, 90, 270, 400, 550],
-            housecost: 50,
-            group: "lightgreen",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Vermont Avenue",
-                "Probability % (Jail Short)": 2.321,
-                Rank: 28,
-                "Probability % (Jail Long)": 2.1874,
-            },
-            ohousecost: 50,
-            oprice: 100,
-            averageProbability: 2.2542,
-        },
-        {
-            name: "Connecticut Avenue",
-            id: "connecticutave",
-            posistion: 9,
-            price: 120,
-            rent: 8,
-            multpliedrent: [40, 100, 300, 450, 600],
-            housecost: 50,
-            group: "lightgreen",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Connecticut Avenue",
-                "Probability % (Jail Short)": 2.3003,
-                Rank: 30,
-                "Probability % (Jail Long)": 2.168,
-            },
-            ohousecost: 50,
-            oprice: 120,
-            averageProbability: 2.23415,
-        },
-        {
-            name: "St. Charles Place",
-            id: "stcharlesplace",
-            posistion: 11,
-            price: 140,
-            rent: 10,
-            multpliedrent: [50, 150, 450, 625, 750],
-            housecost: 100,
-            group: "Violet",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "St. Charles Place",
-                "Probability % (Jail Short)": 2.7017,
-                Rank: 15,
-                "Probability % (Jail Long)": 2.556,
-            },
-            ohousecost: 100,
-            oprice: 140,
-            averageProbability: 2.62885,
-        },
-        {
-            name: "States Avenue",
-            id: "statesave",
-            posistion: 13,
-            price: 140,
-            rent: 10,
-            multpliedrent: [50, 150, 450, 625, 750],
-            housecost: 100,
-            group: "Violet",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "States Avenue",
-                "Probability % (Jail Short)": 2.3721,
-                Rank: 29,
-                "Probability % (Jail Long)": 2.1741,
-            },
-            ohousecost: 100,
-            oprice: 140,
-            averageProbability: 2.2731000000000003,
-        },
-        {
-            name: "Virginia Avenue",
-            id: "virginiaave",
-            posistion: 14,
-            price: 160,
-            rent: 12,
-            multpliedrent: [60, 180, 500, 700, 900],
-            housecost: 100,
-            group: "Violet",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Virginia Avenue",
-                "Probability % (Jail Short)": 2.4649,
-                Rank: 22,
-                "Probability % (Jail Long)": 2.4255,
-            },
-            ohousecost: 100,
-            oprice: 160,
-            averageProbability: 2.4452,
-        },
-        {
-            name: "St. James Place",
-            id: "stjamesplace",
-            posistion: 16,
-            price: 180,
-            rent: 14,
-            multpliedrent: [70, 200, 550, 750, 950],
-            housecost: 100,
-            group: "Orange",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "St. James Place",
-                "Probability % (Jail Short)": 2.7924,
-                Rank: 9,
-                "Probability % (Jail Long)": 2.6802,
-            },
-            ohousecost: 100,
-            oprice: 180,
-            averageProbability: 2.7363,
-        },
-        {
-            name: "Tennessee Avenue",
-            id: "tennesseeave",
-            posistion: 18,
-            price: 180,
-            rent: 14,
-            multpliedrent: [70, 200, 550, 750, 950],
-            housecost: 100,
-            group: "Orange",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Tennessee Avenue",
-                "Probability % (Jail Short)": 2.9356,
-                Rank: 6,
-                "Probability % (Jail Long)": 2.821,
-            },
-            ohousecost: 100,
-            oprice: 180,
-            averageProbability: 2.8783000000000003,
-        },
-        {
-            name: "New York Avenue",
-            id: "newyorkave",
-            posistion: 19,
-            price: 200,
-            rent: 16,
-            multpliedrent: [80, 220, 600, 800, 1000],
-            housecost: 100,
-            group: "Orange",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "New York Avenue",
-                "Probability % (Jail Short)": 3.0852,
-                Rank: 7,
-                "Probability % (Jail Long)": 2.8118,
-            },
-            ohousecost: 100,
-            oprice: 200,
-            averageProbability: 2.9485,
-        },
-        {
-            name: "Kentucky Avenue",
-            id: "kentuckyave",
-            posistion: 21,
-            price: 220,
-            rent: 18,
-            multpliedrent: [90, 250, 700, 875, 1050],
-            housecost: 150,
-            group: "Red",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Kentucky Avenue",
-                "Probability % (Jail Short)": 2.8358,
-                Rank: 12,
-                "Probability % (Jail Long)": 2.6143,
-            },
-            ohousecost: 150,
-            oprice: 220,
-            averageProbability: 2.72505,
-        },
-        {
-            name: "Indiana Avenue",
-            id: "indianaave",
-            posistion: 23,
-            price: 220,
-            rent: 18,
-            multpliedrent: [90, 250, 700, 875, 1050],
-            housecost: 150,
-            group: "Red",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Indiana Avenue",
-                "Probability % (Jail Short)": 2.7357,
-                Rank: 14,
-                "Probability % (Jail Long)": 2.5671,
-            },
-            ohousecost: 150,
-            oprice: 220,
-            averageProbability: 2.6513999999999998,
-        },
-        {
-            name: "Illinois Avenue",
-            id: "illinoisave",
-            posistion: 24,
-            price: 240,
-            rent: 20,
-            multpliedrent: [100, 300, 750, 925, 1100],
-            housecost: 150,
-            group: "Red",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Illinois Avenue",
-                "Probability % (Jail Short)": 3.1858,
-                Rank: 2,
-                "Probability % (Jail Long)": 2.9929,
-            },
-            ohousecost: 150,
-            oprice: 240,
-            averageProbability: 3.08935,
-        },
-        {
-            name: "Atlantic Avenue",
-            id: "atlanticave",
-            posistion: 26,
-            price: 260,
-            rent: 22,
-            multpliedrent: [110, 330, 800, 975, 1150],
-            housecost: 150,
-            group: "Yellow",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Atlantic Avenue",
-                "Probability % (Jail Short)": 2.7072,
-                Rank: 16,
-                "Probability % (Jail Long)": 2.537,
-            },
-            ohousecost: 150,
-            oprice: 260,
-            averageProbability: 2.6220999999999997,
-        },
-        {
-            name: "Ventnor Avenue",
-            id: "ventnorave",
-            posistion: 27,
-            price: 260,
-            rent: 22,
-            multpliedrent: [110, 330, 800, 975, 1150],
-            housecost: 150,
-            group: "Yellow",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Ventnor Avenue",
-                "Probability % (Jail Short)": 2.6789,
-                Rank: 18,
-                "Probability % (Jail Long)": 2.5191,
-            },
-            ohousecost: 150,
-            oprice: 260,
-            averageProbability: 2.599,
-        },
-        {
-            name: "Marvin Gardens",
-            id: "marvingardens",
-            posistion: 29,
-            price: 280,
-            rent: 22,
-            multpliedrent: [120, 360, 850, 1025, 1200],
-            housecost: 150,
-            group: "Yellow",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Marvin Gardens",
-                "Probability % (Jail Short)": 2.5861,
-                Rank: 21,
-                "Probability % (Jail Long)": 2.4381,
-            },
-            ohousecost: 150,
-            oprice: 280,
-            averageProbability: 2.5121,
-        },
-        {
-            name: "Pacific Avenue",
-            id: "pacificave",
-            posistion: 31,
-            price: 300,
-            rent: 26,
-            multpliedrent: [130, 390, 900, 1100, 1275],
-            housecost: 200,
-            group: "darkgreen",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Pacific Avenue",
-                "Probability % (Jail Short)": 2.6774,
-                Rank: 17,
-                "Probability % (Jail Long)": 2.5236,
-            },
-            ohousecost: 200,
-            oprice: 300,
-            averageProbability: 2.6005000000000003,
-        },
-        {
-            name: "North Carolina Avenue",
-            id: "northcarolinaave",
-            posistion: 32,
-            price: 300,
-            rent: 26,
-            multpliedrent: [130, 390, 900, 1100, 1275],
-            housecost: 200,
-            group: "darkgreen",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "North Carolina Avenue",
-                "Probability % (Jail Short)": 2.6252,
-                Rank: 20,
-                "Probability % (Jail Long)": 2.4721,
-            },
-            ohousecost: 200,
-            oprice: 300,
-            averageProbability: 2.5486500000000003,
-        },
-        {
-            name: "Pennsylvania Avenue",
-            id: "pennsylvaniaave",
-            posistion: 34,
-            price: 320,
-            rent: 28,
-            multpliedrent: [150, 450, 1000, 1200, 1400],
-            housecost: 200,
-            group: "darkgreen",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Pennsylvania Avenue",
-                "Probability % (Jail Short)": 2.5006,
-                Rank: 23,
-                "Probability % (Jail Long)": 2.3531,
-            },
-            ohousecost: 200,
-            oprice: 320,
-            averageProbability: 2.42685,
-        },
-        {
-            name: "Park Place",
-            id: "parkplace",
-            posistion: 37,
-            price: 350,
-            rent: 35,
-            multpliedrent: [175, 500, 1100, 1300, 1500],
-            housecost: 200,
-            group: "darkblue",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Park Place",
-                "Probability % (Jail Short)": 2.1864,
-                Rank: 33,
-                "Probability % (Jail Long)": 2.0595,
-            },
-            ohousecost: 200,
-            oprice: 350,
-            averageProbability: 2.12295,
-        },
-        {
-            name: "Boardwalk",
-            id: "boardwalk",
-            posistion: 39,
-            price: 400,
-            rent: 50,
-            multpliedrent: [200, 600, 1400, 1700, 2000],
-            housecost: 200,
-            group: "darkblue",
-            ownedby: -1,
-            buildings: 0,
-            mortgaged: false,
-            rel: {
-                Square: "Boardwalk",
-                "Probability % (Jail Short)": 2.626,
-                Rank: 19,
-                "Probability % (Jail Long)": 2.4832,
-            },
-            ohousecost: 200,
-            oprice: 400,
-            averageProbability: 2.5545999999999998,
-        },
-        {
-            name: "Electric Company",
-            id: "electriccompany",
-            posistion: 12,
-            price: 150,
-            group: "Utilities",
-            ownedby: -1,
-            mortgaged: false,
-            rel: {
-                Square: "Electric Company",
-                "Probability % (Jail Short)": 2.604,
-                Rank: 13,
-                "Probability % (Jail Long)": 2.614,
-            },
-            oprice: 150,
-            averageProbability: 2.609,
-        },
-        {
-            name: "Water Works",
-            id: "waterworks",
-            posistion: 28,
-            price: 150,
-            group: "Utilities",
-            ownedby: -1,
-            mortgaged: false,
-            rel: {
-                Square: "Water Works",
-                "Probability % (Jail Short)": 2.8074,
-                Rank: 10,
-                "Probability % (Jail Long)": 2.6507,
-            },
-            oprice: 150,
-            averageProbability: 2.72905,
-        },
-        {
-            name: "Reading Railroad",
-            id: "readingrailroad",
-            posistion: 5,
-            price: 200,
-            group: "Railroad",
-            ownedby: -1,
-            mortgaged: false,
-            probability: 2.1314,
-            rel: {
-                Square: "Reading Railroad",
-                "Probability % (Jail Short)": 2.9631,
-                Rank: 8,
-                "Probability % (Jail Long)": 2.801,
-            },
-            oprice: 200,
-            averageProbability: 2.88205,
-        },
-        {
-            name: "Pennsylvania Railroad",
-            id: "pennsylvaniarailroad",
-            posistion: 15,
-            price: 200,
-            group: "Railroad",
-            ownedby: -1,
-            mortgaged: false,
-            rel: {
-                Square: "Pennsylvania Railroad",
-                "Probability % (Jail Short)": 2.92,
-                Rank: 11,
-                "Probability % (Jail Long)": 2.6354,
-            },
-            oprice: 200,
-            averageProbability: 2.7777000000000003,
-        },
-        {
-            name: "B. & O. Railroad",
-            id: "borailroad",
-            posistion: 25,
-            price: 200,
-            group: "Railroad",
-            ownedby: -1,
-            mortgaged: false,
-            oprice: 200,
-            averageProbability: 2.975,
-        },
-        {
-            name: "Short Line Railroad",
-            id: "shortlinerailroad",
-            posistion: 35,
-            price: 200,
-            group: "Railroad",
-            ownedby: -1,
-            mortgaged: false,
-            oprice: 200,
-            averageProbability: 2.3609500000000002,
-        },
-        {
-            name: "Go",
-            id: "go",
-            posistion: 0,
-            group: "Special",
-            rel: {
-                Square: "Go",
-                "Probability % (Jail Short)": 3.0961,
-                Rank: 3,
-                "Probability % (Jail Long)": 2.9143,
-            },
-            averageProbability: 3.0052,
-        },
-        {
-            name: "Income Tax",
-            id: "incometax",
-            group: "Special",
-            posistion: 4,
-            rel: {
-                Square: "Income Tax",
-                "Probability % (Jail Short)": 2.3285,
-                Rank: 27,
-                "Probability % (Jail Long)": 2.1934,
-            },
-            averageProbability: 2.2609500000000002,
-        },
-        {
-            name: "Jail / Just Visiting",
-            id: "jail",
-            posistion: 10,
-            group: "Special",
-            averageProbability: 8.897,
-        },
-        {
-            name: "Chance",
-            id: "chance",
-            group: "Special",
-            posistion: 36,
-            rel: {
-                Square: "Chance",
-                "Probability % (Jail Short)": 0.865,
-                Rank: 40,
-                "Probability % (Jail Long)": 0.8152,
-            },
-            averageProbability: 0.8401000000000001,
-        },
-        {
-            name: "Chance",
-            id: "chance",
-            group: "Special",
-            posistion: 7,
-            rel: {
-                Square: "Chance",
-                "Probability % (Jail Short)": 0.865,
-                Rank: 40,
-                "Probability % (Jail Long)": 0.8152,
-            },
-            averageProbability: 0.8401000000000001,
-        },
-        {
-            name: "Chance",
-            id: "chance",
-            group: "Special",
-            posistion: 22,
-            rel: {
-                Square: "Chance",
-                "Probability % (Jail Short)": 0.865,
-                Rank: 40,
-                "Probability % (Jail Long)": 0.8152,
-            },
-            averageProbability: 0.8401000000000001,
-        },
-        {
-            name: "Free Parking",
-            id: "freeparking",
-            group: "Special",
-            posistion: 20,
-            rel: {
-                Square: "Free Parking",
-                "Probability % (Jail Short)": 2.8836,
-                Rank: 5,
-                "Probability % (Jail Long)": 2.8253,
-            },
-            averageProbability: 2.85445,
-        },
-        {
-            name: "Community Chest",
-            id: "communitychest",
-            group: "Special",
-            posistion: 2,
-            rel: {
-                Square: "Community Chest",
-                "Probability % (Jail Short)": 1.8849,
-                Rank: 37,
-                "Probability % (Jail Long)": 1.775,
-            },
-            averageProbability: 1.82995,
-        },
-        {
-            name: "Community Chest",
-            id: "communitychest",
-            group: "Special",
-            posistion: 33,
-            rel: {
-                Square: "Community Chest",
-                "Probability % (Jail Short)": 1.8849,
-                Rank: 37,
-                "Probability % (Jail Long)": 1.775,
-            },
-            averageProbability: 1.82995,
-        },
-        {
-            name: "Community Chest",
-            id: "communitychest",
-            group: "Special",
-            posistion: 17,
-            rel: {
-                Square: "Community Chest",
-                "Probability % (Jail Short)": 1.8849,
-                Rank: 37,
-                "Probability % (Jail Long)": 1.775,
-            },
-            averageProbability: 1.82995,
-        },
-        {
-            name: "Go To Jail",
-            id: "gotojail",
-            group: "Special",
-            posistion: 30,
-            rel: {
-                Square: "Go To Jail",
-                "Probability % (Jail Short)": 0,
-                Rank: 41,
-                "Probability % (Jail Long)": 0,
-            },
-            averageProbability: 0,
-        },
-        {
-            name: "Luxury Tax",
-            id: "luxerytax",
-            group: "Special",
-            posistion: 38,
-            averageProbability: 2.116,
-        },
-    ],
-    tiles: [
-        { id: "go" },
-        { id: "mediterraneanave" },
-        { id: "communitychest" },
-        { id: "balticave" },
-        { id: "incometax" },
-        { id: "readingrailroad" },
-        { id: "orientalave" },
-        { id: "chance" },
-        { id: "vermontave" },
-        { id: "connecticutave" },
-        { id: "jail" },
-        { id: "stcharlesplace" },
-        { id: "electriccompany" },
-        { id: "statesave" },
-        { id: "virginiaave" },
-        { id: "pennsylvaniarailroad" },
-        { id: "stjamesplace" },
-        { id: "communitychest" },
-        { id: "tennesseeave" },
-        { id: "newyorkave" },
-        { id: "freeparking" },
-        { id: "kentuckyave" },
-        { id: "chance" },
-        { id: "indianaave" },
-        { id: "illinoisave" },
-        { id: "borailroad" },
-        { id: "atlanticave" },
-        { id: "ventnorave" },
-        { id: "waterworks" },
-        { id: "marvingardens" },
-        { id: "gotojail" },
-        { id: "pacificave" },
-        { id: "northcarolinaave" },
-        { id: "communitychest" },
-        { id: "pennsylvaniaave" },
-        { id: "shortlinerailroad" },
-        { id: "chance" },
-        { id: "parkplace" },
-        { id: "luxerytax" },
-        { id: "boardwalk" },
-    ],
-    chance: [
-        {
-            title: "Advance to Go (Collect $200)",
-            action: "move",
-            tileid: "go",
-        },
-        {
-            title: "Advance to Illinois Avenue - If you pass Go, collect $200",
-            action: "move",
-            tileid: "illinoisave",
-        },
-        {
-            title: "Advance to St. Charles Place - If you pass Go, collect $200",
-            action: "move",
-            tileid: "stcharlesplace",
-        },
-        {
-            title: "Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total ten times the amount thrown.",
-            action: "movenearest",
-            groupid: "utility",
-            rentmultiplier: 10,
-        },
-        {
-            title: "Advance token to the nearest Railroad and pay owner twice the rental to which he/she is otherwise entitled. If Railroad is unowned, you may buy it from the Bank.",
-            action: "movenearest",
-            groupid: "railroad",
-            rentmultiplier: 2,
-        },
-        {
-            title: "Bank pays you dividend of $50",
-            action: "addfunds",
-            amount: 50,
-        },
-        {
-            title: "Get out of Jail Free - This card may be kept until needed, or traded/sold",
-            action: "jail",
-            subaction: "getout",
-        },
-        {
-            title: "Go Back 3 Spaces",
-            action: "move",
-            count: -3,
-        },
-        {
-            title: "Go to Jail - Go directly to Jail - Do not pass Go, do not collect $200",
-            action: "jail",
-            subaction: "goto",
-        },
-        {
-            title: "Make general repairs on all your property - For each house pay $25 - For each hotel $100",
-            action: "propertycharges",
-            buildings: 25,
-            hotels: 100,
-        },
-        {
-            title: "Pay poor tax of $15",
-            action: "removefunds",
-            amount: 15,
-        },
-        {
-            title: "Take a trip to Reading Railroad - If you pass Go, collect $200",
-            action: "move",
-            tileid: "readingrailroad",
-        },
-        {
-            title: "Take a walk on the Boardwalk - Advance token to Boardwalk",
-            action: "move",
-            tileid: "boardwalk",
-        },
-        {
-            title: "You have been elected Chairman of the Board - Pay each player $50",
-            action: "removefundstoplayers",
-            amount: 50,
-        },
-        {
-            title: "Your building loan matures - Collect $150",
-            action: "addfunds",
-            amount: 50,
-        },
-    ],
-    communitychest: [
-        {
-            title: "Advance to Go (Collect $200)",
-            action: "move",
-            tileid: "go",
-        },
-        {
-            title: "Bank error in your favor - Collect $200 ",
-            action: "addfunds",
-            amount: 200,
-        },
-        {
-            title: "Doctor fee - Pay $50",
-            action: "removefunds",
-            amount: 50,
-        },
-        {
-            title: "From sale of stock you get $50",
-            action: "addfunds",
-            amount: 50,
-        },
-        {
-            title: "Get Out of Jail Free",
-            action: "jail",
-            subaction: "getout",
-        },
-        {
-            title: "Go to Jail - Go directly to jail - Do not pass Go - Do not collect $200",
-            action: "jail",
-            subaction: "goto",
-        },
-        {
-            title: "Grand Opera Night - Collect $50 from every player for opening night seats",
-            action: "addfundsfromplayers",
-            amount: 50,
-        },
-        {
-            title: "Holiday Fund matures - Receive $100",
-            action: "addfunds",
-            amount: 100,
-        },
-        {
-            title: "Income tax refund - Collect $20",
-            action: "addfunds",
-            amount: 20,
-        },
-        {
-            title: "Life insurance matures - Collect $100",
-            action: "addfunds",
-            amount: 100,
-        },
-        {
-            title: "Pay hospital fees of $100",
-            action: "removefunds",
-            amount: 100,
-        },
-        {
-            title: "Pay school fees of $150",
-            action: "removefunds",
-            amount: 150,
-        },
-        {
-            title: "Receive $25 consultancy fee",
-            action: "addfunds",
-            amount: 25,
-        },
-        {
-            title: "You are assessed for street repairs - $40 per house - $115 per hotel",
-            action: "propertycharges",
-            buildings: 40,
-            hotels: 115,
-        },
-        {
-            title: "You have won second prize in a beauty contest - Collect $10",
-            action: "addfunds",
-            amount: 10,
-        },
-        {
-            title: "You inherit $100",
-            action: "addfunds",
-            amount: 100,
-        },
-    ],
-};
-
-import * as fs from "fs";
-
-console.log(`==================================
-Welcome to Monopoly Server
-==================================
-
-Attention Players!
-
-We hope you're enjoying your time in the Monopoly game. If you encounter any issues or come across bugs while playing the game, we kindly ask you to report them to us. Your feedback is crucial in improving the gaming experience for everyone.
-`);
-
-console.log(`Reading files...`);
-
 import {
     bgWhite,
     greenBright,
@@ -959,85 +14,7 @@ import {
     white,
     cyan,
 } from "colorette";
-
-function saveMapToJsonFile(
-    map: Map<string, Client>,
-    logs: Array<string>,
-    filePath
-) {
-    try {
-        const newMap = new Map<string, PlayerJSON>(
-            Array.from(map.entries()).map((v) => [v[0], v[1].player.to_json()])
-        );
-        // Convert the map to a plain object before writing to JSON file
-        const mapAsObject = Object.fromEntries(newMap);
-
-        // Convert the map object to a JSON string
-        const jsonString = JSON.stringify(
-            {
-                clients: mapAsObject,
-                logs: logs,
-            },
-            null,
-            2
-        ); // The third argument is for formatting the output with 2 spaces indentation
-
-        // Write the JSON string to the file
-        fs.writeFileSync(filePath, jsonString);
-    } catch (error) {
-        console.error("Error saving map to JSON file:", error.message);
-    }
-}
-
-interface ServerProperties {
-    port: number;
-    maxPlayers: number;
-    cors: Array<string>;
-    redirect: boolean;
-    redirectURL?: string;
-    logDebug: boolean;
-    useUPNP:boolean;
-    upnpnDuration?:number;
-}
-const defaultProperties: ServerProperties = {
-    port: 25565,
-    maxPlayers: 6,
-    cors: ["https://coder-1t45.github.io", "http://localhost:5173"],
-    redirect: true,
-    redirectURL:"https://coder-1t45.github.io/Monopoly",
-    logDebug: false,
-    useUPNP:true,
-    upnpnDuration:3600
-};
-
-function readServerProperties(): ServerProperties {
-    try {
-        const data = fs.readFileSync("server.properties.json", "utf-8");
-        return JSON.parse(data);
-    } catch (error) {
-        const data = JSON.stringify(defaultProperties, null, 2);
-        fs.writeFileSync("server.properties.json", data, "utf-8");
-        return defaultProperties;
-    }
-}
-
-//#region Setup
-const app = express();
-const properties = readServerProperties();
-
-const maxPlayers =
-    properties.maxPlayers > 0 ? Math.min(properties.maxPlayers, 6) : 6;
-console.log(`\nStarting the Server on port ${properties.port}...`);
-console.log(`Allowed origins ${properties.cors}...`);
-console.log(`Max Players is ${maxPlayers}...\n`);
-
-const httpsServer = createServer(
-    {
-        key: fs.readFileSync("server-key.pem"),
-        cert: fs.readFileSync("server-cert.pem"),
-    },
-    app
-);
+import * as fs from "fs";
 
 async function getGlobalIpAddress() {
     try {
@@ -1050,365 +27,1519 @@ async function getGlobalIpAddress() {
     }
 }
 
-app.get("/", async (req, res) => {
-    if (properties.redirect && properties.redirectURL) {
-        const serverIP = await getGlobalIpAddress();
-        const redirectUrl = `${properties.redirectURL}?ip=${serverIP}:${properties.port}`;
+async function main() {
+    const monopolyJSON = {
+        properties: [
+            {
+                name: "Mediterranean Avenue",
+                id: "mediterraneanave",
+                posistion: 1,
+                price: 60,
+                rent: 2,
+                multpliedrent: [10, 30, 90, 160, 250],
+                housecost: 50,
+                group: "Purple",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                probability: 2.1314,
+                rel: {
+                    Square: "Mediterranean Avenue",
+                    "Probability % (Jail Short)": 2.1314,
+                    Rank: 36,
+                    "Probability % (Jail Long)": 2.0073,
+                },
+                ohousecost: 50,
+                oprice: 60,
+                averageProbability: 2.06935,
+            },
+            {
+                name: "Baltic Avenue",
+                id: "balticave",
+                posistion: 3,
+                price: 60,
+                rent: 4,
+                multpliedrent: [20, 60, 180, 320, 450],
+                housecost: 50,
+                group: "Purple",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                probability: 2.1624,
+                rel: {
+                    Square: "Baltic Avenue",
+                    "Probability % (Jail Short)": 2.1624,
+                    Rank: 35,
+                    "Probability % (Jail Long)": 2.0369,
+                },
+                ohousecost: 50,
+                oprice: 60,
+                averageProbability: 2.09965,
+            },
+            {
+                name: "Oriental Avenue",
+                id: "orientalave",
+                posistion: 6,
+                price: 100,
+                rent: 6,
+                multpliedrent: [30, 90, 270, 400, 550],
+                housecost: 50,
+                group: "lightgreen",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Oriental Avenue",
+                    "Probability % (Jail Short)": 2.2621,
+                    Rank: 32,
+                    "Probability % (Jail Long)": 2.1317,
+                },
+                ohousecost: 50,
+                oprice: 100,
+                averageProbability: 2.1969000000000003,
+            },
+            {
+                name: "Vermont Avenue",
+                id: "vermontave",
+                posistion: 8,
+                price: 100,
+                rent: 6,
+                multpliedrent: [30, 90, 270, 400, 550],
+                housecost: 50,
+                group: "lightgreen",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Vermont Avenue",
+                    "Probability % (Jail Short)": 2.321,
+                    Rank: 28,
+                    "Probability % (Jail Long)": 2.1874,
+                },
+                ohousecost: 50,
+                oprice: 100,
+                averageProbability: 2.2542,
+            },
+            {
+                name: "Connecticut Avenue",
+                id: "connecticutave",
+                posistion: 9,
+                price: 120,
+                rent: 8,
+                multpliedrent: [40, 100, 300, 450, 600],
+                housecost: 50,
+                group: "lightgreen",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Connecticut Avenue",
+                    "Probability % (Jail Short)": 2.3003,
+                    Rank: 30,
+                    "Probability % (Jail Long)": 2.168,
+                },
+                ohousecost: 50,
+                oprice: 120,
+                averageProbability: 2.23415,
+            },
+            {
+                name: "St. Charles Place",
+                id: "stcharlesplace",
+                posistion: 11,
+                price: 140,
+                rent: 10,
+                multpliedrent: [50, 150, 450, 625, 750],
+                housecost: 100,
+                group: "Violet",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "St. Charles Place",
+                    "Probability % (Jail Short)": 2.7017,
+                    Rank: 15,
+                    "Probability % (Jail Long)": 2.556,
+                },
+                ohousecost: 100,
+                oprice: 140,
+                averageProbability: 2.62885,
+            },
+            {
+                name: "States Avenue",
+                id: "statesave",
+                posistion: 13,
+                price: 140,
+                rent: 10,
+                multpliedrent: [50, 150, 450, 625, 750],
+                housecost: 100,
+                group: "Violet",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "States Avenue",
+                    "Probability % (Jail Short)": 2.3721,
+                    Rank: 29,
+                    "Probability % (Jail Long)": 2.1741,
+                },
+                ohousecost: 100,
+                oprice: 140,
+                averageProbability: 2.2731000000000003,
+            },
+            {
+                name: "Virginia Avenue",
+                id: "virginiaave",
+                posistion: 14,
+                price: 160,
+                rent: 12,
+                multpliedrent: [60, 180, 500, 700, 900],
+                housecost: 100,
+                group: "Violet",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Virginia Avenue",
+                    "Probability % (Jail Short)": 2.4649,
+                    Rank: 22,
+                    "Probability % (Jail Long)": 2.4255,
+                },
+                ohousecost: 100,
+                oprice: 160,
+                averageProbability: 2.4452,
+            },
+            {
+                name: "St. James Place",
+                id: "stjamesplace",
+                posistion: 16,
+                price: 180,
+                rent: 14,
+                multpliedrent: [70, 200, 550, 750, 950],
+                housecost: 100,
+                group: "Orange",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "St. James Place",
+                    "Probability % (Jail Short)": 2.7924,
+                    Rank: 9,
+                    "Probability % (Jail Long)": 2.6802,
+                },
+                ohousecost: 100,
+                oprice: 180,
+                averageProbability: 2.7363,
+            },
+            {
+                name: "Tennessee Avenue",
+                id: "tennesseeave",
+                posistion: 18,
+                price: 180,
+                rent: 14,
+                multpliedrent: [70, 200, 550, 750, 950],
+                housecost: 100,
+                group: "Orange",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Tennessee Avenue",
+                    "Probability % (Jail Short)": 2.9356,
+                    Rank: 6,
+                    "Probability % (Jail Long)": 2.821,
+                },
+                ohousecost: 100,
+                oprice: 180,
+                averageProbability: 2.8783000000000003,
+            },
+            {
+                name: "New York Avenue",
+                id: "newyorkave",
+                posistion: 19,
+                price: 200,
+                rent: 16,
+                multpliedrent: [80, 220, 600, 800, 1000],
+                housecost: 100,
+                group: "Orange",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "New York Avenue",
+                    "Probability % (Jail Short)": 3.0852,
+                    Rank: 7,
+                    "Probability % (Jail Long)": 2.8118,
+                },
+                ohousecost: 100,
+                oprice: 200,
+                averageProbability: 2.9485,
+            },
+            {
+                name: "Kentucky Avenue",
+                id: "kentuckyave",
+                posistion: 21,
+                price: 220,
+                rent: 18,
+                multpliedrent: [90, 250, 700, 875, 1050],
+                housecost: 150,
+                group: "Red",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Kentucky Avenue",
+                    "Probability % (Jail Short)": 2.8358,
+                    Rank: 12,
+                    "Probability % (Jail Long)": 2.6143,
+                },
+                ohousecost: 150,
+                oprice: 220,
+                averageProbability: 2.72505,
+            },
+            {
+                name: "Indiana Avenue",
+                id: "indianaave",
+                posistion: 23,
+                price: 220,
+                rent: 18,
+                multpliedrent: [90, 250, 700, 875, 1050],
+                housecost: 150,
+                group: "Red",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Indiana Avenue",
+                    "Probability % (Jail Short)": 2.7357,
+                    Rank: 14,
+                    "Probability % (Jail Long)": 2.5671,
+                },
+                ohousecost: 150,
+                oprice: 220,
+                averageProbability: 2.6513999999999998,
+            },
+            {
+                name: "Illinois Avenue",
+                id: "illinoisave",
+                posistion: 24,
+                price: 240,
+                rent: 20,
+                multpliedrent: [100, 300, 750, 925, 1100],
+                housecost: 150,
+                group: "Red",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Illinois Avenue",
+                    "Probability % (Jail Short)": 3.1858,
+                    Rank: 2,
+                    "Probability % (Jail Long)": 2.9929,
+                },
+                ohousecost: 150,
+                oprice: 240,
+                averageProbability: 3.08935,
+            },
+            {
+                name: "Atlantic Avenue",
+                id: "atlanticave",
+                posistion: 26,
+                price: 260,
+                rent: 22,
+                multpliedrent: [110, 330, 800, 975, 1150],
+                housecost: 150,
+                group: "Yellow",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Atlantic Avenue",
+                    "Probability % (Jail Short)": 2.7072,
+                    Rank: 16,
+                    "Probability % (Jail Long)": 2.537,
+                },
+                ohousecost: 150,
+                oprice: 260,
+                averageProbability: 2.6220999999999997,
+            },
+            {
+                name: "Ventnor Avenue",
+                id: "ventnorave",
+                posistion: 27,
+                price: 260,
+                rent: 22,
+                multpliedrent: [110, 330, 800, 975, 1150],
+                housecost: 150,
+                group: "Yellow",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Ventnor Avenue",
+                    "Probability % (Jail Short)": 2.6789,
+                    Rank: 18,
+                    "Probability % (Jail Long)": 2.5191,
+                },
+                ohousecost: 150,
+                oprice: 260,
+                averageProbability: 2.599,
+            },
+            {
+                name: "Marvin Gardens",
+                id: "marvingardens",
+                posistion: 29,
+                price: 280,
+                rent: 22,
+                multpliedrent: [120, 360, 850, 1025, 1200],
+                housecost: 150,
+                group: "Yellow",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Marvin Gardens",
+                    "Probability % (Jail Short)": 2.5861,
+                    Rank: 21,
+                    "Probability % (Jail Long)": 2.4381,
+                },
+                ohousecost: 150,
+                oprice: 280,
+                averageProbability: 2.5121,
+            },
+            {
+                name: "Pacific Avenue",
+                id: "pacificave",
+                posistion: 31,
+                price: 300,
+                rent: 26,
+                multpliedrent: [130, 390, 900, 1100, 1275],
+                housecost: 200,
+                group: "darkgreen",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Pacific Avenue",
+                    "Probability % (Jail Short)": 2.6774,
+                    Rank: 17,
+                    "Probability % (Jail Long)": 2.5236,
+                },
+                ohousecost: 200,
+                oprice: 300,
+                averageProbability: 2.6005000000000003,
+            },
+            {
+                name: "North Carolina Avenue",
+                id: "northcarolinaave",
+                posistion: 32,
+                price: 300,
+                rent: 26,
+                multpliedrent: [130, 390, 900, 1100, 1275],
+                housecost: 200,
+                group: "darkgreen",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "North Carolina Avenue",
+                    "Probability % (Jail Short)": 2.6252,
+                    Rank: 20,
+                    "Probability % (Jail Long)": 2.4721,
+                },
+                ohousecost: 200,
+                oprice: 300,
+                averageProbability: 2.5486500000000003,
+            },
+            {
+                name: "Pennsylvania Avenue",
+                id: "pennsylvaniaave",
+                posistion: 34,
+                price: 320,
+                rent: 28,
+                multpliedrent: [150, 450, 1000, 1200, 1400],
+                housecost: 200,
+                group: "darkgreen",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Pennsylvania Avenue",
+                    "Probability % (Jail Short)": 2.5006,
+                    Rank: 23,
+                    "Probability % (Jail Long)": 2.3531,
+                },
+                ohousecost: 200,
+                oprice: 320,
+                averageProbability: 2.42685,
+            },
+            {
+                name: "Park Place",
+                id: "parkplace",
+                posistion: 37,
+                price: 350,
+                rent: 35,
+                multpliedrent: [175, 500, 1100, 1300, 1500],
+                housecost: 200,
+                group: "darkblue",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Park Place",
+                    "Probability % (Jail Short)": 2.1864,
+                    Rank: 33,
+                    "Probability % (Jail Long)": 2.0595,
+                },
+                ohousecost: 200,
+                oprice: 350,
+                averageProbability: 2.12295,
+            },
+            {
+                name: "Boardwalk",
+                id: "boardwalk",
+                posistion: 39,
+                price: 400,
+                rent: 50,
+                multpliedrent: [200, 600, 1400, 1700, 2000],
+                housecost: 200,
+                group: "darkblue",
+                ownedby: -1,
+                buildings: 0,
+                mortgaged: false,
+                rel: {
+                    Square: "Boardwalk",
+                    "Probability % (Jail Short)": 2.626,
+                    Rank: 19,
+                    "Probability % (Jail Long)": 2.4832,
+                },
+                ohousecost: 200,
+                oprice: 400,
+                averageProbability: 2.5545999999999998,
+            },
+            {
+                name: "Electric Company",
+                id: "electriccompany",
+                posistion: 12,
+                price: 150,
+                group: "Utilities",
+                ownedby: -1,
+                mortgaged: false,
+                rel: {
+                    Square: "Electric Company",
+                    "Probability % (Jail Short)": 2.604,
+                    Rank: 13,
+                    "Probability % (Jail Long)": 2.614,
+                },
+                oprice: 150,
+                averageProbability: 2.609,
+            },
+            {
+                name: "Water Works",
+                id: "waterworks",
+                posistion: 28,
+                price: 150,
+                group: "Utilities",
+                ownedby: -1,
+                mortgaged: false,
+                rel: {
+                    Square: "Water Works",
+                    "Probability % (Jail Short)": 2.8074,
+                    Rank: 10,
+                    "Probability % (Jail Long)": 2.6507,
+                },
+                oprice: 150,
+                averageProbability: 2.72905,
+            },
+            {
+                name: "Reading Railroad",
+                id: "readingrailroad",
+                posistion: 5,
+                price: 200,
+                group: "Railroad",
+                ownedby: -1,
+                mortgaged: false,
+                probability: 2.1314,
+                rel: {
+                    Square: "Reading Railroad",
+                    "Probability % (Jail Short)": 2.9631,
+                    Rank: 8,
+                    "Probability % (Jail Long)": 2.801,
+                },
+                oprice: 200,
+                averageProbability: 2.88205,
+            },
+            {
+                name: "Pennsylvania Railroad",
+                id: "pennsylvaniarailroad",
+                posistion: 15,
+                price: 200,
+                group: "Railroad",
+                ownedby: -1,
+                mortgaged: false,
+                rel: {
+                    Square: "Pennsylvania Railroad",
+                    "Probability % (Jail Short)": 2.92,
+                    Rank: 11,
+                    "Probability % (Jail Long)": 2.6354,
+                },
+                oprice: 200,
+                averageProbability: 2.7777000000000003,
+            },
+            {
+                name: "B. & O. Railroad",
+                id: "borailroad",
+                posistion: 25,
+                price: 200,
+                group: "Railroad",
+                ownedby: -1,
+                mortgaged: false,
+                oprice: 200,
+                averageProbability: 2.975,
+            },
+            {
+                name: "Short Line Railroad",
+                id: "shortlinerailroad",
+                posistion: 35,
+                price: 200,
+                group: "Railroad",
+                ownedby: -1,
+                mortgaged: false,
+                oprice: 200,
+                averageProbability: 2.3609500000000002,
+            },
+            {
+                name: "Go",
+                id: "go",
+                posistion: 0,
+                group: "Special",
+                rel: {
+                    Square: "Go",
+                    "Probability % (Jail Short)": 3.0961,
+                    Rank: 3,
+                    "Probability % (Jail Long)": 2.9143,
+                },
+                averageProbability: 3.0052,
+            },
+            {
+                name: "Income Tax",
+                id: "incometax",
+                group: "Special",
+                posistion: 4,
+                rel: {
+                    Square: "Income Tax",
+                    "Probability % (Jail Short)": 2.3285,
+                    Rank: 27,
+                    "Probability % (Jail Long)": 2.1934,
+                },
+                averageProbability: 2.2609500000000002,
+            },
+            {
+                name: "Jail / Just Visiting",
+                id: "jail",
+                posistion: 10,
+                group: "Special",
+                averageProbability: 8.897,
+            },
+            {
+                name: "Chance",
+                id: "chance",
+                group: "Special",
+                posistion: 36,
+                rel: {
+                    Square: "Chance",
+                    "Probability % (Jail Short)": 0.865,
+                    Rank: 40,
+                    "Probability % (Jail Long)": 0.8152,
+                },
+                averageProbability: 0.8401000000000001,
+            },
+            {
+                name: "Chance",
+                id: "chance",
+                group: "Special",
+                posistion: 7,
+                rel: {
+                    Square: "Chance",
+                    "Probability % (Jail Short)": 0.865,
+                    Rank: 40,
+                    "Probability % (Jail Long)": 0.8152,
+                },
+                averageProbability: 0.8401000000000001,
+            },
+            {
+                name: "Chance",
+                id: "chance",
+                group: "Special",
+                posistion: 22,
+                rel: {
+                    Square: "Chance",
+                    "Probability % (Jail Short)": 0.865,
+                    Rank: 40,
+                    "Probability % (Jail Long)": 0.8152,
+                },
+                averageProbability: 0.8401000000000001,
+            },
+            {
+                name: "Free Parking",
+                id: "freeparking",
+                group: "Special",
+                posistion: 20,
+                rel: {
+                    Square: "Free Parking",
+                    "Probability % (Jail Short)": 2.8836,
+                    Rank: 5,
+                    "Probability % (Jail Long)": 2.8253,
+                },
+                averageProbability: 2.85445,
+            },
+            {
+                name: "Community Chest",
+                id: "communitychest",
+                group: "Special",
+                posistion: 2,
+                rel: {
+                    Square: "Community Chest",
+                    "Probability % (Jail Short)": 1.8849,
+                    Rank: 37,
+                    "Probability % (Jail Long)": 1.775,
+                },
+                averageProbability: 1.82995,
+            },
+            {
+                name: "Community Chest",
+                id: "communitychest",
+                group: "Special",
+                posistion: 33,
+                rel: {
+                    Square: "Community Chest",
+                    "Probability % (Jail Short)": 1.8849,
+                    Rank: 37,
+                    "Probability % (Jail Long)": 1.775,
+                },
+                averageProbability: 1.82995,
+            },
+            {
+                name: "Community Chest",
+                id: "communitychest",
+                group: "Special",
+                posistion: 17,
+                rel: {
+                    Square: "Community Chest",
+                    "Probability % (Jail Short)": 1.8849,
+                    Rank: 37,
+                    "Probability % (Jail Long)": 1.775,
+                },
+                averageProbability: 1.82995,
+            },
+            {
+                name: "Go To Jail",
+                id: "gotojail",
+                group: "Special",
+                posistion: 30,
+                rel: {
+                    Square: "Go To Jail",
+                    "Probability % (Jail Short)": 0,
+                    Rank: 41,
+                    "Probability % (Jail Long)": 0,
+                },
+                averageProbability: 0,
+            },
+            {
+                name: "Luxury Tax",
+                id: "luxerytax",
+                group: "Special",
+                posistion: 38,
+                averageProbability: 2.116,
+            },
+        ],
+        tiles: [
+            { id: "go" },
+            { id: "mediterraneanave" },
+            { id: "communitychest" },
+            { id: "balticave" },
+            { id: "incometax" },
+            { id: "readingrailroad" },
+            { id: "orientalave" },
+            { id: "chance" },
+            { id: "vermontave" },
+            { id: "connecticutave" },
+            { id: "jail" },
+            { id: "stcharlesplace" },
+            { id: "electriccompany" },
+            { id: "statesave" },
+            { id: "virginiaave" },
+            { id: "pennsylvaniarailroad" },
+            { id: "stjamesplace" },
+            { id: "communitychest" },
+            { id: "tennesseeave" },
+            { id: "newyorkave" },
+            { id: "freeparking" },
+            { id: "kentuckyave" },
+            { id: "chance" },
+            { id: "indianaave" },
+            { id: "illinoisave" },
+            { id: "borailroad" },
+            { id: "atlanticave" },
+            { id: "ventnorave" },
+            { id: "waterworks" },
+            { id: "marvingardens" },
+            { id: "gotojail" },
+            { id: "pacificave" },
+            { id: "northcarolinaave" },
+            { id: "communitychest" },
+            { id: "pennsylvaniaave" },
+            { id: "shortlinerailroad" },
+            { id: "chance" },
+            { id: "parkplace" },
+            { id: "luxerytax" },
+            { id: "boardwalk" },
+        ],
+        chance: [
+            {
+                title: "Advance to Go (Collect $200)",
+                action: "move",
+                tileid: "go",
+            },
+            {
+                title: "Advance to Illinois Avenue - If you pass Go, collect $200",
+                action: "move",
+                tileid: "illinoisave",
+            },
+            {
+                title: "Advance to St. Charles Place - If you pass Go, collect $200",
+                action: "move",
+                tileid: "stcharlesplace",
+            },
+            {
+                title: "Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total ten times the amount thrown.",
+                action: "movenearest",
+                groupid: "utility",
+                rentmultiplier: 10,
+            },
+            {
+                title: "Advance token to the nearest Railroad and pay owner twice the rental to which he/she is otherwise entitled. If Railroad is unowned, you may buy it from the Bank.",
+                action: "movenearest",
+                groupid: "railroad",
+                rentmultiplier: 2,
+            },
+            {
+                title: "Bank pays you dividend of $50",
+                action: "addfunds",
+                amount: 50,
+            },
+            {
+                title: "Get out of Jail Free - This card may be kept until needed, or traded/sold",
+                action: "jail",
+                subaction: "getout",
+            },
+            {
+                title: "Go Back 3 Spaces",
+                action: "move",
+                count: -3,
+            },
+            {
+                title: "Go to Jail - Go directly to Jail - Do not pass Go, do not collect $200",
+                action: "jail",
+                subaction: "goto",
+            },
+            {
+                title: "Make general repairs on all your property - For each house pay $25 - For each hotel $100",
+                action: "propertycharges",
+                buildings: 25,
+                hotels: 100,
+            },
+            {
+                title: "Pay poor tax of $15",
+                action: "removefunds",
+                amount: 15,
+            },
+            {
+                title: "Take a trip to Reading Railroad - If you pass Go, collect $200",
+                action: "move",
+                tileid: "readingrailroad",
+            },
+            {
+                title: "Take a walk on the Boardwalk - Advance token to Boardwalk",
+                action: "move",
+                tileid: "boardwalk",
+            },
+            {
+                title: "You have been elected Chairman of the Board - Pay each player $50",
+                action: "removefundstoplayers",
+                amount: 50,
+            },
+            {
+                title: "Your building loan matures - Collect $150",
+                action: "addfunds",
+                amount: 50,
+            },
+        ],
+        communitychest: [
+            {
+                title: "Advance to Go (Collect $200)",
+                action: "move",
+                tileid: "go",
+            },
+            {
+                title: "Bank error in your favor - Collect $200 ",
+                action: "addfunds",
+                amount: 200,
+            },
+            {
+                title: "Doctor fee - Pay $50",
+                action: "removefunds",
+                amount: 50,
+            },
+            {
+                title: "From sale of stock you get $50",
+                action: "addfunds",
+                amount: 50,
+            },
+            {
+                title: "Get Out of Jail Free",
+                action: "jail",
+                subaction: "getout",
+            },
+            {
+                title: "Go to Jail - Go directly to jail - Do not pass Go - Do not collect $200",
+                action: "jail",
+                subaction: "goto",
+            },
+            {
+                title: "Grand Opera Night - Collect $50 from every player for opening night seats",
+                action: "addfundsfromplayers",
+                amount: 50,
+            },
+            {
+                title: "Holiday Fund matures - Receive $100",
+                action: "addfunds",
+                amount: 100,
+            },
+            {
+                title: "Income tax refund - Collect $20",
+                action: "addfunds",
+                amount: 20,
+            },
+            {
+                title: "Life insurance matures - Collect $100",
+                action: "addfunds",
+                amount: 100,
+            },
+            {
+                title: "Pay hospital fees of $100",
+                action: "removefunds",
+                amount: 100,
+            },
+            {
+                title: "Pay school fees of $150",
+                action: "removefunds",
+                amount: 150,
+            },
+            {
+                title: "Receive $25 consultancy fee",
+                action: "addfunds",
+                amount: 25,
+            },
+            {
+                title: "You are assessed for street repairs - $40 per house - $115 per hotel",
+                action: "propertycharges",
+                buildings: 40,
+                hotels: 115,
+            },
+            {
+                title: "You have won second prize in a beauty contest - Collect $10",
+                action: "addfunds",
+                amount: 10,
+            },
+            {
+                title: "You inherit $100",
+                action: "addfunds",
+                amount: 100,
+            },
+        ],
+    };
 
-        res.status(200).redirect(redirectUrl);
-    } else {
-        res.status(200).send(
-            "<p> you are ready to play monopoly! chrome isnt blocking you from joinin! </p>"
-        );
-    }
-});
+    console.log(`==================================
+Welcome to Monopoly Server
+==================================
 
-interface Client {
-    player: Player;
-    socket: Socket;
-    ready: boolean;
-    positions: { x: number; y: number };
-}
+Attention Players!
 
-const Clients = new Map<string, Client>();
-const logs_strings: Array<string> = [];
+We hope you're enjoying your time in the Monopoly game. If you encounter any issues or come across bugs while playing the game, we kindly ask you to report them to us. Your feedback is crucial in improving the gaming experience for everyone.
+`);
 
-//#region Game Variables!
-let currentId: string = "";
-let gameStarted: boolean = false;
-let selectedMode: number = 0;
-let messages: Array<{ from: string; message: string }> = [];
+    console.log(`Reading files...`);
 
-//#endregion
-// Io
-const io = new Server(httpsServer, {
-    cors: {
-        origin: (origin, callback) => {
-            if (properties.cors.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        methods: ["POST", "GET"],
-    },
-});
+    function saveMapToJsonFile(
+        map: Map<string, Client>,
+        logs: Array<string>,
+        filePath
+    ) {
+        try {
+            const newMap = new Map<string, PlayerJSON>(
+                Array.from(map.entries()).map((v) => [
+                    v[0],
+                    v[1].player.to_json(),
+                ])
+            );
+            // Convert the map to a plain object before writing to JSON file
+            const mapAsObject = Object.fromEntries(newMap);
 
-function getCurrentTime() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const currentTime = `${hours}:${minutes}`;
+            // Convert the map object to a JSON string
+            const jsonString = JSON.stringify(
+                {
+                    clients: mapAsObject,
+                    logs: logs,
+                },
+                null,
+                2
+            ); // The third argument is for formatting the output with 2 spaces indentation
 
-    return currentTime;
-}
-
-//#region emits functions
-function EmitAll(event: string, args: any) {
-    for (const x of Array.from(Clients.values())) {
-        x.socket.emit(event, args);
-    }
-}
-
-function EmitExcepts(id: string, event: string, args: any) {
-    for (const x of Array.from(Clients.entries())) {
-        if (x[0] != id) {
-            x[1].socket.emit(event, args);
+            // Write the JSON string to the file
+            fs.writeFileSync(filePath, jsonString);
+        } catch (error) {
+            console.error("Error saving map to JSON file:", error.message);
         }
     }
-}
-//#endregion
 
-//#endregion
-//#region Game Logic
-io.on("connection", (socket: Socket) => {
-    const ctp = gameStarted ? 1 : Clients.size >= maxPlayers ? 2 : 0;
-    socket.emit("state", ctp);
-    if (ctp === 0) {
-        // Handle name event
-        socket.on("name", (name: string) => {
-            try {
-                const player = new Player(
-                    socket.id,
-                    name,
-                    Array.from(Clients.keys()).length
-                );
+    interface ServerProperties {
+        port: number;
+        maxPlayers: number;
+        cors: Array<string>;
+        redirect: boolean;
+        redirectURL?: string;
+        logDebug: boolean;
+        useUPNP: boolean;
+        upnpnDuration?: number;
+    }
+    const defaultProperties: ServerProperties = {
+        port: 25565,
+        maxPlayers: 6,
+        cors: ["https://coder-1t45.github.io", "http://localhost:5173"],
+        redirect: true,
+        redirectURL: "https://coder-1t45.github.io/Monopoly",
+        logDebug: false,
+        useUPNP: true,
+        upnpnDuration: 3600,
+    };
 
-                // handle current id =>
-                if (
-                    currentId === "" ||
-                    !Array.from(Clients.keys()).includes(currentId)
-                ) {
-                    currentId = socket.id;
+    function readServerProperties(): ServerProperties {
+        try {
+            const data = fs.readFileSync("server.properties.json", "utf-8");
+            return JSON.parse(data);
+        } catch (error) {
+            const data = JSON.stringify(defaultProperties, null, 2);
+            fs.writeFileSync("server.properties.json", data, "utf-8");
+            return defaultProperties;
+        }
+    }
+
+    //#region Setup
+    const app = express();
+    const properties = readServerProperties();
+
+    const CodeAPI = () => {
+        const masterKey =
+            "$2b$10$1ACAXPZ5cZsfoGZJXiAVCO7rEzlJpV/7UEshZRZ3HK3sYEb5Hfmbu";
+        const accessKey =
+            "$2b$10$A65XZEY3pw0uyBKsr0meheXZmBtuTA.TqZuDLPiCdpHggppH0OTWu";
+        async function Read() {
+            const p = fetch(
+                "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf/latest",
+                {
+                    method: "GET",
+                    headers: {
+                        "X-Master-Key": masterKey,
+                        "X-Access-Key": accessKey,
+                    },
                 }
-                Clients.set(socket.id, {
-                    player: player,
-                    socket: socket,
-                    ready: false,
-                    positions: { x: 0, y: 0 },
-                });
-                console.log(
-                    greenBright(
+            );
+            const v = await (await p).json();
+            return v.record;
+        }
+        async function Write(ob: { [key: string]: string }) {
+            await fetch(
+                "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf",
+                {
+                    method: "PUT",
+                    body: JSON.stringify(ob),
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Master-Key": masterKey,
+                        "X-Access-Key": accessKey,
+                    },
+                }
+            );
+        }
+
+        async function Delete(code: string) {
+            const x = await Read();
+            if (Object.keys(x).includes(code)) {
+                delete x[code];
+            }
+            await Write(x);
+        }
+
+        async function Generate() {
+            function generateRandomCode(length) {
+                const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                let code = "";
+
+                for (let i = 0; i < length; i++) {
+                    const randomIndex = Math.floor(
+                        Math.random() * charset.length
+                    );
+                    code += charset[randomIndex];
+                }
+
+                return code;
+            }
+
+            var code = generateRandomCode(6);
+            const x = await Read();
+
+            while (Object.keys(x).includes(code)) {
+                code = generateRandomCode(6);
+            }
+            const serverIP = await getGlobalIpAddress();
+
+            const value = `${serverIP}:${properties.port}`;
+            if (Object.values(x).includes(value)) {
+                for (const a of Object.entries(x)) {
+                    if (a[1] === value) {
+                        delete x[a[0]];
+                    }
+                }
+            }
+            x[code] = value;
+            await Write(x);
+
+            return code;
+        }
+
+        return {
+            Write,
+            Read,
+            Delete,
+            Generate,
+        };
+    };
+
+    const maxPlayers =
+        properties.maxPlayers > 0 ? Math.min(properties.maxPlayers, 6) : 6;
+    console.log(`\nStarting the Server on port ${properties.port}...`);
+    console.log(`Allowed origins ${properties.cors}...`);
+    console.log(`Max Players is ${maxPlayers}...\n`);
+
+    let code: string = await CodeAPI().Generate();
+
+    const httpsServer = createServer(
+        {
+            key: fs.readFileSync("server-key.pem"),
+            cert: fs.readFileSync("server-cert.pem"),
+        },
+        app
+    );
+
+    app.get("/", async (req, res) => {
+        if (properties.redirect && properties.redirectURL) {
+            const serverIP = await getGlobalIpAddress();
+            const redirectUrl = `${properties.redirectURL}?ip=${code}`;
+
+            res.status(200).redirect(redirectUrl);
+        } else {
+            res.status(200).send(
+                "<p> you are ready to play monopoly! chrome isnt blocking you from joinin! </p>"
+            );
+        }
+    });
+
+    interface Client {
+        player: Player;
+        socket: Socket;
+        ready: boolean;
+        positions: { x: number; y: number };
+    }
+
+    const Clients = new Map<string, Client>();
+    const logs_strings: Array<string> = [];
+
+    //#region Game Variables!
+    let currentId: string = "";
+    let gameStarted: boolean = false;
+    let selectedMode: number = 0;
+    let messages: Array<{ from: string; message: string }> = [];
+
+    //#endregion
+    // Io
+    const io = new Server(httpsServer, {
+        cors: {
+            origin: (origin, callback) => {
+                if (properties.cors.includes(origin)) {
+                    callback(null, true);
+                } else {
+                    callback(new Error("Not allowed by CORS"));
+                }
+            },
+            methods: ["POST", "GET"],
+        },
+    });
+
+    function getCurrentTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const currentTime = `${hours}:${minutes}`;
+
+        return currentTime;
+    }
+
+    //#region emits functions
+    function EmitAll(event: string, args: any) {
+        for (const x of Array.from(Clients.values())) {
+            x.socket.emit(event, args);
+        }
+    }
+
+    function EmitExcepts(id: string, event: string, args: any) {
+        for (const x of Array.from(Clients.entries())) {
+            if (x[0] != id) {
+                x[1].socket.emit(event, args);
+            }
+        }
+    }
+    //#endregion
+
+    //#endregion
+    //#region Game Logic
+    io.on("connection", (socket: Socket) => {
+        const ctp = gameStarted ? 1 : Clients.size >= maxPlayers ? 2 : 0;
+        socket.emit("state", ctp);
+        if (ctp === 0) {
+            // Handle name event
+            socket.on("name", (name: string) => {
+                try {
+                    const player = new Player(
+                        socket.id,
+                        name,
+                        Array.from(Clients.keys()).length
+                    );
+
+                    // handle current id =>
+                    if (
+                        currentId === "" ||
+                        !Array.from(Clients.keys()).includes(currentId)
+                    ) {
+                        currentId = socket.id;
+                    }
+                    Clients.set(socket.id, {
+                        player: player,
+                        socket: socket,
+                        ready: false,
+                        positions: { x: 0, y: 0 },
+                    });
+                    console.log(
+                        greenBright(
+                            `{${getCurrentTime()}} [${socket.id}] Player "${
+                                player.username
+                            }" has connected.`
+                        )
+                    );
+                    logs_strings.push(
                         `{${getCurrentTime()}} [${socket.id}] Player "${
                             player.username
                         }" has connected.`
-                    )
-                );
-                logs_strings.push(
-                    `{${getCurrentTime()}} [${socket.id}] Player "${
-                        player.username
-                    }" has connected.`
-                );
-                const other_players = [];
-                for (const x of Array.from(Clients.values())) {
-                    other_players.push(x.player.to_json());
-                }
-                socket.emit("initials", { turn_id: currentId, other_players });
-                EmitExcepts(socket.id, "new-player", player.to_json());
-
-                // handle all events from here on!
-                // game sockets
-                socket.on("unjail", (option: "card" | "pay") => {
-                    try {
-                        EmitAll("unjail", {
-                            to: player.id,
-                            option,
-                        });
-                    } catch (e) {
-                        console.log(bgRed(black(e)));
+                    );
+                    const other_players = [];
+                    for (const x of Array.from(Clients.values())) {
+                        other_players.push(x.player.to_json());
                     }
-                });
-                socket.on("roll_dice", () => {
-                    try {
-                        const first = Math.floor(Math.random() * 6) + 1;
-                        const second = Math.floor(Math.random() * 6) + 1;
+                    socket.emit("initials", {
+                        turn_id: currentId,
+                        other_players,
+                    });
+                    EmitExcepts(socket.id, "new-player", player.to_json());
 
-                        const x = `{${getCurrentTime()}} [${
-                            socket.id
-                        }] Player "${
-                            player.username
-                        }" rolled a [${first},${second}].`;
-                        logs_strings.push(x);
-                        console.log(x);
-                        const sum = first + second;
-                        var pos = (player.position + sum) % 40;
-                        EmitAll("dice_roll_result", {
-                            listOfNums: [first, second, pos],
-                            turnId: currentId,
-                        });
-                    } catch (e) {
-                        console.log(bgRed(black(e)));
-                    }
-                });
-                // chest or chance
-                socket.on("chorch_roll", (is_chance) => {
-                    try {
-                        const arr = is_chance
-                            ? monopolyJSON.chance
-                            : monopolyJSON.communitychest;
-                        const randomElement =
-                            arr[Math.floor(Math.random() * arr.length)];
-
-                        EmitAll("chorch_result", {
-                            element: randomElement,
-                            is_chance,
-                            turnId: currentId,
-                        });
-                    } catch (e) {
-                        console.log(bgRed(black(e)));
-                    }
-                });
-                socket.on("finish-turn", (playerInfo: PlayerJSON) => {
-                    try {
-                        player.from_json(playerInfo);
-                        if (currentId != socket.id) return;
-                        const arr = Array.from(Clients.values())
-                            .filter((v) => v.player.balance > 0)
-                            .map((v) => v.player.id);
-                        var i = arr.indexOf(socket.id);
-                        i = (i + 1) % arr.length;
-                        currentId = arr[i];
-
-                        EmitAll("turn-finished", {
-                            from: socket.id,
-                            turnId: currentId,
-                            pJson: player.to_json(),
-                        });
-
-                        if (properties.logDebug)
-                            saveMapToJsonFile(
-                                Clients,
-                                logs_strings,
-                                "clients.json"
-                            );
-                    } catch (e) {
-                        console.log(bgRed(black(e)));
-                    }
-                });
-
-                socket.on("message", (message: string) => {
-                    try {
-                        console.log(
-                            cyan(
-                                `{${getCurrentTime()}} [${socket.id}] Player "${
-                                    Clients.get(socket.id).player.username
-                                }" has messaged "${message}".`
-                            )
-                        );
-                        EmitAll("message", {
-                            from: player.username,
-                            message: message,
-                        });
-                    } catch (e) {
-                        console.log(bgRed(black(e)));
-                    }
-                });
-
-                socket.on(
-                    "pay",
-                    (args: { balance: number; from: string; to: string }) => {
+                    // handle all events from here on!
+                    // game sockets
+                    socket.on("unjail", (option: "card" | "pay") => {
                         try {
-                            const top = Clients.get(args.to).player;
-                            const fromp = Clients.get(args.from).player;
-                            top.balance += args.balance;
-                            fromp.balance -= args.balance;
-                            EmitAll("member_updating", {
-                                playerId: args.to,
-                                animation: "recieveMoney",
-                                additional_props: [args.from],
-                                pJson: [top.to_json(), fromp.to_json()],
+                            EmitAll("unjail", {
+                                to: player.id,
+                                option,
                             });
                         } catch (e) {
                             console.log(bgRed(black(e)));
                         }
-                    }
-                );
+                    });
+                    socket.on("roll_dice", () => {
+                        try {
+                            const first = Math.floor(Math.random() * 6) + 1;
+                            const second = Math.floor(Math.random() * 6) + 1;
 
-                socket.on("mouse", (args: { x: number; y: number }) => {
+                            const x = `{${getCurrentTime()}} [${
+                                socket.id
+                            }] Player "${
+                                player.username
+                            }" rolled a [${first},${second}].`;
+                            logs_strings.push(x);
+                            console.log(x);
+                            const sum = first + second;
+                            var pos = (player.position + sum) % 40;
+                            EmitAll("dice_roll_result", {
+                                listOfNums: [first, second, pos],
+                                turnId: currentId,
+                            });
+                        } catch (e) {
+                            console.log(bgRed(black(e)));
+                        }
+                    });
+                    // chest or chance
+                    socket.on("chorch_roll", (is_chance) => {
+                        try {
+                            const arr = is_chance
+                                ? monopolyJSON.chance
+                                : monopolyJSON.communitychest;
+                            const randomElement =
+                                arr[Math.floor(Math.random() * arr.length)];
+
+                            EmitAll("chorch_result", {
+                                element: randomElement,
+                                is_chance,
+                                turnId: currentId,
+                            });
+                        } catch (e) {
+                            console.log(bgRed(black(e)));
+                        }
+                    });
+                    socket.on("finish-turn", (playerInfo: PlayerJSON) => {
+                        try {
+                            player.from_json(playerInfo);
+                            if (currentId != socket.id) return;
+                            const arr = Array.from(Clients.values())
+                                .filter((v) => v.player.balance > 0)
+                                .map((v) => v.player.id);
+                            var i = arr.indexOf(socket.id);
+                            i = (i + 1) % arr.length;
+                            currentId = arr[i];
+
+                            EmitAll("turn-finished", {
+                                from: socket.id,
+                                turnId: currentId,
+                                pJson: player.to_json(),
+                            });
+
+                            if (properties.logDebug)
+                                saveMapToJsonFile(
+                                    Clients,
+                                    logs_strings,
+                                    "clients.json"
+                                );
+                        } catch (e) {
+                            console.log(bgRed(black(e)));
+                        }
+                    });
+
+                    socket.on("message", (message: string) => {
+                        try {
+                            console.log(
+                                cyan(
+                                    `{${getCurrentTime()}} [${
+                                        socket.id
+                                    }] Player "${
+                                        Clients.get(socket.id).player.username
+                                    }" has messaged "${message}".`
+                                )
+                            );
+                            EmitAll("message", {
+                                from: player.username,
+                                message: message,
+                            });
+                        } catch (e) {
+                            console.log(bgRed(black(e)));
+                        }
+                    });
+
+                    socket.on(
+                        "pay",
+                        (args: {
+                            balance: number;
+                            from: string;
+                            to: string;
+                        }) => {
+                            try {
+                                const top = Clients.get(args.to).player;
+                                const fromp = Clients.get(args.from).player;
+                                top.balance += args.balance;
+                                fromp.balance -= args.balance;
+                                EmitAll("member_updating", {
+                                    playerId: args.to,
+                                    animation: "recieveMoney",
+                                    additional_props: [args.from],
+                                    pJson: [top.to_json(), fromp.to_json()],
+                                });
+                            } catch (e) {
+                                console.log(bgRed(black(e)));
+                            }
+                        }
+                    );
+
+                    socket.on("mouse", (args: { x: number; y: number }) => {
+                        const client = Clients.get(socket.id);
+                        client.positions = args;
+                        Clients.set(socket.id, client);
+
+                        EmitExcepts(socket.id, "mouse", {
+                            id: socket.id,
+                            x: args.x,
+                            y: args.y,
+                        });
+                    });
+                } catch (e) {
+                    console.log(bgRed(black(e)));
+                }
+            });
+            socket.on("ready", (args: { ready?: boolean; mode?: number }) => {
+                try {
                     const client = Clients.get(socket.id);
-                    client.positions = args;
+                    if (args.ready !== undefined) {
+                        client.ready = args.ready;
+                    }
+                    if (args.mode !== undefined) {
+                        selectedMode = args.mode;
+                    }
                     Clients.set(socket.id, client);
 
-                    EmitExcepts(socket.id, "mouse", {
+                    // Check if everyone Ready!
+
+                    const readys = Array.from(Clients.values()).map(
+                        (v) => v.ready
+                    );
+                    EmitAll("ready", {
                         id: socket.id,
-                        x: args.x,
-                        y: args.y,
+                        state: client.ready,
+                        selectedMode,
                     });
-                });
-            } catch (e) {
-                console.log(bgRed(black(e)));
-            }
-        });
-        socket.on("ready", (args: { ready?: boolean; mode?: number }) => {
-            try {
-                const client = Clients.get(socket.id);
-                if (args.ready !== undefined) {
-                    client.ready = args.ready;
-                }
-                if (args.mode !== undefined) {
-                    selectedMode = args.mode;
-                }
-                Clients.set(socket.id, client);
-
-                // Check if everyone Ready!
-
-                const readys = Array.from(Clients.values()).map((v) => v.ready);
-                EmitAll("ready", {
-                    id: socket.id,
-                    state: client.ready,
-                    selectedMode,
-                });
-                if (!readys.includes(false)) {
-                    console.log(
-                        bgBlueBright(
-                            white(
-                                "Game has Started, No more Players can join the Server"
+                    if (!readys.includes(false)) {
+                        console.log(
+                            bgBlueBright(
+                                white(
+                                    "Game has Started, No more Players can join the Server"
+                                )
                             )
+                        );
+                        gameStarted = true;
+                        EmitAll("start-game", {});
+                    }
+                } catch (e) {
+                    console.log(bgRed(black(e)));
+                }
+            });
+        } else {
+            socket.disconnect();
+        }
+
+        // Handle disconnect event
+        socket.on("disconnect", () => {
+            try {
+                if (Clients.has(socket.id)) {
+                    console.log(
+                        redBright(
+                            `{${getCurrentTime()}} [${socket.id}] Player "${
+                                Clients.get(socket.id).player.username
+                            }" has disconnected.`
                         )
                     );
-                    gameStarted = true;
-                    EmitAll("start-game", {});
-                }
-            } catch (e) {
-                console.log(bgRed(black(e)));
-            }
-        });
-    } else {
-        socket.disconnect();
-    }
-
-    // Handle disconnect event
-    socket.on("disconnect", () => {
-        try {
-            if (Clients.has(socket.id)) {
-                console.log(
-                    redBright(
+                    logs_strings.push(
                         `{${getCurrentTime()}} [${socket.id}] Player "${
                             Clients.get(socket.id).player.username
                         }" has disconnected.`
-                    )
-                );
-                logs_strings.push(
-                    `{${getCurrentTime()}} [${socket.id}] Player "${
-                        Clients.get(socket.id).player.username
-                    }" has disconnected.`
-                );
-            }
-            Clients.delete(socket.id);
-            if (currentId === socket.id) {
-                const arr = Array.from(Clients.values())
-                    .filter((v) => v.player.balance > 0)
-                    .map((v) => v.player.id);
-                var i = arr.indexOf(socket.id);
-                i = (i + 1) % arr.length;
-                currentId = arr[i];
-            }
-            EmitAll("disconnected-player", { id: socket.id, turn: currentId });
-
-            if (Array.from(Clients.keys()).length === 0) {
-                messages = [];
-                if (gameStarted)
-                    console.log(
-                        bgBlueBright(
-                            white(
-                                "Game has Ended. Server is currently Open to new Players"
-                            )
-                        )
                     );
-                gameStarted = false;
+                }
+                Clients.delete(socket.id);
+                if (currentId === socket.id) {
+                    const arr = Array.from(Clients.values())
+                        .filter((v) => v.player.balance > 0)
+                        .map((v) => v.player.id);
+                    var i = arr.indexOf(socket.id);
+                    i = (i + 1) % arr.length;
+                    currentId = arr[i];
+                }
+                EmitAll("disconnected-player", {
+                    id: socket.id,
+                    turn: currentId,
+                });
+
+                if (Array.from(Clients.keys()).length === 0) {
+                    messages = [];
+                    if (gameStarted)
+                        console.log(
+                            bgBlueBright(
+                                white(
+                                    "Game has Ended. Server is currently Open to new Players"
+                                )
+                            )
+                        );
+                    gameStarted = false;
+                }
+            } catch (e) {
+                console.log(bgRed(black(e)));
             }
-        } catch (e) {
-            console.log(bgRed(black(e)));
-        }
+        });
     });
-});
 
-//#endregion
+    //#endregion
 
-httpsServer.listen(properties.port, async () => {
-    console.log(bgWhite(black(`Server is running on port ${properties.port}`)));
-    if (properties.useUPNP == false) return;
-    const upnpClient = natUpnp.createClient();
-    upnpClient.externalIp((error, res)=>{
-        if (error){
-            console.error('Error finding externalIP:', error.message);
-            return;
-        }
-        const externalIp = res
-
-        upnpClient.portMapping({
-            public: properties.port,
-            private: properties.port,
-            ttl: 3600 ?? properties.upnpnDuration, // Time-to-live in seconds, how long the mapping should last
-            description: 'Monopoly Game Server',
-          }, (err) => {
-            if (err) {
-              console.error('Error setting up port mapping:', err.message);
-            } else {
-              console.log(`Port ${properties.port} mapped to ${externalIp}:${properties.port}\nThe mapping will last for 1 hour. Have Fun!`);
+    httpsServer.listen(properties.port, async () => {
+        console.log(
+            bgWhite(
+                black(
+                    `Server is running on port ${properties.port} and its code is ${code}`
+                )
+            )
+        );
+        if (properties.useUPNP == false) return;
+        const upnpClient = natUpnp.createClient();
+        upnpClient.externalIp((error, res) => {
+            if (error) {
+                console.error("Error finding externalIP:", error.message);
+                return;
             }
-          });
-        
-    
-    })
-});
+            const externalIp = res;
+
+            upnpClient.portMapping(
+                {
+                    public: properties.port,
+                    private: properties.port,
+                    ttl: 3600 ?? properties.upnpnDuration, // Time-to-live in seconds, how long the mapping should last
+                    description: "Monopoly Game Server",
+                },
+                (err) => {
+                    if (err) {
+                        console.error(
+                            "Error setting up port mapping:",
+                            err.message
+                        );
+                    } else {
+                        console.log(
+                            `Port ${properties.port} mapped to ${externalIp}:${properties.port}\nThe mapping will last for 1 hour. Have Fun!`
+                        );
+                    }
+                }
+            );
+        });
+    });
+
+    async function onClose() {
+        console.log("closing server.. removing code");
+        CodeAPI().Delete(code);
+    }
+    process.on("exit", async (code) => {
+        await onClose();
+    });
+    process.on("SIGINT", async () => {
+        await onClose();
+    });
+}
+
+main();

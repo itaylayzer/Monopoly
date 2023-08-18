@@ -40,10 +40,39 @@ function App() {
     const [disabled, SetDisabled] = useState<boolean>(false);
 
     const [isSignedIn, SetSignedIn] = useState<boolean>(false);
-    const joinButtonClicked = (
+    const joinButtonClicked = async (
         // @ts-ignore
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
+        // Codes API
+        const masterKey =
+            "$2b$10$1ACAXPZ5cZsfoGZJXiAVCO7rEzlJpV/7UEshZRZ3HK3sYEb5Hfmbu";
+        const accessKey =
+            "$2b$10$A65XZEY3pw0uyBKsr0meheXZmBtuTA.TqZuDLPiCdpHggppH0OTWu";
+        async function Read() {
+            const p = fetch(
+                "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf/latest",
+                {
+                    method: "GET",
+                    headers: {
+                        "X-Master-Key": masterKey,
+                        "X-Access-Key": accessKey,
+                    },
+                }
+            );
+            const v = await (await p).json();
+            return v.record;
+        }
+
+        const x = await Read();
+        if (!Object.keys(x).includes(addr)) {
+            notifyRef.current?.message(
+                "code isnt available on systems",
+                "info",
+                2
+            );
+            return;
+        }
         if (name.replace(" ", "").length === 0) {
             notifyRef.current?.message(
                 "please add your name before joining",
@@ -52,6 +81,7 @@ function App() {
             );
             return;
         }
+        
         try {
             const cookie = JSON.parse(document.cookie) as MonopolyCookie;
 
@@ -74,7 +104,8 @@ function App() {
             document.cookie = JSON.stringify(cookie);
         }
 
-        const socket = io(addr, { rejectUnauthorized: false });
+        const address = "https://" + x[addr];
+        const socket = io(address, { rejectUnauthorized: false });
         SetDisabled(true);
         socket.on("state", (args: number) => {
             switch (args) {
@@ -139,7 +170,7 @@ function App() {
     useEffect(() => {
         const uriParams = new URLSearchParams(document.location.search);
         if (uriParams.has("ip")) {
-            SetAddress("https://" + uriParams.get("ip") ?? "");
+            SetAddress(uriParams.get("ip") ?? "");
         }
     }, []);
 
@@ -151,7 +182,9 @@ function App() {
 
             <div className="entry">
                 <header>
-                    <p style={{ fontSize: 9 }}>29.7.23 - Settings & Sound Effects Update</p>
+                    <p style={{ fontSize: 9 }}>
+                        29.7.23 - Settings & Sound Effects Update
+                    </p>
                     Welcome to the <h3>MONOPOLY</h3> Game
                 </header>
                 <br></br>
