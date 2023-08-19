@@ -5,7 +5,7 @@ import "./index.css";
 import { Socket, io } from "socket.io-client";
 import NotifyElement, { NotificatorRef } from "./components/notificator";
 import { MonopolyCookie } from "./assets/types.ts";
-
+import SettingsNav from "./components/settingsNav";
 function App() {
     var cookie: MonopolyCookie;
     try {
@@ -40,6 +40,8 @@ function App() {
     const [disabled, SetDisabled] = useState<boolean>(false);
 
     const [isSignedIn, SetSignedIn] = useState<boolean>(false);
+
+    const [tabIndex, SetTab] = useState<number>(0);
     const joinButtonClicked = async (
         // @ts-ignore
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -81,7 +83,7 @@ function App() {
             );
             return;
         }
-        
+
         try {
             const cookie = JSON.parse(document.cookie) as MonopolyCookie;
 
@@ -179,61 +181,174 @@ function App() {
     ) : (
         <>
             <NotifyElement ref={notifyRef} />
-
+            <img id="landscape" src="landscape.png" alt="" style={{opacity:0.03, filter:"blur(7px)"}}/>
             <div className="entry">
-                <header>
-                    <p style={{ fontSize: 9 }}>
-                        29.7.23 - Settings & Sound Effects Update
-                    </p>
-                    Welcome to the <h3>MONOPOLY</h3> Game
-                </header>
-                <br></br>
-                <p>please enter your ip and port:</p>
-                <input
-                    type="text"
-                    id="name"
-                    onChange={(e) => SetAddress(e.currentTarget.value)}
-                    defaultValue={addr}
-                    placeholder="enter ip"
-                />
-
-                <p>please enter your name:</p>
-                <input
-                    type="text"
-                    id="name"
-                    onChange={(e) => SetName(e.currentTarget.value)}
-                    defaultValue={name}
-                    placeholder="enter name"
-                />
-
-                <h5>
-                    do you want your name to be remembered?{" "}
-                    <input
-                        id="rememberedName"
-                        checked={rememberName}
-                        onChange={(e) =>
-                            SetRememberName(e.currentTarget.checked)
-                        }
-                        type="checkbox"
-                    />
-                </h5>
-                <h5>
-                    do you want your host to be remembered?{" "}
-                    <input
-                        id="rememberedHost"
-                        checked={rememberAdrr}
-                        onChange={(e) =>
-                            SetRememberAdrr(e.currentTarget.checked)
-                        }
-                        type="checkbox"
-                    />
-                </h5>
-
-                <center>
-                    <button onClick={joinButtonClicked} disabled={disabled}>
-                        join
+                
+                <nav>
+                    <button
+                        data-select={tabIndex === 0}
+                        onClick={() => {
+                            SetTab(0);
+                        }}
+                    >
+                        <img src="./icon.png" alt="" />
                     </button>
-                </center>
+                    <button
+                        data-select={tabIndex === 1}
+                        onClick={() => {
+                            SetTab(1);
+                        }}
+                    >
+                        <img src="./settings.png" alt="" />
+                    </button>
+                    <button
+                        data-select={tabIndex === 2}
+                        onClick={() => {
+                            SetTab(2);
+                        }}
+                    >
+                        <img src="./credits.png" alt="" />
+                    </button>
+                </nav>
+                <main>
+                    {tabIndex === 2 ? (
+                        <>
+                            <p>This Project was made by Itay Layzerovich</p>
+                            <p>
+                                As the developer of this Monopoly game project,
+                                it is essential to clarify the following legal
+                                aspects:{" "}
+                                <ol>
+                                    <li>
+                                        <i>Game Mechanics and Rules:</i> The game
+                                        mechanics and rules of Monopoly have
+                                        been widely known and played for many
+                                        years. This project aims to offer a
+                                        digital rendition of the classic
+                                        Monopoly experience, utilizing original
+                                        concepts that have become common
+                                        knowledge.
+                                    </li>
+                                    <li> <i>Original Monopoly Intellectual Property:</i>
+                                    The Monopoly board game is a registered
+                                    trademark and copyrighted property of Hasbro
+                                    Inc. and its respective licensors. This
+                                    project is not an official representation or
+                                    product of Hasbro Inc., and no direct
+                                    affiliation or endorsement is implied.
+                                    </li>
+                                    <li>
+                                    <i>License and Usage:</i> This Monopoly game
+                                        project is developed with the intent of
+                                        being an educational and personal
+                                        project. It is offered as a free-to-use,
+                                        open-source initiative for learning
+                                        purposes, and no commercial use or
+                                        distribution is intended.
+                                    </li>
+                                    <li>
+                                    <i>Fair Use and Transformative Work:</i>
+                                        This project may fall under the category
+                                        of "fair use" as it is a transformative
+                                        work that provides a unique digital
+                                        experience based on the original
+                                        Monopoly game. It is not intended to
+                                        compete with or harm the commercial
+                                        interests of the original trademark
+                                        owner.
+                                    </li>
+                                    <li>
+                                    <i>No Warranty or Liability:</i> While
+                                        efforts have been made to create an
+                                        enjoyable and bug-free experience, this
+                                        project is provided as-is without any
+                                        warranty. The developer shall not be
+                                        liable for any issues or damages arising
+                                        from the use of this software.
+                                    </li>
+                                    <li>
+                                    <i>Attribution:</i> This project may include
+                                        third-party libraries or assets that are
+                                        appropriately credited and licensed
+                                        under their respective terms. Any
+                                        attributions and licenses should be
+                                        preserved as required by the respective
+                                        authors.
+                                    </li>
+                                    <li>
+                                    <i>Personal Responsibility:</i> As the
+                                        developer, you are responsible for
+                                        complying with all applicable laws,
+                                        including intellectual property laws,
+                                        and ensuring that your usage of this
+                                        project is within legal boundaries.
+                                    </li>
+                                </ol>
+                            </p>
+                        </>
+                    ) : tabIndex === 1 ? (
+                        <SettingsNav/>
+                    ) : (
+                        <>
+                            <header>
+                                <p style={{ fontSize: 9 }}>19.8.23 - Codes & Menu</p>
+                                Welcome to the <h3>MONOPOLY</h3> Game
+                            </header>
+                            <br></br>
+                            <p>please enter your code:</p>
+                            <input
+                                type="text"
+                                id="name"
+                                onChange={(e) =>
+                                    SetAddress(e.currentTarget.value)
+                                }
+                                defaultValue={addr}
+                                placeholder="enter ip"
+                            />
+
+                            <p>please enter your name:</p>
+                            <input
+                                type="text"
+                                id="name"
+                                onChange={(e) => SetName(e.currentTarget.value)}
+                                defaultValue={name}
+                                placeholder="enter name"
+                            />
+
+                            <h5>
+                                do you want your name to be remembered?{" "}
+                                <input
+                                    id="rememberedName"
+                                    checked={rememberName}
+                                    onChange={(e) =>
+                                        SetRememberName(e.currentTarget.checked)
+                                    }
+                                    type="checkbox"
+                                />
+                            </h5>
+                            <h5>
+                                do you want your host to be remembered?{" "}
+                                <input
+                                    id="rememberedHost"
+                                    checked={rememberAdrr}
+                                    onChange={(e) =>
+                                        SetRememberAdrr(e.currentTarget.checked)
+                                    }
+                                    type="checkbox"
+                                />
+                            </h5>
+
+                            <center>
+                                <button
+                                    onClick={joinButtonClicked}
+                                    disabled={disabled}
+                                >
+                                    join
+                                </button>
+                            </center>
+                        </>
+                    )}
+                </main>
             </div>
         </>
     );

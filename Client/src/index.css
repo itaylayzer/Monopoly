@@ -18,24 +18,82 @@ div.entry {
     top: 50%;
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
+    display: flex;
+    flex-direction: row;
+    gap:20px;
 }
+div.entry nav{
+    background-color: rgba(30,30,30,100%);
+    width: 40px;
+    height:fit-content;
+    padding-block:10px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    gap:10px;
+    justify-content: flex-start;
 
-div.entry header {
+    
+}
+img#landscape{
+    position:absolute;
+    z-index: -1;
+    top:50%;
+    left:50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+div.entry nav button{
+    width: 40px;
+    aspect-ratio: 1;
+    display: block;
+    background-color: rgb(0,0,0,0%);
+    border:0;
+    outline:0;
+    transition: transform 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
+    cursor:pointer;
+}
+div.entry nav button:hover{
+    transform:scale(0.9)
+}
+div.entry nav button img{
+    width: 100%;
+}
+div.entry nav button[data-select="false"]{
+    opacity:0.5;
+}
+div.entry main ol li {
+    margin-bottom: 10px;
+}
+div.entry main ol li i {
+    display:block;
+    font-style: normal;
+    font-weight: 500;
+    background-color: rgb(30,30,30);
+    width: fit-content;
+    padding:2px 10px;
+    border-radius: 5px;
+}
+div.entry main{
+    all:unset;
+    display: block;
+    flex-grow: 1;
+}
+div.entry main header {
     color: white;
     margin-bottom: 20px;
 }
 
-div.entry p {
+div.entry main p {
     color: white;
     margin: 0;
     margin-bottom: 10px;
 }
 
-div.entry h3 {
+div.entry main h3 {
     margin: 0;
 }
 
-div.entry input[type=text] {
+div.entry main input[type=text] {
     font-size: 20px;
     color: white;
     background-color: rgba(0, 0, 0, 0);
@@ -45,22 +103,22 @@ div.entry input[type=text] {
     width: 100%;
 }
 
-div.entry input:focus {
+div.entry main input:focus {
     outline: 0;
 }
 
-div.entry h5 {
+div.entry main h5 {
     color: white;
     margin: 0;
     margin-bottom: 10px;
     font-weight: 400;
 }
 
-div.entry h5 input {
+div.entry main h5 input {
     margin: 0;
 }
 
-div.entry button {
+div.entry main button {
     font-size: 20px;
     color: white;
     background-color: #0075FF;
@@ -75,21 +133,21 @@ div.entry button {
     transition: scale .35s cubic-bezier(0, .6, .28, 1.47)
 }
 
-div.entry button:hover {
+div.entry main button:hover {
     scale: 0.85
 }
 
-div.entry button:active {
+div.entry main button:active {
     scale: 0.925
 }
-div.entry button:disabled{
+div.entry main button:disabled{
     animation:disabledAnim 1s ease-out infinite;
 }
-div.entry button:disabled:hover{
+div.entry main button:disabled:hover{
     scale:1;
     cursor:not-allowed;
 }
-div.entry button:disabled:active{
+div.entry main button:disabled:active{
     scale:1;
 }
 @keyframes disabledAnim {

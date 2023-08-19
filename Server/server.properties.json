@@ -8,5 +8,6 @@
   "redirect": true,
   "redirectURL": "https://coder-1t45.github.io/Monopoly",
   "logDebug": false,
-  "useUPNP": true
+  "useUPNP": true,
+  "upnpnDuration": 3602
 }

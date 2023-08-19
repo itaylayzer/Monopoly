@@ -1511,7 +1511,7 @@ We hope you're enjoying your time in the Monopoly game. If you encounter any iss
                 {
                     public: properties.port,
                     private: properties.port,
-                    ttl: 3600 ?? properties.upnpnDuration, // Time-to-live in seconds, how long the mapping should last
+                    ttl: properties.upnpnDuration ?? 3600, // Time-to-live in seconds, how long the mapping should last
                     description: "Monopoly Game Server",
                 },
                 (err) => {
@@ -1521,8 +1521,54 @@ We hope you're enjoying your time in the Monopoly game. If you encounter any iss
                             err.message
                         );
                     } else {
+                        function formatTime(seconds: number): string {
+                            if (seconds < 0) {
+                                return "Invalid input";
+                            }
+
+                            const hours = Math.floor(seconds / 3600);
+                            const minutes = Math.floor((seconds % 3600) / 60);
+                            const remainingSeconds = seconds % 60;
+
+                            const timeParts = [];
+
+                            if (hours > 0) {
+                                timeParts.push(
+                                    `${hours} hour${hours > 1 ? "s" : ""}`
+                                );
+                            }
+
+                            if (minutes > 0) {
+                                timeParts.push(
+                                    `${minutes} minute${minutes > 1 ? "s" : ""}`
+                                );
+                            }
+
+                            if (remainingSeconds > 0) {
+                                timeParts.push(
+                                    `${remainingSeconds} second${
+                                        remainingSeconds > 1 ? "s" : ""
+                                    }`
+                                );
+                            }
+
+                            if (timeParts.length === 0) {
+                                return "0 seconds";
+                            }
+
+                            if (timeParts.length === 1) {
+                                return timeParts[0];
+                            }
+
+                            const lastPart = timeParts.pop();
+                            return `${timeParts.join(", ")} and ${lastPart}`;
+                        }
                         console.log(
-                            `Port ${properties.port} mapped to ${externalIp}:${properties.port}\nThe mapping will last for 1 hour. Have Fun!`
+                            `Port ${properties.port} mapped to ${externalIp}:${
+                                properties.port
+                            }\nThe mapping will last for ${formatTime(
+                                properties.upnpnDuration ?? 3600
+                            )}. Have Fun!`
                         );
                     }
                 }
