@@ -16762,9 +16762,10 @@ function z0() {
     try {
         e = JSON.parse(document.cookie);
     } catch {
-        e = {
+        (e = {
             login: { rememberHost: !1, rememberName: !1, host: "", name: "" },
-        };
+        }),
+            (document.cookie = JSON.stringify(e));
     }
     const t = _.useRef(null),
         [n, r] = _.useState(),
@@ -17094,7 +17095,7 @@ function z0() {
                                                                     fontSize: 9,
                                                                 },
                                                                 children:
-                                                                    "19.8.23 - Codes & Menu",
+                                                                    "19.8.23 - Codes & Menu (2)",
                                                             }),
                                                             "Welcome to the ",
                                                             l.jsx("h3", {

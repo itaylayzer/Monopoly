@@ -1,5 +1,5 @@
 {
-  "port": 25565,
+  "port": 5704,
   "maxPlayers": 6,
   "cors": [
     "https://coder-1t45.github.io",
@@ -7,5 +7,7 @@
   ],
   "redirect": true,
   "redirectURL": "https://coder-1t45.github.io/Monopoly",
-  "logDebug": true
+  "logDebug": false,
+  "useUPNP": true,
+  "upnpnDuration": 3600
 }

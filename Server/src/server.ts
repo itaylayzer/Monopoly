@@ -2,7 +2,7 @@ import express from "express";
 import { createServer } from "https";
 import { Server, Socket } from "socket.io";
 import { Player, PlayerJSON } from "./player";
-import * as axios from "axios";
+import axios from "axios";
 import * as natUpnp from "nat-upnp";
 import {
     bgWhite,
@@ -15,7 +15,11 @@ import {
     cyan,
 } from "colorette";
 import * as fs from "fs";
-
+import { createInterface } from "readline";
+const readline = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+});
 async function getGlobalIpAddress() {
     try {
         // @ts-ignore
@@ -26,6 +30,16 @@ async function getGlobalIpAddress() {
         return null;
     }
 }
+
+console.log(`==================================
+Welcome to Monopoly Server
+==================================
+
+Attention Players!
+
+We hope you're enjoying your time in the Monopoly game. If you encounter any issues or come across bugs while playing the game, we kindly ask you to report them to us. Your feedback is crucial in improving the gaming experience for everyone.`);
+
+console.log(`Reading files...`);
 
 async function main() {
     const monopolyJSON = {
@@ -959,17 +973,6 @@ async function main() {
         ],
     };
 
-    console.log(`==================================
-Welcome to Monopoly Server
-==================================
-
-Attention Players!
-
-We hope you're enjoying your time in the Monopoly game. If you encounter any issues or come across bugs while playing the game, we kindly ask you to report them to us. Your feedback is crucial in improving the gaming experience for everyone.
-`);
-
-    console.log(`Reading files...`);
-
     function saveMapToJsonFile(
         map: Map<string, Client>,
         logs: Array<string>,
@@ -1043,35 +1046,68 @@ We hope you're enjoying your time in the Monopoly game. If you encounter any iss
             "$2b$10$1ACAXPZ5cZsfoGZJXiAVCO7rEzlJpV/7UEshZRZ3HK3sYEb5Hfmbu";
         const accessKey =
             "$2b$10$A65XZEY3pw0uyBKsr0meheXZmBtuTA.TqZuDLPiCdpHggppH0OTWu";
+        // async function Read() {
+        //     const p = fetch(
+        //         "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf/latest",
+        //         {
+        //             method: "GET",
+        //             headers: {
+        //                 "X-Master-Key": masterKey,
+        //                 "X-Access-Key": accessKey,
+        //             },
+        //         }
+        //     );
+        //     const v = await (await p).json() as {[key:string]:any};
+        //     return v.record as {[key:string]:string};
+        // }
+        // async function Write(ob: { [key: string]: string }) {
+        //     await fetch(
+        //         "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf",
+        //         {
+        //             method: "PUT",
+        //             body: JSON.stringify(ob),
+        //             headers: {
+        //                 "Content-Type": "application/json",
+        //                 "X-Master-Key": masterKey,
+        //                 "X-Access-Key": accessKey,
+        //             },
+        //         }
+        //     );
+        // }
         async function Read() {
-            const p = fetch(
-                "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf/latest",
-                {
-                    method: "GET",
-                    headers: {
-                        "X-Master-Key": masterKey,
-                        "X-Access-Key": accessKey,
-                    },
-                }
-            );
-            const v = await (await p).json();
-            return v.record;
-        }
-        async function Write(ob: { [key: string]: string }) {
-            await fetch(
-                "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf",
-                {
-                    method: "PUT",
-                    body: JSON.stringify(ob),
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Master-Key": masterKey,
-                        "X-Access-Key": accessKey,
-                    },
-                }
-            );
+            try {
+                const response = await axios.get(
+                    "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf/latest",
+                    {
+                        headers: {
+                            "X-Master-Key": masterKey,
+                            "X-Access-Key": accessKey,
+                        },
+                    }
+                );
+                return response.data.record;
+            } catch (error) {
+                console.error("Error reading data:", error);
+            }
         }
 
+        async function Write(ob) {
+            try {
+                await axios.put(
+                    "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf",
+                    ob,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-Master-Key": masterKey,
+                            "X-Access-Key": accessKey,
+                        },
+                    }
+                );
+            } catch (error) {
+                console.error("Error writing data:", error);
+            }
+        }
         async function Delete(code: string) {
             const x = await Read();
             if (Object.keys(x).includes(code)) {
@@ -1490,95 +1526,116 @@ We hope you're enjoying your time in the Monopoly game. If you encounter any iss
 
     //#endregion
 
-    httpsServer.listen(properties.port, async () => {
-        console.log(
-            bgWhite(
-                black(
-                    `Server is running on port ${properties.port} and its code is ${code}`
+    try {
+        httpsServer.listen(properties.port, async () => {
+            console.log(
+                bgWhite(
+                    black(
+                        `Server is running on port ${properties.port} and its code is ${code}`
+                    )
                 )
-            )
-        );
-        if (properties.useUPNP == false) return;
-        const upnpClient = natUpnp.createClient();
-        upnpClient.externalIp((error, res) => {
-            if (error) {
-                console.error("Error finding externalIP:", error.message);
-                return;
-            }
-            const externalIp = res;
-
-            upnpClient.portMapping(
-                {
-                    public: properties.port,
-                    private: properties.port,
-                    ttl: properties.upnpnDuration ?? 3600, // Time-to-live in seconds, how long the mapping should last
-                    description: "Monopoly Game Server",
-                },
-                (err) => {
-                    if (err) {
-                        console.error(
-                            "Error setting up port mapping:",
-                            err.message
-                        );
-                    } else {
-                        function formatTime(seconds: number): string {
-                            if (seconds < 0) {
-                                return "Invalid input";
-                            }
-
-                            const hours = Math.floor(seconds / 3600);
-                            const minutes = Math.floor((seconds % 3600) / 60);
-                            const remainingSeconds = seconds % 60;
-
-                            const timeParts = [];
-
-                            if (hours > 0) {
-                                timeParts.push(
-                                    `${hours} hour${hours > 1 ? "s" : ""}`
-                                );
-                            }
-
-                            if (minutes > 0) {
-                                timeParts.push(
-                                    `${minutes} minute${minutes > 1 ? "s" : ""}`
-                                );
-                            }
-
-                            if (remainingSeconds > 0) {
-                                timeParts.push(
-                                    `${remainingSeconds} second${
-                                        remainingSeconds > 1 ? "s" : ""
-                                    }`
-                                );
-                            }
-
-                            if (timeParts.length === 0) {
-                                return "0 seconds";
-                            }
-
-                            if (timeParts.length === 1) {
-                                return timeParts[0];
-                            }
-
-                            const lastPart = timeParts.pop();
-                            return `${timeParts.join(", ")} and ${lastPart}`;
-                        }
-                        console.log(
-                            `Port ${properties.port} mapped to ${externalIp}:${
-                                properties.port
-                            }\nThe mapping will last for ${formatTime(
-                                properties.upnpnDuration ?? 3600
-                            )}. Have Fun!`
-                        );
-                    }
-                }
             );
+            if (properties.useUPNP === false) return;
+            try {
+                const upnpClient = natUpnp.createClient();
+                upnpClient.externalIp((error, res) => {
+                    if (error) {
+                        console.error("Error finding externalIP:", error.message);
+                        return;
+                    }
+                    const externalIp = res;
+    
+                    upnpClient.portMapping(
+                        {
+                            public: properties.port,
+                            private: properties.port,
+                            ttl: properties.upnpnDuration ?? 3600, // Time-to-live in seconds, how long the mapping should last
+                            description: "Monopoly Game Server",
+                        },
+                        (err) => {
+                            if (err) {
+                                console.error(
+                                    "Error setting up port mapping:",
+                                    err.message
+                                );
+                            } else {
+                                function formatTime(seconds: number): string {
+                                    if (seconds < 0) {
+                                        return "Invalid input";
+                                    }
+    
+                                    const hours = Math.floor(seconds / 3600);
+                                    const minutes = Math.floor(
+                                        (seconds % 3600) / 60
+                                    );
+                                    const remainingSeconds = seconds % 60;
+    
+                                    const timeParts = [];
+    
+                                    if (hours > 0) {
+                                        timeParts.push(
+                                            `${hours} hour${hours > 1 ? "s" : ""}`
+                                        );
+                                    }
+    
+                                    if (minutes > 0) {
+                                        timeParts.push(
+                                            `${minutes} minute${
+                                                minutes > 1 ? "s" : ""
+                                            }`
+                                        );
+                                    }
+    
+                                    if (remainingSeconds > 0) {
+                                        timeParts.push(
+                                            `${remainingSeconds} second${
+                                                remainingSeconds > 1 ? "s" : ""
+                                            }`
+                                        );
+                                    }
+    
+                                    if (timeParts.length === 0) {
+                                        return "0 seconds";
+                                    }
+    
+                                    if (timeParts.length === 1) {
+                                        return timeParts[0];
+                                    }
+    
+                                    const lastPart = timeParts.pop();
+                                    return `${timeParts.join(
+                                        ", "
+                                    )} and ${lastPart}`;
+                                }
+                                console.log(
+                                    `Port ${
+                                        properties.port
+                                    } mapped to ${externalIp}:${
+                                        properties.port
+                                    }\nThe mapping will last for ${formatTime(
+                                        properties.upnpnDuration ?? 3600
+                                    )}. Have Fun!`
+                                );
+                            }
+                        }
+                    );
+                });
+            } catch (err) {
+                console.error("Error setting up port mapping:", err.message);
+            }
         });
-    });
+    }
+    catch (e){
+        console.log(bgRed(white(`Error happend while trying to listening to port ${properties.port}, maybe try another port`)) )
+        readline.question("Enter any key to close program",()=>{
+            process.exit();
+        })
+    }
 
     async function onClose() {
         console.log("closing server.. removing code");
-        CodeAPI().Delete(code);
+        await CodeAPI().Delete(code);
+        process.exit();
     }
     process.on("exit", async (code) => {
         await onClose();

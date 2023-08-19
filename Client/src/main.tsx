@@ -19,7 +19,8 @@ function App() {
                 host: "",
                 name: "",
             },
-        };
+        } as MonopolyCookie;
+        document.cookie = JSON.stringify(cookie);
     }
 
     const notifyRef = useRef<NotificatorRef>(null);
@@ -291,7 +292,7 @@ function App() {
                     ) : (
                         <>
                             <header>
-                                <p style={{ fontSize: 9 }}>19.8.23 - Codes & Menu</p>
+                                <p style={{ fontSize: 9 }}>19.8.23 - Codes & Menu (2)</p>
                                 Welcome to the <h3>MONOPOLY</h3> Game
                             </header>
                             <br></br>
