@@ -17,17 +17,17 @@ export default function settingsNav() {
     } = {
         gameEngine: useState<EngineSettings>("2d"),
         numbers: [
-            useState<number>(cookie.settings?.accessibility[0] ?? 45),
-            useState<number>(cookie.settings?.accessibility[1] ?? 5),
-            useState<number>(cookie.settings?.audio[0] ?? 100),
-            useState<number>(cookie.settings?.audio[1] ?? 100),
-            useState<number>(cookie.settings?.audio[2] ?? 25),
+            useState<number>(cookie.settings? cookie.settings.accessibility[0]:  45),
+            useState<number>(cookie.settings? cookie.settings.accessibility[1]:  5),
+            useState<number>(cookie.settings? cookie.settings.audio[0] : 100),
+            useState<number>(cookie.settings? cookie.settings.audio[1] : 100),
+            useState<number>(cookie.settings? cookie.settings.audio[2]:  25),
         ],
         booleans: [
-            useState<boolean>(cookie.settings?.accessibility[2] ?? false),
-            useState<boolean>(cookie.settings?.accessibility[3] ?? false),
-            useState<boolean>(cookie.settings?.accessibility[4] ?? false),
-            useState<boolean>(cookie.settings?.notifications ?? false),
+            useState<boolean>(cookie.settings? cookie.settings.accessibility[2] : false),
+            useState<boolean>(cookie.settings? cookie.settings.accessibility[3] : false),
+            useState<boolean>(cookie.settings? cookie.settings.accessibility[4] : false),
+            useState<boolean>(cookie.settings? cookie.settings.notifications : false),
         ],
     };
 

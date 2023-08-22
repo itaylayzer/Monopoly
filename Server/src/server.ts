@@ -16,6 +16,7 @@ import {
 } from "colorette";
 import * as fs from "fs";
 import { createInterface } from "readline";
+import ENV from "../env.json";
 const readline = createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -1042,46 +1043,15 @@ async function main() {
     const properties = readServerProperties();
 
     const CodeAPI = () => {
-        const masterKey =
-            "$2b$10$1ACAXPZ5cZsfoGZJXiAVCO7rEzlJpV/7UEshZRZ3HK3sYEb5Hfmbu";
-        const accessKey =
-            "$2b$10$A65XZEY3pw0uyBKsr0meheXZmBtuTA.TqZuDLPiCdpHggppH0OTWu";
-        // async function Read() {
-        //     const p = fetch(
-        //         "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf/latest",
-        //         {
-        //             method: "GET",
-        //             headers: {
-        //                 "X-Master-Key": masterKey,
-        //                 "X-Access-Key": accessKey,
-        //             },
-        //         }
-        //     );
-        //     const v = await (await p).json() as {[key:string]:any};
-        //     return v.record as {[key:string]:string};
-        // }
-        // async function Write(ob: { [key: string]: string }) {
-        //     await fetch(
-        //         "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf",
-        //         {
-        //             method: "PUT",
-        //             body: JSON.stringify(ob),
-        //             headers: {
-        //                 "Content-Type": "application/json",
-        //                 "X-Master-Key": masterKey,
-        //                 "X-Access-Key": accessKey,
-        //             },
-        //         }
-        //     );
-        // }
+
         async function Read() {
             try {
                 const response = await axios.get(
-                    "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf/latest",
+                    `${ENV.JSONBin.url}/latest`,
                     {
                         headers: {
-                            "X-Master-Key": masterKey,
-                            "X-Access-Key": accessKey,
+                            "X-Master-Key": ENV.JSONBin.masterKey,
+                            "X-Access-Key": ENV.JSONBin.accessKey,
                         },
                     }
                 );
@@ -1094,13 +1064,13 @@ async function main() {
         async function Write(ob) {
             try {
                 await axios.put(
-                    "https://api.jsonbin.io/v3/b/64dff3e3b89b1e2299d2cfcf",
+                    `${ENV.JSONBin.url}`,
                     ob,
                     {
                         headers: {
                             "Content-Type": "application/json",
-                            "X-Master-Key": masterKey,
-                            "X-Access-Key": accessKey,
+                            "X-Master-Key": ENV.JSONBin.masterKey,
+                            "X-Access-Key": ENV.JSONBin.accessKey,
                         },
                     }
                 );
@@ -1139,7 +1109,7 @@ async function main() {
             }
             const serverIP = await getGlobalIpAddress();
 
-            const value = `${serverIP}:${properties.port}`;
+            const value = {host:`${serverIP}:${properties.port}`, mode:"io"}  as { host: string; mode: "p2p" | "io" };
             if (Object.values(x).includes(value)) {
                 for (const a of Object.entries(x)) {
                     if (a[1] === value) {

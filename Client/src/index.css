@@ -20,64 +20,74 @@ div.entry {
     transform: translateX(-50%) translateY(-50%);
     display: flex;
     flex-direction: row;
-    gap:20px;
+    gap: 20px;
 }
-div.entry nav{
-    background-color: rgba(30,30,30,100%);
+
+div.entry nav {
+    background-color: rgba(30, 30, 30, 100%);
     width: 40px;
-    height:fit-content;
-    padding-block:10px;
+    height: fit-content;
+    padding-block: 10px;
     display: flex;
     flex-direction: column;
     border-radius: 10px;
-    gap:10px;
+    gap: 10px;
     justify-content: flex-start;
 
-    
+
 }
-img#landscape{
-    position:absolute;
+
+img#landscape {
+    position: absolute;
     z-index: -1;
-    top:50%;
-    left:50%;
+    top: 50%;
+    left: 50%;
     transform: translateX(-50%) translateY(-50%);
 }
-div.entry nav button{
+
+div.entry nav button {
     width: 40px;
     aspect-ratio: 1;
     display: block;
-    background-color: rgb(0,0,0,0%);
-    border:0;
-    outline:0;
+    background-color: rgb(0, 0, 0, 0%);
+    border: 0;
+    outline: 0;
     transition: transform 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
-    cursor:pointer;
+    cursor: pointer;
 }
-div.entry nav button:hover{
-    transform:scale(0.9)
+
+div.entry nav button:hover {
+    transform: scale(0.9)
 }
-div.entry nav button img{
+
+div.entry nav button img {
     width: 100%;
 }
-div.entry nav button[data-select="false"]{
-    opacity:0.5;
+
+div.entry nav button[data-select="false"] {
+    opacity: 0.5;
 }
+
 div.entry main ol li {
     margin-bottom: 10px;
 }
+
 div.entry main ol li i {
-    display:block;
+    display: block;
     font-style: normal;
     font-weight: 500;
-    background-color: rgb(30,30,30);
+    background-color: rgb(30, 30, 30);
     width: fit-content;
-    padding:2px 10px;
+    padding: 2px 10px;
     border-radius: 5px;
 }
-div.entry main{
-    all:unset;
+
+div.entry main {
+    all: unset;
     display: block;
     flex-grow: 1;
 }
+
 div.entry main header {
     color: white;
     margin-bottom: 20px;
@@ -92,7 +102,7 @@ div.entry main p {
 div.entry main h3 {
     margin: 0;
 }
-
+div.entry main input[type=password],
 div.entry main input[type=text] {
     font-size: 20px;
     color: white;
@@ -102,7 +112,9 @@ div.entry main input[type=text] {
     margin-bottom: 30px;
     width: 100%;
 }
-
+div.entry main input:disabled{
+    cursor:not-allowed
+}
 div.entry main input:focus {
     outline: 0;
 }
@@ -140,30 +152,37 @@ div.entry main button:hover {
 div.entry main button:active {
     scale: 0.925
 }
-div.entry main button:disabled{
-    animation:disabledAnim 1s ease-out infinite;
+
+div.entry main button:disabled {
+    animation: disabledAnim 1s ease-out infinite;
 }
-div.entry main button:disabled:hover{
-    scale:1;
-    cursor:not-allowed;
+
+div.entry main button:disabled:hover {
+    scale: 1;
+    cursor: not-allowed;
 }
-div.entry main button:disabled:active{
-    scale:1;
+
+div.entry main button:disabled:active {
+    scale: 1;
 }
+
 @keyframes disabledAnim {
-    0%{
-        scale:1;
-        filter:blur(0px) grayscale(.5);
+    0% {
+        scale: 1;
+        filter: blur(0px) grayscale(.5);
     }
-    50%{
-        filter:blur(2px) grayscale(1);
-        scale:0.95;
+
+    50% {
+        filter: blur(2px) grayscale(1);
+        scale: 0.95;
     }
-    100%{
-        filter:blur(0px) grayscale(.5);
-        scale:1;
+
+    100% {
+        filter: blur(0px) grayscale(.5);
+        scale: 1;
     }
 }
+
 div.lobby {
     position: absolute;
     top: 50%;
@@ -214,4 +233,81 @@ p.lobby-players {
     color: white;
     border-radius: 3px;
     width: 100%;
+}
+
+div.entry nav.login {
+    all:unset;
+    display: block;
+    width: 200px;
+
+}
+
+div.entry nav.login button {
+    all:unset;
+    color:white;
+    background-color: rgb(30,30,30);
+    width: fit-content;
+    padding: 0;
+    margin: 0;
+    width: 100px;
+    display: inline-block;
+    text-align: center;
+    text-transform:lowercase;
+    font-family: consolas;
+    cursor:pointer;
+    transition:translate .1s ease-out;
+
+}
+div.entry nav.login button[data-selected]:hover{
+    translate:0px 2px
+}
+
+div.entry nav.login button[data-selected=true]{
+    background-color: #0075FF;
+}
+
+
+div.entry main main.login input{
+    width: auto;
+    display: block;
+}
+div.entry main div.user-credentials{
+    background-color: rgb(20,20,20);
+    border-radius: 5px;
+    padding:10px;
+    display: flex;
+    gap:50px;
+}
+div.entry main div.user-credentials p{
+    margin-block:auto;
+    display: inline-block;
+
+}div.entry main div.user-credentials button{
+    background-color: red;
+    color:white;
+    margin:0;
+    height:20px;
+    margin-block: auto;
+    font-size: 12px;
+    padding:0px 10px;
+}
+
+div.entry main table{
+    color:white;
+    padding-inline:10px;
+}
+div.entry main table tr{
+    margin:0;
+}
+div.entry main table tr td{
+    border-bottom:1px solid white;
+}
+div.entry main table tr td:nth-child(1){
+    text-align: left;
+    opacity: 0.8;
+}
+div.entry main table tr td:nth-child(2){
+    text-align: right;
+    opacity: 1;
+    font-family: consolas;
 }

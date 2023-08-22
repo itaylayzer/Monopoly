@@ -14,14 +14,15 @@ import {
     useRef,
 } from "react";
 import { Player } from "../assets/player";
-import { Socket } from "socket.io-client";
+import { Socket } from "../assets/websockets.ts";
+import { Socket as SocIO } from "socket.io-client";
 import PropretyTab, { PropretyTabRef } from "./propretyTab";
 import PlayersTab, { PlayersTabRef } from "./playersTab";
 import SettingsNav from "./settingsNav";
 
 interface MonopolyNavProps {
     name: string;
-    socket: Socket;
+    socket: Socket | SocIO;
     players: Array<Player>;
     currentTurn: string;
 }

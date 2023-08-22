@@ -7,10 +7,16 @@ export type MonopolySettings = {
 };
 export type MonopolyCookie = {
     login: {
-        name: string;
-        host: string;
-        rememberHost: boolean;
-        rememberName: boolean;
+        id:string;
+        remember:boolean;
     };
+
     settings?: MonopolySettings;
 };
+
+export interface User {
+    id:string,
+    email:string,
+    name:string,
+    score:0,
+}

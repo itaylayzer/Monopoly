@@ -3,7 +3,7 @@ import RollIcon from "../../public/roll.png";
 import HouseIcon from "../../public/h.png";
 import HotelIcon from "../../public/ho.png";
 import { Player } from "../assets/player";
-import { Socket } from "socket.io-client";
+import { Socket } from "../assets/websockets.ts";
 import StreetCard, {
     StreetDisplayInfo,
     UtilitiesDisplayInfo,
@@ -12,10 +12,11 @@ import StreetCard, {
 import monopolyJSON from "../assets/monopoly.json";
 import ChacneCard, { ChanceDisplayInfo } from "./specialCards";
 import { MonopolyCookie, MonopolySettings } from "../assets/types";
+import { Socket as SocIO } from "socket.io-client";
 interface MonopolyGameProps {
     players: Array<Player>;
     myTurn: boolean;
-    socket: Socket;
+    socket: Socket | SocIO;
     clickedOnBoard: (a: number) => void;
 }
 export interface MonopolyGameRef {

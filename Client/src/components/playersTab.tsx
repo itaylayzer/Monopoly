@@ -1,5 +1,5 @@
 import { useState, forwardRef, useImperativeHandle, useEffect } from "react";
-import { Socket } from "socket.io-client";
+import { Socket } from "../assets/websockets.ts";
 import { Player } from "../assets/player";
 import DiceIcon from "../../public/roll.png";
 import { translateGroup } from "./streetCard";
@@ -7,9 +7,9 @@ import monopolyJSON from "../assets/monopoly.json";
 import HouseIcon from "../../public/h.png";
 import HotelIcon from "../../public/ho.png";
 import { MonopolyCookie, MonopolySettings } from "../assets/types";
-
+import { Socket as SocIO } from "socket.io-client";
 interface PlayersTabProps {
-    socket: Socket;
+    socket: Socket | SocIO;
     players: Array<Player>;
     currentTurn: string;
     clickedOnPlayer: (position: number) => void;

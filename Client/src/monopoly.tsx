@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Socket } from "socket.io-client";
+import { Socket } from "./assets/websockets.ts";
+import { Socket as SocIO } from "socket.io-client";
 import { Player, PlayerJSON } from "./assets/player";
 import "./monopoly.css";
 import MonopolyNav, { MonopolyNavRef } from "./components/nav";
@@ -7,7 +8,7 @@ import MonopolyGame, { MonopolyGameRef } from "./components/game";
 import NotifyElement, { NotificatorRef } from "./components/notificator";
 import monopolyJSON from "./assets/monopoly.json";
 import { MonopolySettings } from "./assets/types";
-function App({ socket, name }: { socket: Socket; name: string }) {
+function App({ socket, name }: { socket: Socket | SocIO; name: string }) {
     const [clients, SetClients] = useState<Map<string, Player>>(new Map());
     const players = Array.from(clients.values());
 
@@ -1243,19 +1244,19 @@ function App({ socket, name }: { socket: Socket; name: string }) {
             to_emit_name = false;
             clearInterval(settings_interval);
             document.removeEventListener("mousemove", mouseMove);
-            socket.off("initials", socket_Initials);
-            socket.off("new-player", socket_NewPlayer);
-            socket.off("ready", socket_Ready);
-            socket.off("start-game", socket_StartGame);
-            socket.off("disconnected-player", socket_DisconnectedPlayer);
-            socket.off("turn-finished", socket_TurnFinished);
-            socket.off("message", socket_Message);
-            socket.off("dice_roll_result", socket_DiceRollResult);
-            socket.off("unjail", socket_Unjail);
-            socket.off("member_updating", socket_MemberUpdating);
-            socket.off("chorch_result", socket_ChorchResult);
-            socket.off("mouse", socket_Mouse);
-            socket.off("disconnect", socket_networkDisconnect);
+            // socket.off("initials", socket_Initials);
+            // socket.off("new-player", socket_NewPlayer);
+            // socket.off("ready", socket_Ready);
+            // socket.off("start-game", socket_StartGame);
+            // socket.off("disconnected-player", socket_DisconnectedPlayer);
+            // socket.off("turn-finished", socket_TurnFinished);
+            // socket.off("message", socket_Message);
+            // socket.off("dice_roll_result", socket_DiceRollResult);
+            // socket.off("unjail", socket_Unjail);
+            // socket.off("member_updating", socket_MemberUpdating);
+            // socket.off("chorch_result", socket_ChorchResult);
+            // socket.off("mouse", socket_Mouse);
+            // socket.off("disconnect", socket_networkDisconnect);
         };
     }, [socket]);
 
