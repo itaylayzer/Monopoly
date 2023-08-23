@@ -7,9 +7,8 @@ import monopolyJSON from "../../assets/monopoly.json";
 import HouseIcon from "../../../public/h.png";
 import HotelIcon from "../../../public/ho.png";
 import { MonopolyCookie, MonopolySettings } from "../../assets/types.ts";
-import { Socket as SocIO } from "socket.io-client";
 interface PlayersTabProps {
-    socket: Socket | SocIO;
+    socket: Socket;
     players: Array<Player>;
     currentTurn: string;
     clickedOnPlayer: (position: number) => void;

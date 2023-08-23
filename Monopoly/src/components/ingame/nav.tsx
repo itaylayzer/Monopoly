@@ -14,17 +14,18 @@ import {
     useRef,
 } from "react";
 import { Player } from "../../assets/player.ts";
-import { Socket } from "../../assets/websockets.ts";
-import { Socket as SocIO } from "socket.io-client";
+import { Server, Socket } from "../../assets/websockets.ts";
 import PropretyTab, { PropretyTabRef } from "./propretyTab.tsx";
 import PlayersTab, { PlayersTabRef } from "./playersTab.tsx";
 import SettingsNav from "../settingsNav.tsx";
 
 interface MonopolyNavProps {
     name: string;
-    socket: Socket | SocIO;
+    socket: Socket;
     players: Array<Player>;
     currentTurn: string;
+    server: Server | undefined;
+    callServer: () => void;
 }
 export interface MonopolyNavRef {
     addMessage: (arg: { from: string; message: string }) => void;
@@ -144,6 +145,19 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>(
                         >
                             <img src={ChatIcon.replace("public/", "")} alt="" />
                         </div>
+                        {prop.server !== undefined ? (
+                            <div
+                                data-selected={false}
+                                onClick={() => prop.callServer()}
+                                data-tooltip-hover="server"
+                                className="button"
+                                id="chatIconChange"
+                            >
+                                <img src="server.png" alt="" />
+                            </div>
+                        ) : (
+                            <></>
+                        )}
                     </div>
                     <div className="lower">
                         <div

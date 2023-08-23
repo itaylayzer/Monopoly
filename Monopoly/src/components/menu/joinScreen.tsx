@@ -1,4 +1,4 @@
-import { useState} from "react";
+import { useState } from "react";
 import { User } from "../../assets/types";
 import Slider from "../slider";
 export default function JoinScreen(props: {

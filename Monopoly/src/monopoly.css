@@ -52,10 +52,176 @@
     font-weight: 300;
 }
 
+@font-face {
+    font-family: "Josefin Sans";
+    src: url(./assets/fonts/JosefinSans-Thin.ttf);
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: "Courier Prime";
+    src: url(./assets/fonts/CourierPrime-Regular.ttf);
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Courier Prime";
+    src: url(./assets/fonts/CourierPrime-Bold.ttf);
+    font-weight: 500;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Courier Prime";
+    src: url(./assets/fonts/CourierPrime-BoldItalic.ttf);
+    font-weight: 500;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Courier Prime";
+    src: url(./assets/fonts/CourierPrime-Italic.ttf);
+    font-weight: 400;
+    font-style: normal;
+}
+
 
 body {
     font-family: "Josefin Sans";
     user-select: none;
+    overflow-x: hidden;
+
+}
+
+#root {
+    transition: transform .5s cubic-bezier(0, .99, 0, 1);
+    overflow: visible;
+}
+
+#server {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0%;
+    overflow: hidden;
+    transform: translateX(-100%);
+    background-color: rgb(10, 10, 10);
+    display: block;
+}
+
+#server main {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    top: 10%;
+    left: 10%;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    background-color: rgb(20, 20, 20);
+    border-radius: 0px;
+    border: 5px solid rgb(30, 30, 30);
+    box-sizing: border-box;
+    font-family: consolas, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#server main div.upper {
+    justify-content: flex-start;
+    background-color: rgb(30, 30, 30);
+    height: 20px;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    font-family: consolas, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#server main div.middle {
+    flex-grow: 1;
+    margin-inline: 10px;
+    overflow-y: auto;
+}
+
+#server main div.middle p {
+    user-select: all;
+    font-style: normal;
+    font-family: consolas, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+}
+
+#server main div.lower input {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, 0);
+    ;
+    color: white;
+    border: 0;
+    border-bottom: 3px solid white;
+    padding-block: 3px;
+    font-size: 15px;
+    font-family: consolas, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#server main div.lower input:focus {
+    outline: 0;
+}
+
+#server main div.lower input:not(:focus) {
+    animation: disapear 0.8s infinite cubic-bezier(0.21, 1.57, 0.55, 1);
+    ;
+}
+
+@keyframes disapear {
+    0% {
+        border-bottom: 3px solid white;
+    }
+
+    50% {
+        border-bottom: 3px solid rgb(0, 0, 0, 0);
+    }
+
+    100% {
+        border-bottom: 3px solid white;
+    }
+}
+
+#server main div.lower {
+    justify-content: flex-end;
+    background-color: rgb(30, 30, 30);
+    height: 20px;
+    margin: 10px;
+}
+
+#server main p {
+    font-family: "Courier Prime";
+    font-style: normal;
+    font-weight: 400;
+    color: white;
+}
+
+#server footer {
+
+    width: 3.5%;
+    aspect-ratio: 1;
+    position: absolute;
+    top: 50%;
+    translate: 0px -50%;
+    right: 1%;
+    border-radius: 1000px;
+    cursor: pointer;
+    transition: translate 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
+}
+
+#server footer img {
+    width: 100%;
+    aspect-ratio: 1;
+    scale: 0.8;
+}
+
+#server footer:hover {
+    translate: -10px -50%;
 }
 
 div.modes {
@@ -385,6 +551,7 @@ main nav.content div.propertyList {
     cursor: unset;
 }
 
+#server main div.middle::-webkit-scrollbar,
 main nav.content[data-index="3"] div.scroll::-webkit-scrollbar,
 main nav.content div.main-chat div.messages::-webkit-scrollbar,
 main nav.content div.propertyList::-webkit-scrollbar,
@@ -392,6 +559,7 @@ main nav.content div.container-top div.playersInfos::-webkit-scrollbar {
     width: 5px;
 }
 
+#server main div.middle::-webkit-scrollbar-track,
 main nav.content[data-index="3"] div.scroll::-webkit-scrollbar-track,
 main nav.content div.main-chat div.messages::-webkit-scrollbar-track,
 main nav.content div.propertyList::-webkit-scrollbar-track,
@@ -401,6 +569,7 @@ main nav.content div.container-top div.playersInfos::-webkit-scrollbar-track {
     margin-block: 20px;
 }
 
+#server main div.middle::-webkit-scrollbar-thumb,
 main nav.content[data-index="3"] div.scroll::-webkit-scrollbar-thumb,
 main nav.content div.main-chat div.messages::-webkit-scrollbar-thumb,
 main nav.content div.propertyList::-webkit-scrollbar-thumb,
@@ -409,6 +578,7 @@ main nav.content div.container-top div.playersInfos::-webkit-scrollbar-thumb {
     border-radius: 100px;
 }
 
+#server main div.middle::-webkit-scrollbar-thumb:hover,
 main nav.content[data-index="3"] div.scroll::-webkit-scrollbar-thumb:hover,
 main nav.content div.main-chat div.messages::-webkit-scrollbar-thumb:hover,
 main nav.content div.propertyList::-webkit-scrollbar-thumb:hover,

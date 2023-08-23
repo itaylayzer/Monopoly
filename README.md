@@ -58,7 +58,9 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 
 ## TODO List:
 1. Enhancement of [client] advanced chance/chest cards functionality - when i played the game this advanced chance/cards didnt matter so maybe i will not add those
-3. Continue Sound Effects
+2. Tab to the Server Logs and statistics
+3. Score System
+4. 
 
 ## Pictures and Videos of the game!
 for more pictures go to the pictures folder in this repo

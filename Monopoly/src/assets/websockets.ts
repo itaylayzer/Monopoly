@@ -4,9 +4,9 @@ export function io(uri: string): Promise<Socket> {
     return new Promise((resolve, reject) => {
         const peer = new Peer({
             debug: 0,
-            logFunction: (...data: any[]) => {
-                console.log("client: ", ...data);
-            },
+            // logFunction: (...data: any[]) => {
+            //     console.log("client: ", ...data);
+            // },
             secure: false,
         });
 
@@ -16,7 +16,7 @@ export function io(uri: string): Promise<Socket> {
             const dataConnection = peer.connect(uri, { reliable: true });
 
             // Create a new Socket instance with the data connection.
-            const sock = new Socket(dataConnection, "client-side");
+            const sock = new Socket(dataConnection);
             sock.id = id;
             // Resolve the Promise with the Socket object.
             resolve(sock);
@@ -35,12 +35,7 @@ export class Socket {
     private client: DataConnection;
     public events: Map<string, (args: any) => void>;
     public id: string;
-    private debugName: string;
-    private log(...data: any[]) {
-        console.log(this.debugName + ": ", ...data);
-    }
-    constructor(_socket: DataConnection, debugName?: string) {
-        this.debugName = debugName ?? "socket";
+    constructor(_socket: DataConnection) {
         this.id = "";
         this.client = _socket;
         this.events = new Map();
@@ -60,7 +55,6 @@ export class Socket {
 
         this.client.on("error", (error) => {
             console.error("Data connection error:", error);
-            this.log(Array.from(this.events.keys()));
         });
     }
     public on(event_name: string, handler: (args: any) => void) {
@@ -68,13 +62,6 @@ export class Socket {
         this.client.on("data", () => {});
     }
     public emit(event_name: string, args?: any) {
-        if (event_name !== "mouse")
-            this.log(
-                `${JSON.stringify({
-                    event: event_name,
-                    args: args ?? undefined,
-                })}`
-            );
         this.client.send(
             JSON.stringify({ event: event_name, args: args ?? undefined })
         );
@@ -87,22 +74,42 @@ export class Socket {
 
 export class Server {
     private socket: Peer;
-    constructor(idf?: (id: string) => void, onf?: (s: Socket) => void) {
+    public logFunction: (...data: any[]) => void;
+    public renderFunction: (v: Array<any[]>) => void;
+    public logs: Array<any[]> = [];
+    constructor(
+        idf?: (id: string, thisobj: Server) => void,
+        onf?: (s: Socket, server: Server) => void
+    ) {
         this.socket = new Peer({
             debug: 0,
-            logFunction: (...data: any[]) => {
-                console.log("server: ", ...data);
-            },
+            // logFunction: (...data: any[]) => {
+            //     console.log("server: ", ...data);
+            // },
         });
+        this.logFunction = (...data) => {
+            this.logs.push(data);
+            console.log(data);
+            this.renderFunction(this.logs);
+        };
+        this.renderFunction = () => {};
         this.socket.on("open", (id) => {
-            idf?.(id);
+            idf?.(id, this);
         });
         this.socket.on("connection", (dataConnection) => {
             dataConnection.on("open", () => {
-                const socket = new Socket(dataConnection, "server-side");
+                const socket = new Socket(dataConnection);
                 socket.id = dataConnection.peer;
-                onf?.(socket);
+                onf?.(socket, this);
             });
         });
+    }
+    public set OnLogs(v: (...data: any[]) => void) {
+        this.logFunction = v;
+    }
+
+    public RenderLogs(f: (v: Array<any[]>) => void) {
+        this.renderFunction = f;
+        f(this.logs);
     }
 }

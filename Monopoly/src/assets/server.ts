@@ -1,7 +1,7 @@
 import axios from "axios";
 import ENV from "../../env.json";
 import { Socket, Server } from "./websockets";
-import monopolyJSON from './monopoly.json';
+import monopolyJSON from "./monopoly.json";
 class Player {
     public id: string;
     public username: string;
@@ -62,7 +62,10 @@ type PlayerJSON = {
     getoutCards: number;
 };
 
-export async function main(playersCount:number,f?: (host: string) => void) {
+export async function main(
+    playersCount: number,
+    f?: (host: string, Server: Server) => void
+) {
     //#region Setup
     const CodeAPI = () => {
         async function Read() {
@@ -99,8 +102,8 @@ export async function main(playersCount:number,f?: (host: string) => void) {
             }
             await Write(x);
         }
-        async function Clear(){
-            await Write({"clear":new Date().toISOString()});
+        async function Clear() {
+            await Write({ clear: new Date().toISOString() });
         }
 
         async function Generate(addr: string) {
@@ -124,12 +127,8 @@ export async function main(playersCount:number,f?: (host: string) => void) {
             while (Object.keys(x).includes(code)) {
                 code = generateRandomCode(6);
             }
-            const serverIP = addr;
 
-            const value = { host: serverIP, mode: "p2p" } as {
-                host: string;
-                mode: "p2p" | "io";
-            };
+            const value = addr;
             if (Object.values(x).includes(value)) {
                 for (const a of Object.entries(x)) {
                     if (a[1] === value) {
@@ -148,12 +147,11 @@ export async function main(playersCount:number,f?: (host: string) => void) {
             Read,
             Delete,
             Generate,
-            Clear
+            Clear,
         };
     };
 
-    const maxPlayers =
-    playersCount > 0 ? Math.min(playersCount, 6) : 6;
+    const maxPlayers = playersCount > 0 ? Math.min(playersCount, 6) : 6;
     console.log(`Max Players is ${maxPlayers}...\n`);
 
     interface Client {
@@ -202,21 +200,19 @@ export async function main(playersCount:number,f?: (host: string) => void) {
     //#endregion
     //#region Game Logic
     new Server(
-        async (id) => {
+        async (id, server) => {
             // await CodeAPI().Clear();
             var _code = await CodeAPI().Generate(id);
 
-            window.addEventListener('beforeunload', async ()=>{
+            window.addEventListener("beforeunload", async () => {
                 // dont work
                 await CodeAPI().Delete(_code);
-                
             });
 
-            f?.(_code);
+            f?.(_code, server);
         },
-        (socket: Socket) => {
+        (socket: Socket, server: Server) => {
             const ctp = gameStarted ? 1 : Clients.size >= maxPlayers ? 2 : 0;
-            console.log("emitiing state");
             socket.emit("state", ctp);
             if (ctp === 0) {
                 // Handle name event
@@ -241,7 +237,7 @@ export async function main(playersCount:number,f?: (host: string) => void) {
                             ready: false,
                             positions: { x: 0, y: 0 },
                         });
-                        console.log(
+                        server.logFunction(
                             `{${getCurrentTime()}} [${socket.id}] Player "${
                                 player.username
                             }" has connected.`
@@ -270,7 +266,7 @@ export async function main(playersCount:number,f?: (host: string) => void) {
                                     option,
                                 });
                             } catch (e) {
-                                console.log(e);
+                                server.logFunction(e);
                             }
                         });
                         socket.on("roll_dice", () => {
@@ -285,7 +281,7 @@ export async function main(playersCount:number,f?: (host: string) => void) {
                                     player.username
                                 }" rolled a [${first},${second}].`;
                                 logs_strings.push(x);
-                                console.log(x);
+                                server.logFunction(x);
                                 const sum = first + second;
                                 var pos = (player.position + sum) % 40;
                                 EmitAll("dice_roll_result", {
@@ -293,7 +289,7 @@ export async function main(playersCount:number,f?: (host: string) => void) {
                                     turnId: currentId,
                                 });
                             } catch (e) {
-                                console.log(e);
+                                server.logFunction(e);
                             }
                         });
                         // chest or chance
@@ -311,7 +307,7 @@ export async function main(playersCount:number,f?: (host: string) => void) {
                                     turnId: currentId,
                                 });
                             } catch (e) {
-                                console.log(e);
+                                server.logFunction(e);
                             }
                         });
                         socket.on("finish-turn", (playerInfo: PlayerJSON) => {
@@ -331,13 +327,13 @@ export async function main(playersCount:number,f?: (host: string) => void) {
                                     pJson: player.to_json(),
                                 });
                             } catch (e) {
-                                console.log(e);
+                                server.logFunction(e);
                             }
                         });
 
                         socket.on("message", (message: string) => {
                             try {
-                                console.log(
+                                server.logFunction(
                                     `{${getCurrentTime()}} [${
                                         socket.id
                                     }] Player "${
@@ -349,7 +345,7 @@ export async function main(playersCount:number,f?: (host: string) => void) {
                                     message: message,
                                 });
                             } catch (e) {
-                                console.log(e);
+                                server.logFunction(e);
                             }
                         });
 
@@ -376,7 +372,7 @@ export async function main(playersCount:number,f?: (host: string) => void) {
                                         pJson: [top.to_json(), fromp.to_json()],
                                     });
                                 } catch (e) {
-                                    console.log(e);
+                                    server.logFunction(e);
                                 }
                             }
                         );
@@ -394,7 +390,7 @@ export async function main(playersCount:number,f?: (host: string) => void) {
                             });
                         });
                     } catch (e) {
-                        console.log(e);
+                        server.logFunction(e);
                     }
                 });
                 socket.on(
@@ -422,14 +418,14 @@ export async function main(playersCount:number,f?: (host: string) => void) {
                                 selectedMode,
                             });
                             if (!readys.includes(false)) {
-                                console.log(
-                                    `Game has Started, No more Players can join the Server`,Array.from(Clients.keys())
+                                server.logFunction(
+                                    `Game has Started, No more Players can join the Server`
                                 );
                                 gameStarted = true;
                                 EmitAll("start-game", {});
                             }
                         } catch (e) {
-                            console.log(e);
+                            server.logFunction(e);
                         }
                     }
                 );
@@ -441,7 +437,7 @@ export async function main(playersCount:number,f?: (host: string) => void) {
             socket.on("disconnect", () => {
                 try {
                     if (Clients.has(socket.id)) {
-                        console.log(
+                        server.logFunction(
                             `{${getCurrentTime()}} [${socket.id}] Player "${
                                 Clients.get(socket.id)?.player.username
                             }" has disconnected.`
@@ -468,17 +464,15 @@ export async function main(playersCount:number,f?: (host: string) => void) {
 
                     if (Array.from(Clients.keys()).length === 0) {
                         if (gameStarted)
-                            console.log(
+                            server.logFunction(
                                 "Game has Ended. Server is currently Open to new Players"
                             );
                         gameStarted = false;
                     }
                 } catch (e) {
-                    console.log(e);
+                    server.logFunction(e);
                 }
             });
         }
     );
-
-
 }

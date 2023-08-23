@@ -20,8 +20,3 @@ export interface User {
     name: string;
     score: 0;
 }
-
-export type Code = {
-    host: string;
-    mode: "p2p" | "io";
-};

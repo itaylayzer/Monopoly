@@ -6,9 +6,8 @@ import CardViewer from "./cardViewer.tsx";
 import monopolyJSON from "../../assets/monopoly.json";
 import { Socket } from "../../assets/websockets.ts";
 import { Player } from "../../assets/player.ts";
-import { Socket as SocIO } from "socket.io-client";
 interface PropretyTabProps {
-    socket: Socket | SocIO;
+    socket: Socket;
     players: Array<Player>;
 }
 export interface PropretyTabRef {

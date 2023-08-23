@@ -12,11 +12,10 @@ import StreetCard, {
 import monopolyJSON from "../../assets/monopoly.json";
 import ChacneCard, { ChanceDisplayInfo } from "./specialCards.tsx";
 import { MonopolyCookie, MonopolySettings } from "../../assets/types.ts";
-import { Socket as SocIO } from "socket.io-client";
 interface MonopolyGameProps {
     players: Array<Player>;
     myTurn: boolean;
-    socket: Socket | SocIO;
+    socket: Socket;
     clickedOnBoard: (a: number) => void;
 }
 export interface MonopolyGameRef {
@@ -621,7 +620,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>(
                     if (elementSearch !== null) {
                         const _img = elementSearch.querySelector(
                             "div"
-                        ) as HTMLImageElement;
+                        ) as HTMLDivElement;
                         _img.style.rotate = `${-rotation}deg`;
                         _img.style.aspectRatio = "1";
                         if (

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Socket } from "./assets/websockets.ts";
-import { Socket as SocIO } from "socket.io-client";
+import { Server, Socket } from "./assets/websockets.ts";
 import { Player, PlayerJSON } from "./assets/player";
 import "./monopoly.css";
 import MonopolyNav, { MonopolyNavRef } from "./components/ingame/nav.tsx";
@@ -8,7 +7,15 @@ import MonopolyGame, { MonopolyGameRef } from "./components/ingame/game.tsx";
 import NotifyElement, { NotificatorRef } from "./components/notificator";
 import monopolyJSON from "./assets/monopoly.json";
 import { MonopolySettings } from "./assets/types";
-function App({ socket, name }: { socket: Socket | SocIO; name: string }) {
+function App({
+    socket,
+    name,
+    server,
+}: {
+    socket: Socket;
+    name: string;
+    server: Server | undefined;
+}) {
     const [clients, SetClients] = useState<Map<string, Player>>(new Map());
     const players = Array.from(clients.values());
 
@@ -59,7 +66,19 @@ function App({ socket, name }: { socket: Socket | SocIO; name: string }) {
             return [obj.posistion ?? 0, obj];
         })
     );
-
+    if (server !== undefined) {
+        server.RenderLogs((array) => {
+            try {
+                const x = document.body.querySelector(
+                    "#server main div.middle"
+                ) as HTMLDivElement;
+                x.innerHTML = "";
+                for (const v of array) {
+                    x.innerHTML += `<p> ${v.join("\t")} </p>`;
+                }
+            } catch {}
+        });
+    }
     useEffect(() => {
         let settings: MonopolySettings | undefined = undefined;
 
@@ -1258,7 +1277,7 @@ function App({ socket, name }: { socket: Socket | SocIO; name: string }) {
             // socket.off("mouse", socket_Mouse);
             // socket.off("disconnect", socket_networkDisconnect);
         };
-    }, [socket]);
+    }, []);
 
     useEffect(() => {
         navRef.current?.reRenderPlayerList();
@@ -1293,6 +1312,14 @@ function App({ socket, name }: { socket: Socket | SocIO; name: string }) {
                     name={name}
                     socket={socket}
                     players={players}
+                    server={server}
+                    callServer={() => {
+                        const root = document.body.querySelector(
+                            "#root"
+                        ) as HTMLDivElement;
+
+                        root.style.transform = "translateX(100%)";
+                    }}
                 />
 
                 <MonopolyGame
@@ -1306,6 +1333,37 @@ function App({ socket, name }: { socket: Socket | SocIO; name: string }) {
                 />
             </main>
             <NotifyElement ref={notifyRef} />
+            <div id="server">
+                <main>
+                    <div
+                        className="upper"
+                        onClick={() => {
+                            const root = document.body.querySelector(
+                                "#root"
+                            ) as HTMLDivElement;
+
+                            root.style.transform = "";
+                        }}
+                    >
+                        Server.exe
+                    </div>
+                    <div className="middle"></div>
+                    <div className="lower">
+                        <input type="text" />
+                    </div>
+                </main>
+                <footer
+                    onClick={() => {
+                        const root = document.body.querySelector(
+                            "#root"
+                        ) as HTMLDivElement;
+
+                        root.style.transform = "";
+                    }}
+                >
+                    <img src="icon.png" alt="" />
+                </footer>
+            </div>
         </>
     ) : (
         <div className="lobby">

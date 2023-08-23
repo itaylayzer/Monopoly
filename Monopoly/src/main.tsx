@@ -2,8 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import Monopoly from "./monopoly.tsx";
 import "./index.css";
-import { Socket as SocIO, io as ioIO } from "socket.io-client";
-import { Socket, io } from "./assets/websockets.ts";
+import { Server, Socket, io } from "./assets/websockets.ts";
 import NotifyElement, { NotificatorRef } from "./components/notificator";
 import { MonopolyCookie, User } from "./assets/types.ts";
 import SettingsNav from "./components/settingsNav";
@@ -33,7 +32,7 @@ function App() {
     }
 
     const notifyRef = useRef<NotificatorRef>(null);
-    const [socket, SetSocket] = useState<Socket | SocIO>();
+    const [socket, SetSocket] = useState<Socket>();
     // Gameplay stuff
     const [name, SetName] = useState<string>("");
     const [addr, SetAddress] = useState<string>("");
@@ -48,7 +47,7 @@ function App() {
     const [tabIndex, SetTab] = useState<number>(0);
 
     // Server Stuff
-    const [isSever, SetIsServer] = useState<boolean>(false);
+    const [server, SetServer] = useState<Server | undefined>(undefined);
     const [serverPCount, SetServerPCount] = useState<number>(6);
 
     useEffect(() => {
@@ -124,17 +123,11 @@ function App() {
             return;
         }
 
-        const address = x[addr] as { host: string; mode: "p2p" | "io" };
+        const address = x[addr] as string;
         console.log(address);
-        var socket: Socket | SocIO;
-        if (address.mode === "io") {
-            socket = ioIO("https://" + address.host, {
-                rejectUnauthorized: false,
-            });
-        } else {
-            // const address = "localhost"
-            socket = await io(address.host);
-        }
+        var socket: Socket;
+        // const address = "localhost"
+        socket = await io(address);
 
         socket.on("state", (args: number) => {
             switch (args) {
@@ -204,7 +197,7 @@ function App() {
     }, []);
 
     return socket !== undefined && isSignedIn === true ? (
-        <Monopoly socket={socket} name={name} />
+        <Monopoly socket={socket} name={name} server={server} />
     ) : (
         <>
             <NotifyElement ref={notifyRef} />
@@ -398,11 +391,11 @@ function App() {
                                         marginBottom: 0,
                                     }}
                                 >
-                                    [peer 2 peer] hosting
+                                    peerjs hosting
                                 </p>
                                 <h3>Run A Server</h3>
                             </header>
-                            {isSever ? (
+                            {server !== undefined ? (
                                 <>
                                     <p>
                                         server is already running, check the
@@ -456,11 +449,14 @@ function App() {
                                                 e.currentTarget.disabled = true;
                                                 e.currentTarget.innerHTML =
                                                     "Starting Server";
-                                                main(serverPCount, (host) => {
-                                                    SetTab(0);
-                                                    SetAddress(host);
-                                                    SetIsServer(true);
-                                                });
+                                                main(
+                                                    serverPCount,
+                                                    (host, server) => {
+                                                        SetTab(0);
+                                                        SetAddress(host);
+                                                        SetServer(server);
+                                                    }
+                                                );
                                             }}
                                         >
                                             Run Server
@@ -473,7 +469,7 @@ function App() {
                         <>
                             <header>
                                 <p style={{ fontSize: 9 }}>
-                                22.8.23 - Serverless
+                                    22.8.23 - Serverless
                                 </p>
                                 Welcome to the <h3>MONOPOLY</h3> Game
                             </header>
