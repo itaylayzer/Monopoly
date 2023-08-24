@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { User } from "../../assets/types";
-import Slider from "../slider";
+import Slider from "../utils/slider";
+import Switcher from "../utils/switcher";
+import BotsList from "./botsList";
 export default function JoinScreen(props: {
     joinViaCode: () => void;
     joinBots: (counts: number, diff: number) => void;
@@ -41,27 +43,7 @@ export default function JoinScreen(props: {
 
             {tabIndex === 1 ? (
                 <>
-                    <p>please enter bots count:</p>
-                    <Slider
-                        step={1}
-                        min={1}
-                        max={10}
-                        defaultValue={1}
-                        onChange={(e) => {
-                            SetBCounts(parseInt(e.currentTarget.value));
-                        }}
-                    />
-                    <p>please enter bots difficulty:</p>
-                    <Slider
-                        step={1}
-                        min={1}
-                        max={10}
-                        onChange={(e) => {
-                            SetBDiff(parseInt(e.currentTarget.value));
-                        }}
-                        defaultValue={5}
-                    />
-                    <p>please enter name:</p>
+                    <div key={"bots-name"}><p>please enter your name:</p>
                     {props.fbUser === undefined ? (
                         <input
                             type="text"
@@ -80,7 +62,13 @@ export default function JoinScreen(props: {
                             value={props.fbUser.name}
                             placeholder="enter name"
                         />
-                    )}
+                    )}</div>
+                    <p>bots settings:</p>
+                    <BotsList
+                        OnChange={(arr: string[]) => {
+                            
+                        }}
+                    />
 
                     <center>
                         <button
@@ -89,13 +77,13 @@ export default function JoinScreen(props: {
                             }}
                             disabled={props.disabled}
                         >
-                            join
+                            start
                         </button>
                     </center>
                 </>
             ) : (
                 <>
-                    <p>please enter your code:</p>
+                    <div key={"online-code"}><p>please enter your code:</p>
                     <input
                         type="text"
                         id="name"
@@ -104,9 +92,9 @@ export default function JoinScreen(props: {
                         }
                         defaultValue={props.addr}
                         placeholder="enter code"
-                    />
+                    /></div>
 
-                    <p>please enter your name:</p>
+                    <div key={"online-name"}><p>please enter your name:</p>
                     {props.fbUser === undefined ? (
                         <input
                             type="text"
@@ -125,7 +113,7 @@ export default function JoinScreen(props: {
                             value={props.name}
                             placeholder="enter name"
                         />
-                    )}
+                    )}</div>
 
                     <center>
                         <button

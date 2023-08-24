@@ -95,7 +95,7 @@ body {
 }
 
 #root {
-    transition: transform .5s cubic-bezier(0, .99, 0, 1);
+    transition: transform .5s cubic-bezier(.3, 0, 0, 1);
     overflow: visible;
 }
 
@@ -108,7 +108,7 @@ body {
     left: 0%;
     overflow: hidden;
     transform: translateX(-100%);
-    background-color: rgb(10, 10, 10);
+    background-color: rgb(20, 20, 20);
     display: block;
 }
 
@@ -121,9 +121,9 @@ body {
     display: flex;
     flex-direction: column;
     background-color: white;
-    background-color: rgb(20, 20, 20);
+    background-color: rgb(25, 25, 25);
     border-radius: 0px;
-    border: 5px solid rgb(30, 30, 30);
+    border: 8px solid rgb(30, 30, 30);
     box-sizing: border-box;
     font-family: consolas, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
@@ -211,7 +211,9 @@ body {
     right: 1%;
     border-radius: 1000px;
     cursor: pointer;
-    transition: translate 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
+    transition: translate 0.3s cubic-bezier(0.21, 1.57, 0.55, 1), opacity .5s, filter .5s;
+    opacity: 0.5;
+    filter: grayscale(1)
 }
 
 #server footer img {
@@ -222,30 +224,8 @@ body {
 
 #server footer:hover {
     translate: -10px -50%;
-}
-
-div.modes {
-    display: flex;
-    justify-content: center;
-    padding-inline: 10px;
-    gap: 10px;
-}
-
-div.modes p {
-    display: inline-block;
-    background-color: rgb(35, 35, 35);
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: scale .35s cubic-bezier(0, .6, .28, 1.47)
-}
-
-div.modes p[data-select="true"] {
-    background-color: #0075FF;
-}
-
-div.modes p:hover {
-    scale: 0.9
+    opacity: 1;
+    filter: none;
 }
 
 div.notify {
@@ -470,7 +450,7 @@ main nav.main nav.header div.button {
 
 main nav.main nav.header div.button img {
     width: 30px;
-    margin0: auto;
+    margin: auto;
     transition: filter 0.1s ease-in-out;
 }
 
@@ -552,7 +532,7 @@ main nav.content div.propertyList {
 }
 
 #server main div.middle::-webkit-scrollbar,
-main nav.content[data-index="3"] div.scroll::-webkit-scrollbar,
+main nav.content[data-index="5"] div.scroll::-webkit-scrollbar,
 main nav.content div.main-chat div.messages::-webkit-scrollbar,
 main nav.content div.propertyList::-webkit-scrollbar,
 main nav.content div.container-top div.playersInfos::-webkit-scrollbar {
@@ -560,7 +540,7 @@ main nav.content div.container-top div.playersInfos::-webkit-scrollbar {
 }
 
 #server main div.middle::-webkit-scrollbar-track,
-main nav.content[data-index="3"] div.scroll::-webkit-scrollbar-track,
+main nav.content[data-index="5"] div.scroll::-webkit-scrollbar-track,
 main nav.content div.main-chat div.messages::-webkit-scrollbar-track,
 main nav.content div.propertyList::-webkit-scrollbar-track,
 main nav.content div.container-top div.playersInfos::-webkit-scrollbar-track {
@@ -570,7 +550,7 @@ main nav.content div.container-top div.playersInfos::-webkit-scrollbar-track {
 }
 
 #server main div.middle::-webkit-scrollbar-thumb,
-main nav.content[data-index="3"] div.scroll::-webkit-scrollbar-thumb,
+main nav.content[data-index="5"] div.scroll::-webkit-scrollbar-thumb,
 main nav.content div.main-chat div.messages::-webkit-scrollbar-thumb,
 main nav.content div.propertyList::-webkit-scrollbar-thumb,
 main nav.content div.container-top div.playersInfos::-webkit-scrollbar-thumb {
@@ -579,7 +559,7 @@ main nav.content div.container-top div.playersInfos::-webkit-scrollbar-thumb {
 }
 
 #server main div.middle::-webkit-scrollbar-thumb:hover,
-main nav.content[data-index="3"] div.scroll::-webkit-scrollbar-thumb:hover,
+main nav.content[data-index="5"] div.scroll::-webkit-scrollbar-thumb:hover,
 main nav.content div.main-chat div.messages::-webkit-scrollbar-thumb:hover,
 main nav.content div.propertyList::-webkit-scrollbar-thumb:hover,
 main nav.content div.container-top div.playersInfos::-webkit-scrollbar-thumb:hover {
@@ -744,13 +724,13 @@ main nav.content[data-index="1"] input {
     user-select: text;
 }
 
-main nav.content[data-index="3"] {
+main nav.content[data-index="5"] {
     overflow-y: hidden;
     display: flex;
     flex-direction: column;
 }
 
-main nav.content[data-index="3"] div.scroll {
+main nav.content[data-index="5"] div.scroll {
     overflow-y: auto;
     display: block;
     flex-grow: 1;
@@ -1604,4 +1584,19 @@ div.cursors>img {
     transform: translateX(-2px);
     opacity: 0.5;
     transition: translate .5s ease-out;
+}
+
+button.railroads-actions {
+    background-color: rgba(20, 20, 20);
+    border: 0;
+    padding: 10px;
+    color: white;
+    cursor: pointer;
+    font-family: consolas;
+    font-size: 16px;
+    transition: scale .3s cubic-bezier(0.21, 1.57, 0.55, 1);
+}
+
+button.railroads-actions:hover {
+    scale: 0.9;
 }

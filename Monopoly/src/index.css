@@ -60,6 +60,8 @@
     user-select: none;
 }
 
+
+
 body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
@@ -198,7 +200,7 @@ div.entry main button {
     display: block;
     padding-inline: 40px;
     border-radius: 5px;
-    margin-top: 50px;
+    margin-top: 25px;
     cursor: pointer;
     padding-block: 3px;
     border: 0;
@@ -216,11 +218,11 @@ div.entry main button:active {
 
 div.entry main button:disabled {
     animation: disabledAnim 1s ease-out infinite;
+    cursor: wait;
 }
 
 div.entry main button:disabled:hover {
     scale: 1;
-    cursor: not-allowed;
 }
 
 div.entry main button:disabled:active {
@@ -229,18 +231,15 @@ div.entry main button:disabled:active {
 
 @keyframes disabledAnim {
     0% {
-        scale: 1;
         filter: blur(0px) grayscale(0.5);
     }
 
     50% {
-        filter: blur(2px) grayscale(1);
-        scale: 0.95;
+        filter: blur(0px) grayscale(1);
     }
 
     100% {
         filter: blur(0px) grayscale(0.5);
-        scale: 1;
     }
 }
 
@@ -250,11 +249,26 @@ div.lobby {
     left: 50%;
     font-size: 20px;
     color: white;
+    display: block;
     transform: translateX(-50%) translateY(-50%);
 }
 
 div.lobby h3 {
     color: white;
+    font-weight: 100;
+}
+
+div.lobby main {
+    all: unset;
+    display: flex;
+    gap: 100px;
+}
+
+div.lobby section {
+    display: grid;
+    justify-content: center;
+    align-content: center;
+
 }
 
 div.lobby button {
@@ -280,12 +294,25 @@ div.lobby button:active {
     scale: 0.925;
 }
 
+div.lobby button:disabled {
+    filter: grayscale(1);
+    cursor: wait;
+}
+
+div.lobby button:disabled:hover {
+    scale: 1;
+}
+
+div.lobby button:disabled:active {
+    scale: 1;
+}
+
 p.lobby-players {
     font-family: consolas, system-ui, -apple-system, BlinkMacSystemFont,
         "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
         "Helvetica Neue", sans-serif;
+    box-sizing: border-box;
     margin: 5px;
-    margin-left: 15px;
     background-color: rgb(35, 35, 35);
     width: fit-content;
     padding-inline: 15px 30px;
@@ -423,14 +450,101 @@ div.entry main nav.join button[data-select="false"]:hover {
     opacity: 1;
 }
 
-div.slider-component {
-    display: flex;
-    gap: 10px;
-    color: white;
+
+
+
+
+
+div.modes main {
+    display: block;
+    background-color: rgb(30, 30, 30);
+    border-radius: 20px;
+    aspect-ratio: 1.5;
+    box-sizing: border-box;
+    padding: 20px;
+    margin-top: 5px;
 }
 
-div.slider-component input {
-    width: 150px;
-    height: 1px;
-    margin-block: auto;
+div.modes main h3 {
+    margin: 0;
+    margin-block: 20px;
+    width: fit-content;
+}
+
+div.modes main p {
+    background-color: rgba(0, 0, 0, 0);
+    display: block;
+    margin: 10px;
+    padding: 0;
+    font-size: 15px;
+    list-style-type: circle;
+    cursor: default;
+}
+
+div.modes>div {
+    display: flex;
+    justify-content: center;
+    padding-inline: 10px;
+    gap: 10px;
+}
+
+div.modes>button {
+    margin-inline: auto;
+    margin-block: 2px;
+}
+
+div.modes p {
+    display: inline-block;
+    background-color: rgb(35, 35, 35);
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: scale .35s cubic-bezier(0, .6, .28, 1.47)
+}
+
+div.modes p[data-disabled="true"] {
+    opacity: 0.5;
+    cursor: auto;
+}
+
+div.modes p[data-select="true"] {
+    background-color: #0075FF;
+}
+
+div.modes p[data-select="true"][data-disabled="true"] {
+    background-color: rgba(20, 185, 20, 25%);
+}
+
+div.modes p[data-disabled="false"]:hover {
+    scale: 0.9
+}
+
+div.modes p[data-disabled="true"]:hover {
+    cursor: default;
+}
+
+p#floating-clock {
+    all: unset;
+    font-family: consolas;
+    color: white;
+    font-size: 100px;
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    translate: -50% -50%;
+
+}
+
+p#floating-clock.clocking {
+    animation: clock 1s cubic-bezier(0, .6, .28, 1.47) infinite;
+}
+
+@keyframes clock {
+    0% {
+        scale: 0;
+    }
+
+    100% {
+        scale: 1;
+    }
 }

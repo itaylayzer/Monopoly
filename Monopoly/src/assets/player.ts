@@ -1,3 +1,5 @@
+import { PlayerProprety } from "./types";
+
 export class Player {
     public id: string;
     public username: string;
@@ -5,12 +7,7 @@ export class Player {
 
     public position: number;
     public balance: number;
-    public properties: Array<{
-        posistion: number;
-        count: 0 | 1 | 2 | 3 | 4 | "h";
-        group: string;
-        rent?: number;
-    }>;
+    public properties: Array<PlayerProprety>;
     public isInJail: boolean;
     public jailTurnsRemaining: number;
     public getoutCards: number;

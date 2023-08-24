@@ -62,10 +62,7 @@ type PlayerJSON = {
     getoutCards: number;
 };
 
-export async function main(
-    playersCount: number,
-    f?: (host: string, Server: Server) => void
-) {
+export async function main(playersCount: number, f?: (host: string, Server: Server) => void) {
     //#region Setup
     const CodeAPI = () => {
         async function Read() {
@@ -112,9 +109,7 @@ export async function main(
                 let code = "";
 
                 for (let i = 0; i < length; i++) {
-                    const randomIndex = Math.floor(
-                        Math.random() * charset.length
-                    );
+                    const randomIndex = Math.floor(Math.random() * charset.length);
                     code += charset[randomIndex];
                 }
 
@@ -203,13 +198,10 @@ export async function main(
         async (id, server) => {
             // await CodeAPI().Clear();
             var _code = await CodeAPI().Generate(id);
-
-            window.addEventListener("beforeunload", async () => {
-                // dont work
-                await CodeAPI().Delete(_code);
-            });
-
             f?.(_code, server);
+            return async () => {
+                await CodeAPI().Delete(_code);
+            };
         },
         (socket: Socket, server: Server) => {
             const ctp = gameStarted ? 1 : Clients.size >= maxPlayers ? 2 : 0;
@@ -218,17 +210,10 @@ export async function main(
                 // Handle name event
                 socket.on("name", (name: string) => {
                     try {
-                        const player = new Player(
-                            socket.id,
-                            name,
-                            Array.from(Clients.keys()).length
-                        );
+                        const player = new Player(socket.id, name, Array.from(Clients.keys()).length);
 
                         // handle current id =>
-                        if (
-                            currentId === "" ||
-                            !Array.from(Clients.keys()).includes(currentId)
-                        ) {
+                        if (currentId === "" || !Array.from(Clients.keys()).includes(currentId)) {
                             currentId = socket.id;
                         }
                         Clients.set(socket.id, {
@@ -237,16 +222,8 @@ export async function main(
                             ready: false,
                             positions: { x: 0, y: 0 },
                         });
-                        server.logFunction(
-                            `{${getCurrentTime()}} [${socket.id}] Player "${
-                                player.username
-                            }" has connected.`
-                        );
-                        logs_strings.push(
-                            `{${getCurrentTime()}} [${socket.id}] Player "${
-                                player.username
-                            }" has connected.`
-                        );
+                        server.logFunction(`{${getCurrentTime()}} [${socket.id}] Player "${player.username}" has connected.`);
+                        logs_strings.push(`{${getCurrentTime()}} [${socket.id}] Player "${player.username}" has connected.`);
                         const other_players = [];
                         for (const x of Array.from(Clients.values())) {
                             other_players.push(x.player.to_json());
@@ -272,14 +249,9 @@ export async function main(
                         socket.on("roll_dice", () => {
                             try {
                                 const first = Math.floor(Math.random() * 6) + 1;
-                                const second =
-                                    Math.floor(Math.random() * 6) + 1;
+                                const second = Math.floor(Math.random() * 6) + 1;
 
-                                const x = `{${getCurrentTime()}} [${
-                                    socket.id
-                                }] Player "${
-                                    player.username
-                                }" rolled a [${first},${second}].`;
+                                const x = `{${getCurrentTime()}} [${socket.id}] Player "${player.username}" rolled a [${first},${second}].`;
                                 logs_strings.push(x);
                                 server.logFunction(x);
                                 const sum = first + second;
@@ -293,22 +265,26 @@ export async function main(
                             }
                         });
                         // chest or chance
-                        socket.on("chorch_roll", (is_chance) => {
+                        socket.on("chorch_roll", (args: { is_chance: boolean; rolls: number }) => {
                             try {
-                                const arr = is_chance
-                                    ? monopolyJSON.chance
-                                    : monopolyJSON.communitychest;
-                                const randomElement =
-                                    arr[Math.floor(Math.random() * arr.length)];
-
+                                const arr = args.is_chance ? monopolyJSON.chance : monopolyJSON.communitychest;
+                                const randomElement = arr[Math.floor(Math.random() * arr.length)];
                                 EmitAll("chorch_result", {
                                     element: randomElement,
-                                    is_chance,
+                                    is_chance: args.is_chance,
+                                    rolls: args.rolls,
                                     turnId: currentId,
                                 });
                             } catch (e) {
                                 server.logFunction(e);
                             }
+                        });
+                        socket.on("player_update", (args: { playerId: string; pJson: PlayerJSON }) => {
+                            const xplayer = Clients.get(args.playerId);
+                            if (xplayer === undefined) return;
+
+                            xplayer.player.from_json(args.pJson);
+                            EmitExcepts(args.playerId, "player_update", args);
                         });
                         socket.on("finish-turn", (playerInfo: PlayerJSON) => {
                             try {
@@ -333,13 +309,7 @@ export async function main(
 
                         socket.on("message", (message: string) => {
                             try {
-                                server.logFunction(
-                                    `{${getCurrentTime()}} [${
-                                        socket.id
-                                    }] Player "${
-                                        Clients.get(socket.id)?.player.username
-                                    }" has messaged "${message}".`
-                                );
+                                server.logFunction(`{${getCurrentTime()}} [${socket.id}] Player "${Clients.get(socket.id)?.player.username}" has messaged "${message}".`);
                                 EmitAll("message", {
                                     from: player.username,
                                     message: message,
@@ -349,33 +319,24 @@ export async function main(
                             }
                         });
 
-                        socket.on(
-                            "pay",
-                            (args: {
-                                balance: number;
-                                from: string;
-                                to: string;
-                            }) => {
-                                try {
-                                    const top = Clients.get(args.to)?.player;
-                                    const fromp = Clients.get(
-                                        args.from
-                                    )?.player;
-                                    if (top === undefined) return;
-                                    top.balance += args.balance;
-                                    if (fromp === undefined) return;
-                                    fromp.balance -= args.balance;
-                                    EmitAll("member_updating", {
-                                        playerId: args.to,
-                                        animation: "recieveMoney",
-                                        additional_props: [args.from],
-                                        pJson: [top.to_json(), fromp.to_json()],
-                                    });
-                                } catch (e) {
-                                    server.logFunction(e);
-                                }
+                        socket.on("pay", (args: { balance: number; from: string; to: string }) => {
+                            try {
+                                const top = Clients.get(args.to)?.player;
+                                const fromp = Clients.get(args.from)?.player;
+                                if (top === undefined) return;
+                                top.balance += args.balance;
+                                if (fromp === undefined) return;
+                                fromp.balance -= args.balance;
+                                EmitAll("member_updating", {
+                                    playerId: args.to,
+                                    animation: "recieveMoney",
+                                    additional_props: [args.from],
+                                    pJson: [top.to_json(), fromp.to_json()],
+                                });
+                            } catch (e) {
+                                server.logFunction(e);
                             }
-                        );
+                        });
 
                         socket.on("mouse", (args: { x: number; y: number }) => {
                             const client = Clients.get(socket.id);
@@ -393,42 +354,36 @@ export async function main(
                         server.logFunction(e);
                     }
                 });
-                socket.on(
-                    "ready",
-                    (args: { ready?: boolean; mode?: number }) => {
-                        try {
-                            const client = Clients.get(socket.id);
-                            if (client === undefined) return;
-                            if (args.ready !== undefined) {
-                                client.ready = args.ready;
-                            }
-                            if (args.mode !== undefined) {
-                                selectedMode = args.mode;
-                            }
-                            Clients.set(socket.id, client);
-
-                            // Check if everyone Ready!
-
-                            const readys = Array.from(Clients.values()).map(
-                                (v) => v.ready
-                            );
-                            EmitAll("ready", {
-                                id: socket.id,
-                                state: client.ready,
-                                selectedMode,
-                            });
-                            if (!readys.includes(false)) {
-                                server.logFunction(
-                                    `Game has Started, No more Players can join the Server`
-                                );
-                                gameStarted = true;
-                                EmitAll("start-game", {});
-                            }
-                        } catch (e) {
-                            server.logFunction(e);
+                socket.on("ready", (args: { ready?: boolean; mode?: number }) => {
+                    try {
+                        const client = Clients.get(socket.id);
+                        if (client === undefined) return;
+                        if (args.ready !== undefined) {
+                            client.ready = args.ready;
                         }
+                        if (args.mode !== undefined) {
+                            selectedMode = args.mode;
+                        }
+                        Clients.set(socket.id, client);
+
+                        // Check if everyone Ready!
+
+                        const readys = Array.from(Clients.values()).map((v) => v.ready);
+                        EmitAll("ready", {
+                            id: socket.id,
+                            state: client.ready,
+                            selectedMode,
+                        });
+                        if (!readys.includes(false)) {
+                            server.logFunction(`Game has Started, No more Players can join the Server`);
+                            gameStarted = true;
+                            server.whenCloseF();
+                            EmitAll("start-game", {});
+                        }
+                    } catch (e) {
+                        server.logFunction(e);
                     }
-                );
+                });
             } else {
                 socket.disconnect();
             }
@@ -437,16 +392,8 @@ export async function main(
             socket.on("disconnect", () => {
                 try {
                     if (Clients.has(socket.id)) {
-                        server.logFunction(
-                            `{${getCurrentTime()}} [${socket.id}] Player "${
-                                Clients.get(socket.id)?.player.username
-                            }" has disconnected.`
-                        );
-                        logs_strings.push(
-                            `{${getCurrentTime()}} [${socket.id}] Player "${
-                                Clients.get(socket.id)?.player.username
-                            }" has disconnected.`
-                        );
+                        server.logFunction(`{${getCurrentTime()}} [${socket.id}] Player "${Clients.get(socket.id)?.player.username}" has disconnected.`);
+                        logs_strings.push(`{${getCurrentTime()}} [${socket.id}] Player "${Clients.get(socket.id)?.player.username}" has disconnected.`);
                     }
                     Clients.delete(socket.id);
                     if (currentId === socket.id) {
@@ -463,10 +410,7 @@ export async function main(
                     });
 
                     if (Array.from(Clients.keys()).length === 0) {
-                        if (gameStarted)
-                            server.logFunction(
-                                "Game has Ended. Server is currently Open to new Players"
-                            );
+                        if (gameStarted) server.logFunction("Game has Ended. Server is currently Open to new Players");
                         gameStarted = false;
                     }
                 } catch (e) {

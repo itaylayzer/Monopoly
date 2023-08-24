@@ -14,7 +14,7 @@ import { FirebaseApp, initializeApp } from "firebase/app";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 
 import { main } from "./assets/server.ts";
-import Slider from "./components/slider.tsx";
+import Slider from "./components/utils/slider.tsx";
 
 function App() {
     var cookie: MonopolyCookie;
@@ -67,8 +67,6 @@ function App() {
             }
         } catch {}
     }, []);
-
-    useEffect(() => {}, []);
 
     const joinButtonClicked = async () => {
         // Codes API
@@ -176,6 +174,7 @@ function App() {
             );
             socket.disconnect();
         });
+        
         socket.on("connect_timeout", () => {
             notifyRef.current?.message(
                 "the server took too long to respond",
@@ -407,7 +406,8 @@ function App() {
                                                     backgroundColor: "red",
                                                 }}
                                                 onClick={() => {
-                                                    document.location.reload();
+                                                    server.stop();
+                                                    SetServer(undefined);
                                                 }}
                                             >
                                                 Kill Server

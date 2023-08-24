@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import "./slider.css";
 export default function slider(prop: {
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     suffix?: string;

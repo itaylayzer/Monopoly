@@ -1,4 +1,5 @@
 # 🎲 Monopoly 🎲 - A Multiplayer React.js and Express.js Game
+
 the url of the game https://coder-1t45.github.io/Monopoly/
 
 Welcome to my Monopoly, a thrilling online multiplayer game developed using React.js, Express.js, and TypeScript. This exciting rendition of the classic Monopoly game incorporates some intriguing rule changes. this Monopoly can only be played in multiplayer mode.
@@ -21,19 +22,21 @@ credit for danielstern for the monopoly.json file which i modified
 https://github.com/danielstern/science/blob/master/monopoly.json
 
 ### Pascol Credits
+
 Main Theme : https://youtu.be/NaH_BiPeZ80
 
 #### Sound Effects:
-* Rolling Dice: https://youtu.be/rVjCSaXhZTs
-* Buying: https://youtu.be/IVjC5fTeubA
-* Dying: https://youtu.be/_asNhzXq72w
-* Winning: https://youtu.be/K0ZNtpTYKpI
-* Notification: https://youtu.be/84frnbTWGis
-* Walking: https://youtu.be/7skwR49UhqA
-* Jail: https://youtu.be/h2CTMrzxe24
-* Money: https://www.epidemicsound.com/track/oKEES3Rkmk/
-* Swipe: https://youtu.be/4-lY0NT-bJs
-* Clicking: https://youtu.be/3c-yEJYQcgM
+
+-   Rolling Dice: https://youtu.be/rVjCSaXhZTs
+-   Buying: https://youtu.be/IVjC5fTeubA
+-   Dying: https://youtu.be/_asNhzXq72w
+-   Winning: https://youtu.be/K0ZNtpTYKpI
+-   Notification: https://youtu.be/84frnbTWGis
+-   Walking: https://youtu.be/7skwR49UhqA
+-   Jail: https://youtu.be/h2CTMrzxe24
+-   Money: https://www.epidemicsound.com/track/oKEES3Rkmk/
+-   Swipe: https://youtu.be/4-lY0NT-bJs
+-   Clicking: https://youtu.be/3c-yEJYQcgM
 
 Soundtrakcs Where edited using Adobe Audition
 
@@ -55,14 +58,22 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 
 7. Personal Responsibility: As the developer, you are responsible for complying with all applicable laws, including intellectual property laws, and ensuring that your usage of this project is within legal boundaries.
 
-
 ## TODO List:
-1. Enhancement of [client] advanced chance/chest cards functionality - when i played the game this advanced chance/cards didnt matter so maybe i will not add those
-2. Tab to the Server Logs and statistics
+
+1. advance gameplay:
+    - trades
+    - gameplay history
+2. Server statistics [Maybe]
 3. Score System
-4. 
+4. Game Mode System - Custom and Game & Server
+5. Bots System
+6. Players LeaderBoard
+7. Search for Player Statistics
+8. last and least 3D Game Version
+   Only Then this project will be done for good.
 
 ## Pictures and Videos of the game!
+
 for more pictures go to the pictures folder in this repo
 ![picture of the monopoly game](https://cdn.discordapp.com/attachments/1005211638191890532/1133681326793433138/7.PNG)
 ![picture of the monopoly server](https://cdn.discordapp.com/attachments/1005211638191890532/1133683905522847816/17.PNG)

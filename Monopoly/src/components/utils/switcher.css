@@ -1,0 +1,32 @@
+* div.switcher-component {
+    display: inline-flex;
+    translate: 0px 1.75px;
+}
+
+* div.switcher-component button.switcher-component {
+    background-color: none;
+    border: 0;
+    border-radius: 0px;
+    outline: 0;
+    display: inline-block;
+    color: white;
+    padding: 0;
+    margin: 0;
+    background-color: rgba(0, 0, 0, 0);
+    height: 100%;
+    padding-inline: 5px;
+    translate: 0px -1px;
+    transform: scale(0.8);
+    font-family: consolas;
+    font-weight: 900;
+}
+
+* div.switcher-component p.switcher-component {
+    all: unset;
+    display: inline-block;
+    margin: 0;
+    color: white;
+    flex-grow: 1;
+    text-align: center;
+    font-family: consolas;
+}

@@ -1,0 +1,11 @@
+* div.slider-component {
+    display: flex;
+    gap: 10px;
+    color: white;
+}
+
+* div.slider-component input {
+    width: 150px;
+    height: 1px;
+    margin-block: auto;
+}

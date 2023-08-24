@@ -56,15 +56,21 @@ export class Socket {
         this.client.on("error", (error) => {
             console.error("Data connection error:", error);
         });
+        this.client.on("close", () => {
+            try {
+                const xhandler = this.events.get("disconnect");
+                if (xhandler !== undefined) {
+                    xhandler("");
+                }
+            } catch {}
+        });
     }
-    public on(event_name: string, handler: (args: any) => void) {
+    public on(event_name: string | "disconnect", handler: (args: any) => void) {
         this.events.set(event_name, handler);
         this.client.on("data", () => {});
     }
     public emit(event_name: string, args?: any) {
-        this.client.send(
-            JSON.stringify({ event: event_name, args: args ?? undefined })
-        );
+        this.client.send(JSON.stringify({ event: event_name, args: args ?? undefined }));
     }
     public disconnect() {
         this.emit("disconnect");
@@ -77,25 +83,23 @@ export class Server {
     public logFunction: (...data: any[]) => void;
     public renderFunction: (v: Array<any[]>) => void;
     public logs: Array<any[]> = [];
-    constructor(
-        idf?: (id: string, thisobj: Server) => void,
-        onf?: (s: Socket, server: Server) => void
-    ) {
+    public whenCloseF: () => void;
+    constructor(idf?: (id: string, thisobj: Server) => Promise<() => void>, onf?: (s: Socket, server: Server) => void) {
         this.socket = new Peer({
             debug: 0,
-            // logFunction: (...data: any[]) => {
-            //     console.log("server: ", ...data);
-            // },
         });
         this.logFunction = (...data) => {
             this.logs.push(data);
             console.log(data);
             this.renderFunction(this.logs);
         };
+        this.whenCloseF = () => {};
         this.renderFunction = () => {};
-        this.socket.on("open", (id) => {
-            idf?.(id, this);
+        this.socket.on("open", async (id) => {
+            const f = await idf?.(id, this);
+            f ? (this.whenCloseF = f) : "";
         });
+
         this.socket.on("connection", (dataConnection) => {
             dataConnection.on("open", () => {
                 const socket = new Socket(dataConnection);
@@ -111,5 +115,9 @@ export class Server {
     public RenderLogs(f: (v: Array<any[]>) => void) {
         this.renderFunction = f;
         f(this.logs);
+    }
+    public stop() {
+        this.socket.destroy();
+        this.whenCloseF();
     }
 }
