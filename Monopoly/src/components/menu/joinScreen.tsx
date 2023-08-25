@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { User } from "../../assets/types";
-import Slider from "../utils/slider";
-import Switcher from "../utils/switcher";
 import BotsList from "./botsList";
 export default function JoinScreen(props: {
     joinViaCode: () => void;
@@ -14,9 +12,6 @@ export default function JoinScreen(props: {
     SetName: React.Dispatch<React.SetStateAction<string>>;
 }) {
     const [tabIndex, SetTab] = useState(0);
-    const [botsCount, SetBCounts] = useState(0);
-    const [botsDiff, SetBDiff] = useState(0);
-
     return (
         <>
             <nav className="join">
@@ -43,77 +38,64 @@ export default function JoinScreen(props: {
 
             {tabIndex === 1 ? (
                 <>
-                    <div key={"bots-name"}><p>please enter your name:</p>
-                    {props.fbUser === undefined ? (
-                        <input
-                            type="text"
-                            id="name"
-                            onChange={(e) => {
-                                props.SetName(e.currentTarget.value);
-                            }}
-                            defaultValue={props.name}
-                            placeholder="enter name"
-                        />
-                    ) : (
-                        <input
-                            type="text"
-                            id="name"
-                            disabled={true}
-                            value={props.fbUser.name}
-                            placeholder="enter name"
-                        />
-                    )}</div>
+                    <div key={"bots-name"}>
+                        <p>please enter your name:</p>
+                        {props.fbUser === undefined ? (
+                            <input
+                                type="text"
+                                id="name"
+                                onChange={(e) => {
+                                    props.SetName(e.currentTarget.value);
+                                }}
+                                defaultValue={props.name}
+                                placeholder="enter name"
+                            />
+                        ) : (
+                            <input type="text" id="name" disabled={true} value={props.fbUser.name} placeholder="enter name" />
+                        )}
+                    </div>
                     <p>bots settings:</p>
                     <BotsList
                         OnChange={(arr: string[]) => {
-                            
+                            console.log(arr);
                         }}
                     />
 
                     <center>
-                        <button
-                            onClick={() => {
-                                props.joinBots(botsCount, botsDiff);
-                            }}
-                            disabled={props.disabled}
-                        >
+                        <button onClick={() => {}} disabled={props.disabled}>
                             start
                         </button>
                     </center>
                 </>
             ) : (
                 <>
-                    <div key={"online-code"}><p>please enter your code:</p>
-                    <input
-                        type="text"
-                        id="name"
-                        onChange={(e) =>
-                            props.SetAddress(e.currentTarget.value)
-                        }
-                        defaultValue={props.addr}
-                        placeholder="enter code"
-                    /></div>
+                    <div key={"online-code"}>
+                        <p>please enter your code:</p>
+                        <input
+                            type="text"
+                            id="name"
+                            onChange={(e) => props.SetAddress(e.currentTarget.value)}
+                            defaultValue={props.addr}
+                            placeholder="enter code"
+                        />
+                    </div>
 
-                    <div key={"online-name"}><p>please enter your name:</p>
-                    {props.fbUser === undefined ? (
-                        <input
-                            type="text"
-                            id="name"
-                            onChange={(e) => {
-                                props.SetName(e.currentTarget.value);
-                            }}
-                            defaultValue={props.name}
-                            placeholder="enter name"
-                        />
-                    ) : (
-                        <input
-                            type="text"
-                            id="name"
-                            disabled={true}
-                            value={props.name}
-                            placeholder="enter name"
-                        />
-                    )}</div>
+                    <div key={"online-name"}>
+                        <p>please enter your name:</p>
+                        {props.fbUser === undefined ? (
+                            <input
+                                type="text"
+                                id="name"
+                                onChange={(e) => {
+                                    props.SetName(e.currentTarget.value);
+                                }}
+                                defaultValue={props.name}
+                                placeholder="enter name"
+                            />
+                        ) : (
+                            <input type="text" id="name" disabled={true} value={props.name} placeholder="enter name" />
+                        )}
+                    </div>
 
                     <center>
                         <button

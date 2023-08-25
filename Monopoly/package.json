@@ -8,8 +8,7 @@
         "dev": "vite",
         "build": "tsc && vite build",
         "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-        "preview": "vite preview",
-        "hub": "smoke-hub --port 25565"
+        "preview": "vite preview"
     },
     "dependencies": {
         "@types/simple-peer": "^9.11.5",
