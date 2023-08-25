@@ -7,7 +7,7 @@ import { useEffect } from "react";
 function Error() {
     useEffect(() => {
         setTimeout(() => {
-            document.location.href = "/";
+            document.location.href = "/Monopoly";
         }, 3000);
     }, []);
     return (
@@ -22,11 +22,12 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/gallery" element={<Gallery />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/play" element={<Home />} />
-                <Route path="*" element={<Error />} /> {/* This route acts as the "exact" route */}
+                <Route path="/Monopoly" element={<Home />} />
+                <Route path="/Monopoly/" element={<Home />} />
+                <Route path="/Monopoly/gallery" element={<Gallery />} />
+                <Route path="/Monopoly/home" element={<Home />} />
+                <Route path="/Monopoly/play" element={<Home />} />
+                <Route path="/Monopoly/*" element={<Error />} /> {/* This route acts as the "exact" route */}
             </Routes>
         </Router>
     );
