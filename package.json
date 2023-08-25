@@ -1,4 +1,5 @@
 {
+    "homepage": "https://coder-1t45.github.io/Monopoly/",
     "scripts": {
         "pages": "gh-pages -d docs"
     },
