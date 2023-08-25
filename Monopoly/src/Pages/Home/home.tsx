@@ -383,7 +383,7 @@ export default function Home() {
                     ) : (
                         <>
                             <header>
-                                <p style={{ fontSize: 9 }}>22.8.23 - Serverless</p>
+                                <p style={{ fontSize: 9 }}>25.8.23 - Gallery (2)</p>
                                 Welcome to the <h3>MONOPOLY</h3> Game
                             </header>
                             <JoinScreen
