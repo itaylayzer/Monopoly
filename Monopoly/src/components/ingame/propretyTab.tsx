@@ -9,6 +9,10 @@ import { Player } from "../../assets/player.ts";
 interface PropretyTabProps {
     socket: Socket;
     players: Array<Player>;
+    Morgage: {
+        onMort: (a: number) => void;
+        onCanc: (a: number) => void;
+    };
 }
 export interface PropretyTabRef {
     clickedOnBoard: (a: number) => void;
@@ -26,7 +30,11 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>((props, ref) =>
             const x = propretyMap.get(location);
             const localP = props.players.filter((v) => v.id === props.socket.id)[0];
 
-            return x !== undefined && x.group === "Railroad" && localP.properties.filter((v) => v.group === "Railroad" && v.posistion === location).length > 0;
+            return (
+                x !== undefined &&
+                x.group === "Railroad" &&
+                localP.properties.filter((v) => v.group === "Railroad" && v.posistion === location).length > 0
+            );
         },
         isMortaged: (location: number) => {
             const localP = props.players.filter((v) => v.id === props.socket.id)[0];
@@ -40,7 +48,7 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>((props, ref) =>
                 const prp = localP.properties.filter((v) => v.group === "Railroad" && v.posistion === location)[0];
                 prp.morgage = false;
 
-                //TODO: Pay 10
+                props.Morgage.onCanc(10);
                 localP;
 
                 SetCardPos(-1);
@@ -52,7 +60,7 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>((props, ref) =>
                 const prp = localP.properties.filter((v) => v.group === "Railroad" && v.posistion === location)[0];
                 prp.morgage = true;
 
-                //TODO: Pay 100
+                props.Morgage.onMort(100);
 
                 SetCardPos(-1);
                 props.socket.emit("player_update", { playerId: props.socket.id, pJson: localP.toJson() });

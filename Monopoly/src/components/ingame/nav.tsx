@@ -20,6 +20,10 @@ interface MonopolyNavProps {
     currentTurn: string;
     server: Server | undefined;
     callServer: () => void;
+    Morgage: {
+        onMort: (a: number) => void;
+        onCanc: (a: number) => void;
+    };
 }
 export interface MonopolyNavRef {
     addMessage: (arg: { from: string; message: string }) => void;
@@ -148,7 +152,8 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
 
             <nav className="content" data-index={tabIndex > 5 ? 0 : tabIndex < 0 ? 0 : tabIndex}>
                 {tabIndex == 1 ? (
-                    <PropretyTab ref={propretyRef} players={displayPlayers} socket={prop.socket} />
+                    <PropretyTab ref={propretyRef} players={displayPlayers} socket={prop.socket} Morgage={
+                        prop.Morgage} />
                 ) : tabIndex == 2 ? (
                     <>
                         <h3 style={{ textAlign: "center" }}>Chat</h3>

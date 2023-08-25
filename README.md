@@ -63,6 +63,7 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 1. advance gameplay:
     - trades
     - gameplay history
+    - Player Tab
 2. Server statistics [Maybe]
 3. Score System
 4. Game Mode System - Custom and Game & Server
@@ -74,6 +75,5 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 
 ## Pictures and Videos of the game!
 
-for more pictures go to the pictures folder in this repo
+for more pictures https://coder-1t45.github.io/Monopoly/gallery
 ![picture of the monopoly game](https://cdn.discordapp.com/attachments/1005211638191890532/1133681326793433138/7.PNG)
-![picture of the monopoly server](https://cdn.discordapp.com/attachments/1005211638191890532/1133683905522847816/17.PNG)

@@ -8,6 +8,7 @@ import StreetCard, { StreetDisplayInfo, UtilitiesDisplayInfo, RailroadDisplayInf
 import monopolyJSON from "../../assets/monopoly.json";
 import ChacneCard, { ChanceDisplayInfo } from "./specialCards.tsx";
 import { MonopolyCookie, MonopolySettings } from "../../assets/types.ts";
+
 interface MonopolyGameProps {
     players: Array<Player>;
     myTurn: boolean;
@@ -17,7 +18,11 @@ interface MonopolyGameProps {
 export interface MonopolyGameRef {
     diceResults: (args: { l: [number, number]; time: number; onDone: () => void }) => void;
     freeDice: () => void;
-    setStreet: (args: { location: number; rolls: number; onResponse: (action: "nothing" | "buy" | "someones" | "special_action" | "advance-buy", info: object) => void }) => void;
+    setStreet: (args: {
+        location: number;
+        rolls: number;
+        onResponse: (action: "nothing" | "buy" | "someones" | "special_action" | "advance-buy", info: object) => void;
+    }) => void;
     chorch: (
         element: {
             title: string;
@@ -180,7 +185,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
                                 while (divB.firstChild) {
                                     divB.removeChild(divB.firstChild);
                                 }
-                                const propId = Array.from(new Map(localPlayer.properties.map((v, i) => [i, v])).entries()).filter((v) => v[1].posistion === args.location)[0][0];
+                                const propId = Array.from(new Map(localPlayer.properties.map((v, i) => [i, v])).entries()).filter(
+                                    (v) => v[1].posistion === args.location
+                                )[0][0];
 
                                 function transformCount(v: 0 | 2 | 1 | 3 | 4 | "h") {
                                     switch (v) {
@@ -197,7 +204,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
                                     if (index === 5) {
                                         myButton.innerHTML = `buy hotel`;
                                         // dont let someone buy hotel of not have a set of 4 houses
-                                        myButton.disabled = index !== count + 1 || (_property.ohousecost ?? 0) > (prop.players.filter((v) => v.id === prop.socket.id)[0].balance ?? 0);
+                                        myButton.disabled =
+                                            index !== count + 1 ||
+                                            (_property.ohousecost ?? 0) > (prop.players.filter((v) => v.id === prop.socket.id)[0].balance ?? 0);
                                         myButton.onclick = () => {
                                             args.onResponse("advance-buy", {
                                                 state: index,
@@ -214,7 +223,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
                                             });
                                             ShowStreet(false);
                                         };
-                                        myButton.disabled = (index - count) * (_property.housecost ?? 0) > (prop.players.filter((v) => v.id === prop.socket.id)[0].balance ?? 0);
+                                        myButton.disabled =
+                                            (index - count) * (_property.housecost ?? 0) >
+                                            (prop.players.filter((v) => v.id === prop.socket.id)[0].balance ?? 0);
                                     }
                                     divB.appendChild(myButton);
                                 }
@@ -359,7 +370,15 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
                         hotelsCost: x.ohousecost ?? -1,
                         housesCost: x.housecost ?? -1,
                         rent: x.rent ?? -1,
-                        multpliedrent: x.multpliedrent ? [x.multpliedrent[0] ?? -1, x.multpliedrent[1] ?? -1, x.multpliedrent[2] ?? -1, x.multpliedrent[3] ?? -1, x.multpliedrent[4] ?? -1] : [-1, -1, -1, -1, -1],
+                        multpliedrent: x.multpliedrent
+                            ? [
+                                  x.multpliedrent[0] ?? -1,
+                                  x.multpliedrent[1] ?? -1,
+                                  x.multpliedrent[2] ?? -1,
+                                  x.multpliedrent[3] ?? -1,
+                                  x.multpliedrent[4] ?? -1,
+                              ]
+                            : [-1, -1, -1, -1, -1],
                         rentWithColorSet: x.rent ? x.rent * 2 : -1,
                         title: x.name ?? "error",
                         group: x.group,
@@ -463,7 +482,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
         // Clicking Street
         const safe = Array.from(propretyMap.values()).filter((v) => v.group != "Special");
         for (const x of safe) {
-            const element = (document.getElementById("locations") as HTMLDivElement).querySelector(`div.street[data-position="${x.posistion}"]`) as HTMLDivElement;
+            const element = (document.getElementById("locations") as HTMLDivElement).querySelector(
+                `div.street[data-position="${x.posistion}"]`
+            ) as HTMLDivElement;
 
             element.onclick = () => {
                 prop.clickedOnBoard(x.posistion);
@@ -1355,13 +1376,28 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
                     </div>
                 </div>
                 <div className="roll-panel">
-                    <button className="roll-button" data-button-type="card" aria-disabled={true} style={prop.myTurn && !sended ? {} : { translate: "0px 20vh" }}>
+                    <button
+                        className="roll-button"
+                        data-button-type="card"
+                        aria-disabled={true}
+                        style={prop.myTurn && !sended ? {} : { translate: "0px 20vh" }}
+                    >
                         <p>CARD</p>
                     </button>
-                    <button className="roll-button" data-button-type="pay" aria-disabled={true} style={prop.myTurn && !sended ? {} : { translate: "0px 20vh" }}>
+                    <button
+                        className="roll-button"
+                        data-button-type="pay"
+                        aria-disabled={true}
+                        style={prop.myTurn && !sended ? {} : { translate: "0px 20vh" }}
+                    >
                         <p>PAY</p>
                     </button>
-                    <button className="roll-button" data-button-type="roll" aria-disabled={false} style={prop.myTurn && !sended ? {} : { translate: "0px 20vh" }}>
+                    <button
+                        className="roll-button"
+                        data-button-type="roll"
+                        aria-disabled={false}
+                        style={prop.myTurn && !sended ? {} : { translate: "0px 20vh" }}
+                    >
                         <img src={RollIcon.replace("public/", "")} />
                         <p>ROLL THE DICE</p> <img src={RollIcon.replace("public/", "")} />
                     </button>
@@ -1377,11 +1413,25 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
                     }
                 >
                     {streetType === "Chance" || streetType === "CommunityChest" ? (
-                        <>{streetType === "Chance" ? <ChacneCard chance={streetDisplay as ChanceDisplayInfo} /> : streetType === "CommunityChest" ? <ChacneCard chance={streetDisplay as ChanceDisplayInfo} /> : <></>}</>
+                        <>
+                            {streetType === "Chance" ? (
+                                <ChacneCard chance={streetDisplay as ChanceDisplayInfo} />
+                            ) : streetType === "CommunityChest" ? (
+                                <ChacneCard chance={streetDisplay as ChanceDisplayInfo} />
+                            ) : (
+                                <></>
+                            )}
+                        </>
                     ) : (
                         <>
                             <h3>{advnacedStreet ? "would you like to buy this card?" : "you can buy houses and hotels"}</h3>
-                            {streetType === "Railroad" ? <StreetCard railroad={streetDisplay as RailroadDisplayInfo} /> : streetType === "Utilities" ? <StreetCard utility={streetDisplay as UtilitiesDisplayInfo} /> : <StreetCard street={streetDisplay as StreetDisplayInfo} />}
+                            {streetType === "Railroad" ? (
+                                <StreetCard railroad={streetDisplay as RailroadDisplayInfo} />
+                            ) : streetType === "Utilities" ? (
+                                <StreetCard utility={streetDisplay as UtilitiesDisplayInfo} />
+                            ) : (
+                                <StreetCard street={streetDisplay as StreetDisplayInfo} />
+                            )}
                             <div>
                                 <center>
                                     {advnacedStreet ? (
