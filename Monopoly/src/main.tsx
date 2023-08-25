@@ -3,21 +3,21 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Route, Routes, RouterProvider, createBrowserRouter } from "react-router-dom";
 import Gallery from "./Pages/Galery/gallery.tsx";
 import Home from "./Pages/Home/home.tsx";
-import { useEffect } from "react";
+// import { useEffect } from "react";
 
-function Error() {
-    useEffect(() => {
-        setTimeout(() => {
-            document.location.href = "/Monopoly";
-        }, 3000);
-    }, []);
-    return (
-        <>
-            <h3>Error - This Site Doesnt Exists!</h3>
-            <p>redirecting you to the home page</p>
-        </>
-    );
-}
+// function Error() {
+//     useEffect(() => {
+//         setTimeout(() => {
+//             document.location.href = "/Monopoly";
+//         }, 3000);
+//     }, []);
+//     return (
+//         <>
+//             <h3>Error - This Site Doesnt Exists!</h3>
+//             <p>redirecting you to the home page</p>
+//         </>
+//     );
+// }
 
 const router = createBrowserRouter([
     {
