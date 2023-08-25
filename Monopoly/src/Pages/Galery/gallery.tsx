@@ -9,7 +9,8 @@ export default function Gallery() {
             <div className="gallery-main">
                 {["1.PNG", "2.PNG", "3.PNG", "4.PNG", "5.PNG", "6.PNG", "7.PNG", "8.PNG"].map((v) => (
                     <img
-                        src={"/gallery/" + v}
+                        key={v}
+                        src={"Monopoly/gallery/" + v}
                         onClick={() => {
                             document.location.href = "/gallery/" + v;
                         }}
