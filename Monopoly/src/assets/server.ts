@@ -2,6 +2,7 @@ import axios from "axios";
 import ENV from "../../env.json";
 import { Socket, Server } from "./websockets";
 import monopolyJSON from "./monopoly.json";
+import { historyAction } from "./types";
 class Player {
     public id: string;
     public username: string;
@@ -199,6 +200,7 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
             // await CodeAPI().Clear();
             var _code = await CodeAPI().Generate(id);
             f?.(_code, server);
+            server.code = _code;
             return async () => {
                 await CodeAPI().Delete(_code);
             };
@@ -309,7 +311,11 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
 
                         socket.on("message", (message: string) => {
                             try {
-                                server.logFunction(`{${getCurrentTime()}} [${socket.id}] Player "${Clients.get(socket.id)?.player.username}" has messaged "${message}".`);
+                                server.logFunction(
+                                    `{${getCurrentTime()}} [${socket.id}] Player "${
+                                        Clients.get(socket.id)?.player.username
+                                    }" has messaged "${message}".`
+                                );
                                 EmitAll("message", {
                                     from: player.username,
                                     message: message,
@@ -349,6 +355,9 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
                                 x: args.x,
                                 y: args.y,
                             });
+                        });
+                        socket.on("history", (args: historyAction) => {
+                            EmitAll("history", args);
                         });
                     } catch (e) {
                         server.logFunction(e);
@@ -392,8 +401,12 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
             socket.on("disconnect", () => {
                 try {
                     if (Clients.has(socket.id)) {
-                        server.logFunction(`{${getCurrentTime()}} [${socket.id}] Player "${Clients.get(socket.id)?.player.username}" has disconnected.`);
-                        logs_strings.push(`{${getCurrentTime()}} [${socket.id}] Player "${Clients.get(socket.id)?.player.username}" has disconnected.`);
+                        server.logFunction(
+                            `{${getCurrentTime()}} [${socket.id}] Player "${Clients.get(socket.id)?.player.username}" has disconnected.`
+                        );
+                        logs_strings.push(
+                            `{${getCurrentTime()}} [${socket.id}] Player "${Clients.get(socket.id)?.player.username}" has disconnected.`
+                        );
                     }
                     Clients.delete(socket.id);
                     if (currentId === socket.id) {

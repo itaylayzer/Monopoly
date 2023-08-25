@@ -12,6 +12,7 @@ import { Server, Socket } from "../../assets/websockets.ts";
 import PropretyTab, { PropretyTabRef } from "./propretyTab.tsx";
 import PlayersTab, { PlayersTabRef } from "./playersTab.tsx";
 import SettingsNav from "../settingsNav.tsx";
+import { historyAction } from "../../assets/types.ts";
 
 interface MonopolyNavProps {
     name: string;
@@ -21,9 +22,11 @@ interface MonopolyNavProps {
     server: Server | undefined;
     callServer: () => void;
     Morgage: {
-        onMort: (a: number) => void;
-        onCanc: (a: number) => void;
+        onMort: (a: number, prpName: string) => void;
+        onCanc: (a: number, prpName: string) => void;
     };
+    history: Array<historyAction>;
+    time: Date;
 }
 export interface MonopolyNavRef {
     addMessage: (arg: { from: string; message: string }) => void;
@@ -34,11 +37,48 @@ export interface MonopolyNavRef {
 const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => {
     const [tabIndex, SetTab] = useState<number>(0);
     const [messages, SetMessages] = useState<Array<{ from: string; message: string }>>([]);
-
+    const [currentTime, setCurrentTime] = useState<Date>(new Date());
     function reRenderPlayerList() {
         SetDisplays(prop.players);
     }
 
+    useEffect(() => {
+        const t_interval = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
+        return () => {
+            clearInterval(t_interval);
+        };
+    }, [prop.time]);
+    function getTimeString(s: string) {
+        const _d = new Date(s);
+        const hours = _d.getHours().toString().padStart(2, "0"); // Get hours and pad with leading zero if necessary
+        const minutes = _d.getMinutes().toString().padStart(2, "0"); // Get minutes and pad with leading zero if necessary
+        return `${hours}:${minutes}`;
+    }
+    function calculateTimeDifference(a: Date, b: Date) {
+        // Parse the input date strings into Date objects
+        const startTime = a.getTime();
+        const endTime = b.getTime();
+
+        // Calculate the time difference in milliseconds
+        const timeDifference = endTime - startTime;
+
+        // Calculate hours, minutes, and seconds
+        const hours = Math.floor(timeDifference / 3600000); // 1 hour = 3600000 milliseconds
+        const minutes = Math.floor((timeDifference % 3600000) / 60000); // 1 minute = 60000 milliseconds
+        const seconds = Math.floor((timeDifference % 60000) / 1000); // 1 second = 1000 milliseconds
+
+        const h = hours.toString().padStart(2, "0");
+        const m = minutes.toString().padStart(2, "0");
+        const s = seconds.toString().padStart(2, "0");
+        // Format the output string based on whether there are hours
+        if (hours === 0) {
+            return `${m}:${s}`;
+        } else {
+            return `${h}:${m}:${s}`;
+        }
+    }
     const [displayPlayers, SetDisplays] = useState<Array<Player>>(prop.players);
     useImperativeHandle(ref, () => ({
         addMessage(arg) {
@@ -94,18 +134,38 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
             <nav className="header">
                 <img style={{ marginTop: 75 }} className="header" src={MonopolyIcon.replace("public/", "")} />
                 <div className="upper">
-                    <div data-selected={tabIndex == 0} onClick={() => SetTab(0)} data-tooltip-hover="players" className="button">
+                    <div
+                        key={"ingame-nav-header-0"}
+                        data-selected={tabIndex == 0}
+                        onClick={() => SetTab(0)}
+                        data-tooltip-hover="players"
+                        className="button"
+                    >
                         <img src={PlayersIcon.replace("public/", "")} alt="" />
                     </div>
 
-                    <div data-selected={tabIndex == 1} onClick={() => SetTab(1)} data-tooltip-hover="propreties" className="button">
+                    <div
+                        key={"ingame-nav-header-1"}
+                        data-selected={tabIndex == 1}
+                        onClick={() => SetTab(1)}
+                        data-tooltip-hover="propreties"
+                        className="button"
+                    >
                         <img src={PropretiesIcon.replace("public/", "")} alt="" />
                     </div>
 
-                    <div data-selected={tabIndex == 2} onClick={() => SetTab(2)} data-tooltip-hover="chat" className="button" id="chatIconChange">
+                    <div
+                        key={"ingame-nav-header-2"}
+                        data-selected={tabIndex == 2}
+                        onClick={() => SetTab(2)}
+                        data-tooltip-hover="chat"
+                        className="button"
+                        id="chatIconChange"
+                    >
                         <img src={ChatIcon.replace("public/", "")} alt="" />
                     </div>
                     <div
+                        key={"ingame-nav-header-3"}
                         data-selected={tabIndex === 3}
                         onClick={() => {
                             SetTab(3);
@@ -116,6 +176,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                         <img src="morgage.png" alt="" />
                     </div>
                     <div
+                        key={"ingame-nav-header-4"}
                         data-selected={tabIndex === 4}
                         onClick={() => {
                             SetTab(4);
@@ -125,19 +186,32 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                     >
                         <img src="history.png" alt="" />
                     </div>
+                </div>
+                <div className="lower">
                     {prop.server !== undefined ? (
-                        <div data-selected={false} onClick={() => prop.callServer()} data-tooltip-hover="server" className="button">
+                        <div
+                            key={"ingame-nav-header-5"}
+                            data-selected={false}
+                            onClick={() => prop.callServer()}
+                            data-tooltip-hover="server"
+                            className="button"
+                        >
                             <img src="server.png" alt="" />
                         </div>
                     ) : (
                         <></>
                     )}
-                </div>
-                <div className="lower">
-                    <div data-selected={tabIndex == 5} onClick={() => SetTab(5)} data-tooltip-hover="settings" className="button">
+                    <div
+                        key={"ingame-nav-header-6"}
+                        data-selected={tabIndex == 5}
+                        onClick={() => SetTab(5)}
+                        data-tooltip-hover="settings"
+                        className="button"
+                    >
                         <img src={SettingsIcon.replace("public/", "")} alt="" />
                     </div>
                     <div
+                        key={"ingame-nav-header-7"}
                         data-tooltip="leave"
                         className="button color"
                         data-tooltip-hover="leave"
@@ -152,8 +226,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
 
             <nav className="content" data-index={tabIndex > 5 ? 0 : tabIndex < 0 ? 0 : tabIndex}>
                 {tabIndex == 1 ? (
-                    <PropretyTab ref={propretyRef} players={displayPlayers} socket={prop.socket} Morgage={
-                        prop.Morgage} />
+                    <PropretyTab ref={propretyRef} players={displayPlayers} socket={prop.socket} Morgage={prop.Morgage} />
                 ) : tabIndex == 2 ? (
                     <>
                         <h3 style={{ textAlign: "center" }}>Chat</h3>
@@ -187,7 +260,22 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                     </>
                 ) : tabIndex == 4 ? (
                     <>
-                        <h3 style={{ textAlign: "center" }}>History</h3>
+                        <h3 style={{ textAlign: "center" }}>
+                            History <h2>{calculateTimeDifference(prop.time, currentTime)}</h2>
+                        </h3>
+
+                        <div style={{ overflowY: "auto", display: "block", position: "relative" }}>
+                            {prop.history
+                                .sort((a, b) => {
+                                    return new Date(a.time).getTime() - new Date(b.time).getTime();
+                                })
+                                .map((v) => (
+                                    <div className="history-action">
+                                        <p>{getTimeString(v.time)}</p>
+                                        <p>{v.action}</p>
+                                    </div>
+                                ))}
+                        </div>
                     </>
                 ) : tabIndex == 5 ? (
                     <SettingsNav />

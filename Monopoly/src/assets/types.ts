@@ -61,3 +61,15 @@ export interface PlayerProprety {
     rent?: number;
     morgage?: boolean;
 }
+
+export interface historyAction {
+    time: string;
+    action: string;
+}
+export function history(action: string): historyAction {
+    const time = new Date().toJSON();
+    return {
+        action,
+        time,
+    } as historyAction;
+}

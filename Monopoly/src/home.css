@@ -383,19 +383,18 @@ div.entry main div.user-credentials button {
 div.entry main table {
     color: white;
     padding-inline: 10px;
+    border-radius: 10px;
+    background-color: rgb(30, 30, 30);
 }
 
 div.entry main table tr {
     margin: 0;
 }
 
-div.entry main table tr td {
-    border-bottom: 1px solid white;
-}
-
 div.entry main table tr td:nth-child(1) {
     text-align: left;
     opacity: 0.8;
+    margin-block: auto;
 }
 
 div.entry main table tr td:nth-child(2) {
@@ -547,4 +546,29 @@ p#floating-clock.clocking {
     100% {
         scale: 1;
     }
+}
+
+div.loginPageHeader {
+    display: flex;
+    width: 100%;
+}
+
+div.loginPageHeader h3 {
+    flex-grow: 1;
+}
+
+div.scoreboardIcon {
+    width: 30px;
+    margin-block: auto;
+}
+
+div.scoreboardIcon img {
+    width: 30px;
+    margin-block: auto;
+    transition: scale .3s cubic-bezier(0.21, 1.57, 0.55, 1);
+    cursor: pointer;
+}
+
+div.scoreboardIcon img:hover {
+    scale: 0.8;
 }

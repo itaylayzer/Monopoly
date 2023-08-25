@@ -3,22 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Route, Routes, RouterProvider, createBrowserRouter } from "react-router-dom";
 import Gallery from "./Pages/Galery/gallery.tsx";
 import Home from "./Pages/Home/home.tsx";
-// import { useEffect } from "react";
-
-// function Error() {
-//     useEffect(() => {
-//         setTimeout(() => {
-//             document.location.href = "/Monopoly";
-//         }, 3000);
-//     }, []);
-//     return (
-//         <>
-//             <h3>Error - This Site Doesnt Exists!</h3>
-//             <p>redirecting you to the home page</p>
-//         </>
-//     );
-// }
-
+import Users from "./Pages/Users/users.tsx";
 const router = createBrowserRouter([
     {
         path: "Monopoly",
@@ -27,6 +12,10 @@ const router = createBrowserRouter([
     {
         path: "Monopoly/gallery",
         element: <Gallery />,
+    },
+    {
+        path: "/Monopoly/users",
+        element: <Users />,
     },
 ]);
 

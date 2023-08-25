@@ -531,6 +531,7 @@ main nav.content div.propertyList {
     cursor: unset;
 }
 
+/* 
 #server main div.middle::-webkit-scrollbar,
 main nav.content[data-index="5"] div.scroll::-webkit-scrollbar,
 main nav.content div.main-chat div.messages::-webkit-scrollbar,
@@ -564,7 +565,7 @@ main nav.content div.main-chat div.messages::-webkit-scrollbar-thumb:hover,
 main nav.content div.propertyList::-webkit-scrollbar-thumb:hover,
 main nav.content div.container-top div.playersInfos::-webkit-scrollbar-thumb:hover {
     background-color: rgb(255, 255, 255, 75%);
-}
+} */
 
 main nav.content[data-index="0"] div.container-bottom {
     display: block;
@@ -724,11 +725,23 @@ main nav.content[data-index="1"] input {
     user-select: text;
 }
 
+main nav.content[data-index="4"] {
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+main nav.content[data-index="4"]>div {
+    flex-grow: 1;
+}
+
+
 main nav.content[data-index="5"] {
     overflow-y: hidden;
     display: flex;
     flex-direction: column;
 }
+
 
 main nav.content[data-index="5"] div.scroll {
     overflow-y: auto;
@@ -1599,4 +1612,27 @@ button.railroads-actions {
 
 button.railroads-actions:hover {
     scale: 0.9;
+}
+
+div.history-action {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+}
+
+div.history-action p {
+    display: inline-block;
+    margin-block: 10px;
+}
+
+div.history-action p:nth-child(1) {
+    opacity: 0.5;
+}
+
+div.history-action p:nth-child(1)::before {
+    content: "["
+}
+
+div.history-action p:nth-child(1)::after {
+    content: "]"
 }

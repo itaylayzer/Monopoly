@@ -6,7 +6,7 @@ import MonopolyNav, { MonopolyNavRef } from "../../components/ingame/nav.tsx";
 import MonopolyGame, { MonopolyGameRef } from "../../components/ingame/game.tsx";
 import NotifyElement, { NotificatorRef } from "../../components/notificator.tsx";
 import monopolyJSON from "../../assets/monopoly.json";
-import { MonopolySettings, MonopolyModes } from "../../assets/types.ts";
+import { MonopolySettings, MonopolyModes, historyAction, history } from "../../assets/types.ts";
 function App({ socket, name, server }: { socket: Socket; name: string; server: Server | undefined }) {
     const [clients, SetClients] = useState<Map<string, Player>>(new Map());
     const players = Array.from(clients.values());
@@ -18,6 +18,8 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
     const [selectedMode, SetMode] = useState<number>(0);
     const [globalSettings, SetSettings] = useState<MonopolySettings>();
     const [mainTheme, SetTheme] = useState(new Audio("./main-theme.mp3"));
+    const [startTIme, SetStartTime] = useState<Date>(new Date());
+    const [histories, SetHistories] = useState<Array<historyAction>>([]);
     useEffect(() => {
         if (!gameStartedDisplay) return;
         // Sound Effect
@@ -29,6 +31,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
             mainTheme.volume = (globalSettings.audio[0] / 100) * (globalSettings.audio[2] / 100);
         }
         SetTheme(mainTheme);
+        SetStartTime(new Date());
     }, [gameStartedDisplay]);
     useEffect(() => {
         const settings_interval = setInterval(() => {
@@ -371,6 +374,14 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
             navRef.current?.addMessage(message);
         };
         const socket_DiceRollResult = (args: { listOfNums: [number, number, number]; turnId: string }) => {
+            SetHistories((old) => [
+                ...old,
+                history(
+                    `${clients.get(args.turnId)?.username ?? "unknown player"} rolled [${args.listOfNums[0]}, ${args.listOfNums[1]}] moving to "${
+                        propretyMap.get(args.listOfNums[2])?.name ?? ""
+                    }"`
+                ),
+            ]);
             var audio = new Audio("./rolling.mp3");
             audio.volume = ((settings?.audio[1] ?? 100) / 100) * ((settings?.audio[0] ?? 100) / 100);
             audio.loop = false;
@@ -381,6 +392,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
             const dice_generatorResults = playerMoveGENERATOR(args.listOfNums[2], xplayer, true, () => {
                 if (args.turnId != socket.id && args.listOfNums[2] === 30) {
                     setTimeout(() => {
+                        SetHistories((old) => [...old, history(`${clients.get(args.turnId)?.username ?? "unknown player"} goes to jail`)]);
                         const generatorResults = playerMoveGENERATOR(10, xplayer, false, () => {
                             xplayer.position = 10;
                             xplayer.isInJail = true;
@@ -432,6 +444,11 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                         audio.volume = 0.5 * ((settings?.audio[1] ?? 100) / 100) * ((settings?.audio[0] ?? 100) / 100);
                                         audio.loop = false;
                                         audio.play();
+
+                                        socket.emit(
+                                            "history",
+                                            history(`${clients.get(socket.id)?.username ?? "unknown player"} bought ${proprety.name}`)
+                                        );
                                     } else if (b === "advance-buy") {
                                         var audio = new Audio("./buying1.mp3");
                                         audio.volume = 0.5 * ((settings?.audio[1] ?? 100) / 100) * ((settings?.audio[0] ?? 100) / 100);
@@ -471,6 +488,11 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                             localPlayer.balance -= (proprety.housecost ?? 0) * _info.money;
                                             engineRef.current?.applyAnimation(1);
                                         }
+
+                                        socket.emit(
+                                            "history",
+                                            history(`${clients.get(socket.id)?.username ?? "unknown player"} advanced ${proprety.name}`)
+                                        );
                                     } else if (b === "someones") {
                                         const players = Array.from(clients.values());
                                         for (const p of players) {
@@ -513,6 +535,15 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                                         to: p.id,
                                                     });
                                                     engineRef.current?.applyAnimation(1);
+
+                                                    socket.emit(
+                                                        "history",
+                                                        history(`
+                                                    ${clients.get(socket.id)?.username ?? "unknown user"} pay ${payment_ammount} to ${
+                                                            clients.get(p.id)?.username ?? "unknown user"
+                                                        }
+                                                    `)
+                                                    );
                                                 }
                                             }
                                         }
@@ -543,6 +574,10 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                             audio.loop = false;
                                             audio.play();
                                             engineRef.current?.applyAnimation(1);
+                                            socket.emit(
+                                                "history",
+                                                history(`${clients.get(socket.id)?.username ?? "unknown player"} payed income taxes`)
+                                            );
                                         }
                                         if (proprety?.id === "luxerytax") {
                                             localPlayer.balance -= 100;
@@ -559,6 +594,10 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                             audio.loop = false;
                                             audio.play();
                                             engineRef.current?.applyAnimation(1);
+                                            socket.emit(
+                                                "history",
+                                                history(`${clients.get(socket.id)?.username ?? "unknown player"} payed luxery taxes`)
+                                            );
                                         }
                                     } else if (b === "special_action") {
                                         if (settings !== undefined && settings.notifications === true)
@@ -579,14 +618,23 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                         const _info = info as {
                                             rolls: number;
                                         };
-
+                                        const prp = propretyMap.get(localPlayer.position);
                                         const calculateRent = _info.rolls;
                                         localPlayer.properties.push({
                                             posistion: localPlayer.position,
                                             count: 0,
                                             rent: calculateRent,
-                                            group: propretyMap.get(localPlayer.position)?.group ?? "",
+                                            group: prp?.group ?? "",
                                         });
+
+                                        socket.emit(
+                                            "history",
+                                            history(
+                                                `${clients.get(socket.id)?.username ?? "unknown player"} bought ${
+                                                    prp?.name ?? "unkown place"
+                                                } with rent of ${calculateRent}`
+                                            )
+                                        );
                                     }
 
                                     setTimeout(() => {
@@ -674,6 +722,14 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
             is_chance: boolean;
             turnId: string;
         }) => {
+            SetHistories((old) => [
+                ...old,
+                history(
+                    `${clients.get(args.turnId)?.username ?? "unknown player"} got ${
+                        args.is_chance ? "chance" : "community chest "
+                    } card that said "${args.element.title}"`
+                ),
+            ]);
             const numOfTime = 3000;
             engineRef.current?.chorch(args.element, args.is_chance, numOfTime);
 
@@ -685,6 +741,31 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                     if (xplayer === undefined) return 0;
 
                     const other_players = Array.from(clients.values()).filter((v) => v.id !== xplayer.id);
+
+                    if (xplayer.id === socket.id) {
+                        if (amnout > 0) {
+                            // give money
+                            socket.emit(
+                                "history",
+                                history(
+                                    `${xplayer.username ?? "unknown user"} gave ${amnout} money to [${other_players
+                                        .map((v) => v.username)
+                                        .join(", ")}]`
+                                )
+                            );
+                        } else {
+                            // get money!
+                            socket.emit(
+                                "history",
+                                history(
+                                    `${xplayer.username ?? "unknown user"} recieve ${-amnout} money from [${other_players
+                                        .map((v) => v.username)
+                                        .join(", ")}]`
+                                )
+                            );
+                        }
+                    }
+
                     for (const p of other_players) {
                         p.balance += amnout;
                         if (p.id === socket.id && settings !== undefined && settings.notifications === true) {
@@ -701,14 +782,24 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                 socket.emit("pay", {
                                     balance: amnout,
                                     from: socket.id,
-                                    to: xplayer.id,
+                                    to: p.id,
                                 });
                             } else {
+                                // recieve money
                                 socket.emit("pay", {
                                     balance: amnout,
-                                    from: xplayer.id,
+                                    from: p.id,
                                     to: socket.id,
                                 });
+
+                                socket.emit(
+                                    "history",
+                                    history(`
+                                ${clients.get(socket.id)?.username ?? "unknown user"} pay ${payment_ammount} to ${
+                                        clients.get(xplayer.id)?.username ?? "unknown user"
+                                    }
+                                `)
+                                );
                             }
                         }
                     }
@@ -850,10 +941,11 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                                 xplayer.balance -= (proprety?.price ?? 0) * 1;
 
                                                 engineRef.current?.applyAnimation(1);
+                                                const prp = propretyMap.get(xplayer.position);
                                                 xplayer.properties.push({
                                                     posistion: xplayer.position,
                                                     count: 0,
-                                                    group: propretyMap.get(xplayer.position)?.group ?? "",
+                                                    group: prp?.group ?? "",
                                                 });
 
                                                 var audio = new Audio("./buying1.mp3");
@@ -865,6 +957,15 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                                 engineRef.current?.freeDice();
                                                 const json = (clients.get(socket.id) as Player).toJson();
                                                 socket.emit("finish-turn", json);
+
+                                                socket.emit(
+                                                    "history",
+                                                    history(
+                                                        `${clients.get(socket.id)?.username ?? "unknown player"} bought ${
+                                                            prp?.name ?? "unkown place"
+                                                        }`
+                                                    )
+                                                );
                                             } else if (b === "special_action") {
                                                 console.log(info);
                                                 if (settings !== undefined && settings.notifications === true)
@@ -883,11 +984,12 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
 
                                                 const calculateRent = _info.rolls;
                                                 engineRef.current?.applyAnimation(1);
+                                                const prp = propretyMap.get(xplayer.position);
                                                 xplayer.properties.push({
                                                     posistion: xplayer.position,
                                                     count: 0,
                                                     rent: calculateRent,
-                                                    group: propretyMap.get(xplayer.position)?.group ?? "",
+                                                    group: prp?.group ?? "",
                                                 });
                                                 var audio = new Audio("./buying1.mp3");
                                                 audio.volume = 0.5 * ((settings?.audio[1] ?? 100) / 100) * ((settings?.audio[0] ?? 100) / 100);
@@ -898,6 +1000,15 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                                 engineRef.current?.freeDice();
                                                 const json = (clients.get(socket.id) as Player).toJson();
                                                 socket.emit("finish-turn", json);
+
+                                                socket.emit(
+                                                    "history",
+                                                    history(
+                                                        `${clients.get(socket.id)?.username ?? "unknown player"} bought ${
+                                                            prp?.name ?? "unkown place"
+                                                        } with rent of ${calculateRent}`
+                                                    )
+                                                );
                                             } else if (b === "someones") {
                                                 const players = Array.from(clients.values());
 
@@ -908,6 +1019,15 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
 
                                                             if (proprety.group === "Utilities" && prp.rent) {
                                                                 const l = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
+                                                                socket.emit(
+                                                                    "history",
+                                                                    history(
+                                                                        `${clients.get(socket.id)?.username ?? "unknown player"} rolled [${l[0]}, ${
+                                                                            l[1]
+                                                                        }]`
+                                                                    )
+                                                                );
+
                                                                 engineRef.current?.diceResults({
                                                                     l: [l[0], l[1]],
                                                                     time: 2000,
@@ -934,6 +1054,18 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                                                             from: socket.id,
                                                                             to: p.id,
                                                                         });
+
+                                                                        socket.emit(
+                                                                            "history",
+                                                                            history(
+                                                                                `${
+                                                                                    clients.get(socket.id)?.username ?? "unknown player"
+                                                                                } pay ${payment_ammount} to ${
+                                                                                    clients.get(p.id)?.username ?? "unknown player"
+                                                                                }`
+                                                                            )
+                                                                        );
+
                                                                         SetClients(new Map(clients.set(socket.id, xplayer)));
                                                                         engineRef.current?.freeDice();
                                                                         const json = (clients.get(socket.id) as Player).toJson();
@@ -966,6 +1098,16 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                                                     from: socket.id,
                                                                     to: p.id,
                                                                 });
+                                                                socket.emit(
+                                                                    "history",
+                                                                    history(
+                                                                        `${
+                                                                            clients.get(socket.id)?.username ?? "unknown player"
+                                                                        } pay ${payment_ammount} to ${
+                                                                            clients.get(p.id)?.username ?? "unknown player"
+                                                                        }`
+                                                                    )
+                                                                );
                                                                 SetClients(new Map(clients.set(socket.id, xplayer)));
                                                                 engineRef.current?.freeDice();
                                                                 const json = (clients.get(socket.id) as Player).toJson();
@@ -998,10 +1140,11 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                             (c.buildings ?? 1) * sum(xplayer.properties.filter((v) => typeof v.count === "number").map((v) => v.count as number)) +
                             (c.hotels ?? 1) * xplayer.properties.filter((v) => v.count === "h").length;
                         console.log(`
-                        ${c.hotels ?? 1} * ${xplayer.properties.filter((v) => typeof v.count === "number").length} + 
-                        ${c.buildings ?? 1} * ${xplayer.properties.filter((v) => v.count === "h").length}
+${(c.buildings ?? 1) * sum(xplayer.properties.filter((v) => typeof v.count === "number").map((v) => v.count as number))} + 
+${(c.hotels ?? 1) * xplayer.properties.filter((v) => v.count === "h").length} 
+which is ${payment_ammount}
                         `);
-                        if (xplayer.id === socket.id) {
+                        if (xplayer.id === socket.id && payment_ammount > 0) {
                             if (settings !== undefined && settings.notifications === true)
                                 notifyRef.current?.message(`${payment_ammount} of money is deducted from the account`, "info", 2, () => {}, false);
                             var audio = new Audio("./moneyminus.mp3");
@@ -1049,6 +1192,11 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                 "loosing"
             );
         }
+
+        function socket_history(args: historyAction) {
+            SetHistories((old) => [...old, args]);
+        }
+
         function socket_playerUpdate(args: { playerId: string; pJson: PlayerJSON }) {
             const x = clients.get(args.playerId);
             if (x === undefined) return;
@@ -1069,6 +1217,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
         socket.on("mouse", socket_Mouse);
         socket.on("disconnect", socket_networkDisconnect);
         socket.on("player_update", socket_playerUpdate);
+        socket.on("history", socket_history);
         var to_emit_name = true;
         //#endregion
         if (to_emit_name) socket.emit("name", name);
@@ -1115,7 +1264,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                     players={players}
                     server={server}
                     Morgage={{
-                        onCanc: (a) => {
+                        onCanc: (a, prpName: string) => {
                             var settings = JSON.parse(document.cookie)["settings"] as MonopolySettings;
                             const localPlayer = clients.get(socket.id);
                             if (localPlayer === undefined) return;
@@ -1127,15 +1276,17 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                     () => {},
                                     false
                                 );
+
                             localPlayer.balance -= a;
                             engineRef.current?.applyAnimation(1);
                             var audio = new Audio("./buying1.mp3");
                             audio.volume = 0.5 * ((settings?.audio[1] ?? 100) / 100) * ((settings?.audio[0] ?? 100) / 100);
                             audio.loop = false;
                             audio.play();
+                            socket.emit("history", history(`${clients.get(socket.id)?.username ?? "unknown player"} cancel mortgage on ${prpName}`));
                             SetClients(new Map(clients.set(socket.id, localPlayer)));
                         },
-                        onMort: (a) => {
+                        onMort: (a, prpName) => {
                             var settings = JSON.parse(document.cookie)["settings"] as MonopolySettings;
                             const localPlayer = clients.get(socket.id);
                             if (localPlayer === undefined) return;
@@ -1147,6 +1298,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                             audio.volume = 0.5 * ((settings?.audio[1] ?? 100) / 100) * ((settings?.audio[0] ?? 100) / 100);
                             audio.loop = false;
                             audio.play();
+                            socket.emit("history", history(`${clients.get(socket.id)?.username ?? "unknown player"} mortgaged ${prpName}`));
                             SetClients(new Map(clients.set(socket.id, localPlayer)));
                         },
                     }}
@@ -1155,6 +1307,8 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
 
                         root.style.transform = "translateX(100%)";
                     }}
+                    history={histories}
+                    time={startTIme}
                 />
 
                 <MonopolyGame

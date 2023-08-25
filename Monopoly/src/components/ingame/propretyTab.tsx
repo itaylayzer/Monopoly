@@ -10,8 +10,8 @@ interface PropretyTabProps {
     socket: Socket;
     players: Array<Player>;
     Morgage: {
-        onMort: (a: number) => void;
-        onCanc: (a: number) => void;
+        onMort: (a: number, prpName: string) => void;
+        onCanc: (a: number, prpName: string) => void;
     };
 }
 export interface PropretyTabRef {
@@ -48,7 +48,7 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>((props, ref) =>
                 const prp = localP.properties.filter((v) => v.group === "Railroad" && v.posistion === location)[0];
                 prp.morgage = false;
 
-                props.Morgage.onCanc(10);
+                props.Morgage.onCanc(10, propretyMap.get(prp.posistion)?.name ?? "");
                 localP;
 
                 SetCardPos(-1);
@@ -60,7 +60,7 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>((props, ref) =>
                 const prp = localP.properties.filter((v) => v.group === "Railroad" && v.posistion === location)[0];
                 prp.morgage = true;
 
-                props.Morgage.onMort(100);
+                props.Morgage.onMort(100, propretyMap.get(prp.posistion)?.name ?? "");
 
                 SetCardPos(-1);
                 props.socket.emit("player_update", { playerId: props.socket.id, pJson: localP.toJson() });
@@ -167,7 +167,9 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>((props, ref) =>
                                     backgroundColor: translateGroup(v.group),
                                 }}
                             ></i>
-                            <h3>{propretyMap.get(v.posistion)?.name ?? ""}</h3>
+                            <h3 style={v.morgage !== undefined && v.morgage === true ? { textDecoration: "line-through white" } : {}}>
+                                {propretyMap.get(v.posistion)?.name ?? ""}
+                            </h3>
                             <div>
                                 {v.count == "h" ? (
                                     <img src={HotelIcon.replace("public/", "")} alt="" />

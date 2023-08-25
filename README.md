@@ -1,4 +1,4 @@
-# 🎲 Monopoly 🎲 - A Multiplayer React.js and Express.js Game
+# 🎲 Monopoly 🎲 - A Multiplayer React.js and Peer.js Game
 
 the url of the game https://coder-1t45.github.io/Monopoly/
 
@@ -62,15 +62,14 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 
 1. advance gameplay:
     - trades
-    - gameplay history
-    - Player Tab
 2. Server statistics [Maybe]
 3. Score System
 4. Game Mode System - Custom and Game & Server
 5. Bots System
 6. Players LeaderBoard
 7. Search for Player Statistics
-8. last and least 3D Game Version
+8. Mobile Design
+9. last and least 3D Game Version
    Only Then this project will be done for good.
 
 ## Pictures and Videos of the game!

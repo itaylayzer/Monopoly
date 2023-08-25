@@ -27,7 +27,7 @@ export default function Home() {
                 id: "",
             },
         } as MonopolyCookie;
-        document.cookie = JSON.stringify(cookie);
+        document.cookie = JSON.stringify(cookie as MonopolyCookie);
     }
 
     const notifyRef = useRef<NotificatorRef>(null);
@@ -96,7 +96,7 @@ export default function Home() {
                 id: fbUser.id,
                 remember,
             };
-            document.cookie = JSON.stringify(cookie);
+            document.cookie = JSON.stringify(cookie as MonopolyCookie);
         } catch {
             const cookie = {
                 login: {
@@ -104,7 +104,7 @@ export default function Home() {
                     remember: false,
                 },
             } as MonopolyCookie;
-            document.cookie = JSON.stringify(cookie);
+            document.cookie = JSON.stringify(cookie as MonopolyCookie);
         }
         SetDisabled(true);
         const x = await Read();
@@ -273,8 +273,18 @@ export default function Home() {
                     ) : tabIndex === 2 ? (
                         <>
                             <header>
-                                <p style={{ fontSize: 12, marginBottom: 0 }}>Account</p>
-                                <h3>Login</h3>
+                                <p style={{ fontSize: 13, marginBottom: 0 }}>Account</p>
+                                <div className="loginPageHeader">
+                                    <h3>Login</h3>
+                                    <div className="scoreboardIcon">
+                                        <img
+                                            onClick={() => {
+                                                document.location.href = "/Monopoly/users";
+                                            }}
+                                            src="scoreboard.png"
+                                        />
+                                    </div>
+                                </div>
                             </header>
                             <LoginScreen
                                 admin={firebase}
@@ -296,7 +306,7 @@ export default function Home() {
                                             remember: true,
                                             id: v.id,
                                         };
-                                        document.cookie = JSON.stringify(cookie);
+                                        document.cookie = JSON.stringify(cookie as MonopolyCookie);
                                     } catch {
                                         var cookie = {
                                             login: {
@@ -304,7 +314,7 @@ export default function Home() {
                                                 id: v.id,
                                             },
                                         } as MonopolyCookie;
-                                        document.cookie = JSON.stringify(cookie);
+                                        document.cookie = JSON.stringify(cookie as MonopolyCookie);
                                     }
                                 }}
                             />
@@ -324,23 +334,29 @@ export default function Home() {
                             </header>
                             {server !== undefined ? (
                                 <>
-                                    <p>
-                                        server is already running, check the console.
-                                        <center>
-                                            {" "}
-                                            <button
-                                                style={{
-                                                    backgroundColor: "red",
-                                                }}
-                                                onClick={() => {
-                                                    server.stop();
-                                                    SetServer(undefined);
-                                                }}
-                                            >
-                                                Kill Server
-                                            </button>
-                                        </center>
-                                    </p>
+                                    <p>server is already running, check the console.</p>
+                                    <table>
+                                        <tr>
+                                            <td>Code</td>
+                                            <td style={{ userSelect: "all" }}>{server.code}</td>
+                                        </tr>
+                                    </table>
+                                    <center>
+                                        {" "}
+                                        <button
+                                            key={"kllserver-button"}
+                                            style={{
+                                                backgroundColor: "red",
+                                                marginTop: 12,
+                                            }}
+                                            onClick={() => {
+                                                server.stop();
+                                                SetServer(undefined);
+                                            }}
+                                        >
+                                            Kill Server
+                                        </button>
+                                    </center>
                                 </>
                             ) : (
                                 <>
@@ -364,13 +380,18 @@ export default function Home() {
                                     <center>
                                         {" "}
                                         <button
+                                            key={"startserver-button"}
+                                            style={{
+                                                marginTop: 13,
+                                            }}
                                             onClick={(e) => {
                                                 e.currentTarget.disabled = true;
                                                 e.currentTarget.innerHTML = "Starting Server";
                                                 main(serverPCount, (host, server) => {
-                                                    SetTab(0);
+                                                    server.code = host;
                                                     SetAddress(host);
                                                     SetServer(server);
+                                                    e.currentTarget.disabled = false;
                                                 });
                                             }}
                                         >

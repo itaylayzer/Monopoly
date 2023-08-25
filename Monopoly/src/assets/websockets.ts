@@ -83,14 +83,15 @@ export class Server {
     public logFunction: (...data: any[]) => void;
     public renderFunction: (v: Array<any[]>) => void;
     public logs: Array<any[]> = [];
+    public code: string;
     public whenCloseF: () => void;
     constructor(idf?: (id: string, thisobj: Server) => Promise<() => void>, onf?: (s: Socket, server: Server) => void) {
         this.socket = new Peer({
             debug: 0,
         });
+        this.code = "";
         this.logFunction = (...data) => {
             this.logs.push(data);
-            console.log(data);
             this.renderFunction(this.logs);
         };
         this.whenCloseF = () => {};
