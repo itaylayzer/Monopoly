@@ -1,5 +1,8 @@
 {
     "homepage": "https://coder-1t45.github.io/Monopoly/",
+    "name": "monopoly-1t45",
+    "version": "0.0.0",
+    "type": "module",
     "scripts": {
         "pages": "gh-pages -d docs"
     },

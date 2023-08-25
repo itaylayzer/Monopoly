@@ -1,5 +1,6 @@
 import ReactDOM from "react-dom/client";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+// @ts-ignore
+import { BrowserRouter as Router, Route, Routes, RouterProvider, createBrowserRouter } from "react-router-dom";
 import Gallery from "./Pages/Galery/gallery.tsx";
 import Home from "./Pages/Home/home.tsx";
 import { useEffect } from "react";
@@ -18,19 +19,19 @@ function Error() {
     );
 }
 
+const router = createBrowserRouter([
+    {
+        path: "Monopoly",
+        element: <Home />,
+    },
+    {
+        path: "Monopoly/gallery",
+        element: <Gallery />,
+    },
+]);
+
 function App() {
-    return (
-        <Router>
-            <Routes>
-                <Route path="/Monopoly" element={<Home />} />
-                <Route path="/Monopoly/" element={<Home />} />
-                <Route path="/Monopoly/gallery" element={<Gallery />} />
-                <Route path="/Monopoly/home" element={<Home />} />
-                <Route path="/Monopoly/play" element={<Home />} />
-                <Route path="/Monopoly/*" element={<Error />} /> {/* This route acts as the "exact" route */}
-            </Routes>
-        </Router>
-    );
+    return <RouterProvider router={router} />;
 }
 
 document.title = "Monopoly";
