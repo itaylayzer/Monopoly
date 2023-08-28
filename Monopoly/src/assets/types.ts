@@ -1,3 +1,4 @@
+import nameJSON from "./names.json";
 export type EngineSettings = "2d" | "3d";
 export type MonopolySettings = {
     gameEngine: EngineSettings;
@@ -93,3 +94,7 @@ export type GameTrading = {
         prop: PlayerProprety[];
     };
 };
+export type botInitial = { name: string; diff: string };
+export function randomName(): string {
+    return nameJSON[Math.floor(Math.random()*nameJSON.length)]
+}

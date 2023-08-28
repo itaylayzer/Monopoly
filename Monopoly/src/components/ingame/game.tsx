@@ -533,8 +533,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
                         document.querySelector(`div.street[data-position="${location}"]`)?.appendChild(elementSearch);
                     }
                     if (!injail && elementSearch.querySelector("img.jailIcon") != null) {
-                        const jailIcon = elementSearch.querySelector("img.jailIcon") as HTMLImageElement;
-                        elementSearch.removeChild(jailIcon);
+                        const div = elementSearch.querySelector("div") as HTMLDivElement;
+                        const jailIcon = div.querySelector("img.jailIcon") as HTMLImageElement;
+                        div.removeChild(jailIcon);
                     }
 
                     if (injail && elementSearch.querySelector("img.jailIcon") == null) {

@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { User } from "../../assets/types";
+import { User, botInitial, randomName } from "../../assets/types";
 import BotsList from "./botsList";
 export default function JoinScreen(props: {
     joinViaCode: () => void;
-    joinBots: (counts: number, diff: number) => void;
+    joinBots: (x: Array<botInitial>) => void;
     fbUser: User | undefined;
     disabled: boolean;
     name: string;
@@ -12,6 +12,12 @@ export default function JoinScreen(props: {
     SetName: React.Dispatch<React.SetStateAction<string>>;
 }) {
     const [tabIndex, SetTab] = useState(0);
+    const [botsList, SetBotList] = useState<Array<botInitial>>([
+        {
+            name: randomName(),
+            diff: "Regular",
+        },
+    ]);
     return (
         <>
             <nav className="join">
@@ -56,13 +62,18 @@ export default function JoinScreen(props: {
                     </div>
                     <p>bots settings:</p>
                     <BotsList
-                        OnChange={(arr: string[]) => {
-                            console.log(arr);
+                        OnChange={(arr: botInitial[]) => {
+                            SetBotList(arr);
                         }}
                     />
 
                     <center>
-                        <button onClick={() => {}} disabled={props.disabled}>
+                        <button
+                            onClick={() => {
+                                props.joinBots(botsList);
+                            }}
+                            disabled={props.disabled}
+                        >
                             start
                         </button>
                     </center>

@@ -93,7 +93,7 @@ export class Server {
     public logs: Array<any[]> = [];
     public code: string;
     public whenCloseF: () => void;
-    constructor(idf?: (id: string, thisobj: Server) => Promise<() => void>, onf?: (s: Socket, server: Server) => void) {
+    constructor(idf?: (id: string, thisobj: Server) => Promise<() => void> | undefined, onf?: (s: Socket, server: Server) => void) {
         this.socket = new Peer({
             debug: 0,
         });
@@ -106,7 +106,7 @@ export class Server {
         this.renderFunction = () => {};
         this.socket.on("open", async (id) => {
             const f = await idf?.(id, this);
-            f ? (this.whenCloseF = f) : "";
+            f !== undefined ? (this.whenCloseF = f) : "";
         });
 
         this.socket.on("connection", (dataConnection) => {

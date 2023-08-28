@@ -1636,8 +1636,8 @@ which is ${payment_ammount}
                                             winstateChoice === "2" ? "monopols" : winstateChoice === "3" ? "monopols & trains" : "last-standing",
                                         Name: "Custom Mode",
                                         mortageAllowed: allowMortgage,
-                                        startingCash: parseInt(startingCash as string) ?? 1500,
-                                        turnTimer: parseInt(turnTimer as string) ?? 0,
+                                        startingCash: startingCash === null ? 1500 : parseInt(startingCash) ?? 1500,
+                                        turnTimer: turnTimer === null ? undefined : parseInt(turnTimer) ?? undefined,
                                     } as MonopolyMode;
                                     if (server !== undefined)
                                         socket.emit("ready", {

@@ -3,7 +3,7 @@ import Monopoly from "./monopoly.tsx";
 import "../../home.css";
 import { Server, Socket, io } from "../../assets/websockets.ts";
 import NotifyElement, { NotificatorRef } from "../../components/notificator.tsx";
-import { MonopolyCookie, User } from "../../assets/types.ts";
+import { MonopolyCookie, User, botInitial } from "../../assets/types.ts";
 import SettingsNav from "../../components/settingsNav.tsx";
 import LoginScreen from "../../components/menu/loginscreen.tsx";
 import JoinScreen from "../../components/menu/joinScreen.tsx";
@@ -12,7 +12,9 @@ import ENV from "../../../env.json";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 
-import { main } from "../../assets/server.ts";
+import { main as onlineServer } from "../../assets/server.ts";
+import { main as botServer } from "../../assets/bot/server.ts";
+import { main as runBot } from "../../assets/bot/bot.ts";
 import Slider from "../../components/utils/slider.tsx";
 
 export default function Home() {
@@ -164,6 +166,54 @@ export default function Home() {
             SetAddress(uriParams.get("ip") ?? "");
         }
     }, []);
+
+    function startButtonClicked(bots: botInitial[]) {
+        try {
+            if (name.replace(" ", "").length === 0) {
+                notifyRef.current?.message("please add your name before joining", "info", 2);
+                return;
+            }
+
+            botServer(async (host, server) => {
+                const socket = await io(host);
+                for (const x of bots) {
+                    runBot(host, x);
+                }
+                socket.on("state", (args: number) => {
+                    switch (args) {
+                        case 0:
+                            SetSocket(socket);
+                            SetSignedIn(true);
+                            SetServer(server);
+                            SetDisabled(false);
+
+                            break;
+                        case 1:
+                            notifyRef.current?.message("the game has already begun", "error", 2, () => {
+                                SetDisabled(false);
+                            });
+                            socket.disconnect();
+                            break;
+                        case 2:
+                            notifyRef.current?.message("too many players on the server", "error", 2, () => {
+                                SetDisabled(false);
+                            });
+                            socket.disconnect();
+                            break;
+                        default:
+                            notifyRef.current?.message("unkown error", "error", 2, () => {
+                                SetDisabled(false);
+                            });
+                            socket.disconnect();
+
+                            break;
+                    }
+                });
+            });
+        } catch {
+            SetDisabled(false);
+        }
+    }
 
     return socket !== undefined && isSignedIn === true ? (
         <Monopoly socket={socket} name={name} server={server} />
@@ -385,7 +435,7 @@ export default function Home() {
                                             onClick={(e) => {
                                                 e.currentTarget.disabled = true;
                                                 e.currentTarget.innerHTML = "Starting Server";
-                                                main(serverPCount, (host, server) => {
+                                                onlineServer(serverPCount, (host, server) => {
                                                     server.code = host;
                                                     SetAddress(host);
                                                     SetServer(server);
@@ -410,7 +460,9 @@ export default function Home() {
                             <JoinScreen
                                 disabled={disabled}
                                 fbUser={fbUser}
-                                joinBots={() => {}}
+                                joinBots={(x) => {
+                                    startButtonClicked(x);
+                                }}
                                 joinViaCode={() => {
                                     joinButtonClicked();
                                 }}

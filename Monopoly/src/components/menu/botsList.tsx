@@ -1,25 +1,32 @@
 import { useEffect, useState } from "react";
 import Switcher from "../utils/switcher";
 import "./botList.css";
-export default function BotsList(props: { OnChange: (array: string[]) => void }) {
+import { botInitial, randomName } from "../../assets/types";
+
+export default function BotsList(props: { OnChange: (array: botInitial[]) => void }) {
     const options = ["Recruit", "Regular", "Hardened", "Veteran"];
-    const [arr, SetArr] = useState<number[]>([1]);
+    const [arr, SetArr] = useState<botInitial[]>([
+        {
+            name: randomName(),
+            diff: "Regular",
+        },
+    ]);
     useEffect(() => {
-        props.OnChange(arr.map((v) => options[v]));
+        props.OnChange(arr);
     }, [arr]);
     return (
         <>
             {arr.map((v, vi) => (
                 <div className="bot-list-element" key={vi}>
-                    <p>Bot</p>
+                    <p>{v.name}</p>
                     <Switcher
                         options={options}
-                        Value={v}
-                        deafultIndex={v}
+                        Value={options.indexOf(v.diff)}
+                        deafultIndex={options.indexOf(v.diff)}
                         // @ts-ignore
                         onChange={(e, i) => {
-                            const b = JSON.parse(JSON.stringify(arr)) as number[];
-                            b[vi] = i;
+                            const b = JSON.parse(JSON.stringify(arr)) as botInitial[];
+                            b[vi].diff = options[i];
 
                             SetArr(b);
                         }}
@@ -28,7 +35,7 @@ export default function BotsList(props: { OnChange: (array: string[]) => void })
                         src="trash.png"
                         alt=""
                         onClick={() => {
-                            const b = JSON.parse(JSON.stringify(arr)) as number[];
+                            const b = JSON.parse(JSON.stringify(arr)) as botInitial[];
                             b.splice(vi, 1);
 
                             SetArr(b);
@@ -41,7 +48,13 @@ export default function BotsList(props: { OnChange: (array: string[]) => void })
                     className="bot-list-add"
                     onClick={() => {
                         if (arr.length <= 4) {
-                            SetArr((old) => [...old, 1]);
+                            SetArr((old) => [
+                                ...old,
+                                {
+                                    name: randomName(),
+                                    diff: "Regular",
+                                },
+                            ]);
                         }
                     }}
                 >
