@@ -36,6 +36,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
         SetTheme(mainTheme);
         SetStartTime(new Date());
     }, [gameStartedDisplay]);
+
     useEffect(() => {
         const settings_interval = setInterval(() => {
             const parsedCookie = JSON.parse(document.cookie)["settings"];
@@ -218,11 +219,12 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
         }
 
         //#region socket handeling
-        const socket_Initials = (args: { turn_id: string; other_players: Array<PlayerJSON> }) => {
+        const socket_Initials = (args: { turn_id: string; other_players: Array<PlayerJSON>; selectedMode: MonopolyMode }) => {
             SetCurrent(args.turn_id.toString());
             for (const x of args.other_players) {
                 SetClients(clients.set(x.id, new Player(x.id, x.username).recieveJson(x)));
             }
+            SetMode(args.selectedMode);
         };
 
         const socket_NewPlayer = (args: PlayerJSON) => {
@@ -280,7 +282,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
             destroyPlayer(args.id);
         };
 
-        const socket_TurnFinished = (args: { from: string; turnId: string; pJson: PlayerJSON }) => {
+        const socket_TurnFinished = (args: { from: string; turnId: string; pJson: PlayerJSON; WinningMode: string }) => {
             const x = clients.get(args.from);
 
             if (x !== undefined && JSON.stringify(x.properties) != JSON.stringify(args.pJson.properties)) {
@@ -360,6 +362,108 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                 }
 
                 destroyPlayer(args.pJson.id);
+            }
+            if (args.WinningMode === "monopols" || args.WinningMode === "monopols & trains") {
+                function removeDuplicates(originalList: Array<any>) {
+                    // Create an empty array to store unique values
+                    const uniqueList: Array<any> = [];
+
+                    // Use the filter method to iterate through the original list
+                    originalList.filter(function (item) {
+                        // If the item is not already in the uniqueList, add it
+                        if (!uniqueList.includes(item)) {
+                            uniqueList.push(item);
+                        }
+                        // Always return false in the filter function to skip duplicates
+                        return false;
+                    });
+
+                    // Return the uniqueList
+                    return uniqueList;
+                }
+                for (const p of Array.from(clients.values())) {
+                    const prpGrups = [];
+                    for (const prp of p.properties) {
+                        if (!["Special", "Railroad", "Utilities"].includes(prp.group)) prpGrups.push(prp.group);
+                    }
+                    let x: number = 0;
+
+                    for (const g of removeDuplicates(prpGrups)) {
+                        const c = prpGrups.filter((v) => v === g).length;
+                        const cc = monopolyJSON.properties.filter((v) => v.group === g).length;
+                        if (c === cc) {
+                            x += 1;
+                        }
+                    }
+                    if (x === 3) {
+                        mainTheme.pause();
+                        if (p.id === socket.id) {
+                            notifyRef.current?.dialog(
+                                (close_func, createButton) => ({
+                                    innerHTML: `<h3> YOU WON! </h3> <p> you have 3 sets! </p>`,
+                                    buttons: [
+                                        createButton("PLAY ANOTHER GAME", () => {
+                                            close_func();
+                                            document.location.reload();
+                                        }),
+                                    ],
+                                }),
+                                "winning"
+                            );
+                        } else {
+                            notifyRef.current?.dialog(
+                                (close_func, createButton) => ({
+                                    innerHTML: `<h3> ${p.username} WON! </h3> <p> got 3 sets! </p>`,
+                                    buttons: [
+                                        createButton("PLAY ANOTHER GAME", () => {
+                                            close_func();
+                                            document.location.reload();
+                                        }),
+                                    ],
+                                }),
+                                "winning"
+                            );
+                        }
+                        return;
+                    }
+                }
+                if (args.WinningMode === "monopols & trains") {
+                    // continue with trains winning state!
+                    for (const p of Array.from(clients.values())) {
+                        const c = p.properties.filter((v) => v.group === "Railroad").length;
+                        if (c === 4) {
+                            mainTheme.pause();
+                            if (p.id === socket.id) {
+                                notifyRef.current?.dialog(
+                                    (close_func, createButton) => ({
+                                        innerHTML: `<h3> YOU WON! </h3> <p> you have 4 railroads! </p>`,
+                                        buttons: [
+                                            createButton("PLAY ANOTHER GAME", () => {
+                                                close_func();
+                                                document.location.reload();
+                                            }),
+                                        ],
+                                    }),
+                                    "winning"
+                                );
+                            } else {
+                                notifyRef.current?.dialog(
+                                    (close_func, createButton) => ({
+                                        innerHTML: `<h3> ${p.username} WON! </h3> <p> got 4 railroads! </p>`,
+                                        buttons: [
+                                            createButton("PLAY ANOTHER GAME", () => {
+                                                close_func();
+                                                document.location.reload();
+                                            }),
+                                        ],
+                                    }),
+                                    "winning"
+                                );
+                            }
+                            return;
+                        }
+                    }
+                }
             }
 
             SetCurrent(args.turnId);
@@ -1454,6 +1558,7 @@ which is ${payment_ammount}
                                     opacity: 0.5,
                                     margin: 0,
                                     textAlign: "center",
+                                    fontWeight: "100",
                                 }}
                             >
                                 the server-admin is <br /> choosing the gamemode
@@ -1470,9 +1575,9 @@ which is ${payment_ammount}
                                 <tr>
                                     <td> Winning State:</td> <td>{selectedMode.WinningMode.toUpperCase()}</td>
                                 </tr>
-                                <tr>
+                                {/* <tr>
                                     <td> Buying System:</td> <td>{selectedMode.BuyingSystem.toUpperCase()}</td>
-                                </tr>
+                                </tr> */}
                                 <tr>
                                     <td>Trades: </td>
                                     <td>{selectedMode.AllowDeals ? "ALLOWED" : "NOT-ALLOWED"}</td>
@@ -1515,13 +1620,29 @@ which is ${payment_ammount}
                                 );
                             })}
                             <p
+                                data-select={selectedMode.Name === "Custom Mode"}
                                 data-disabled={server === undefined}
                                 onClick={() => {
-                                    // const v = {} as MonopolyMode;
-                                    // if (server !== undefined)
-                                    //     socket.emit("ready", {
-                                    //         mode: v,
-                                    //     });
+                                    const winstateChoice = window.prompt("Winning State\n1=last-standing\n2=monopols\n3=monopols & trains", "3");
+                                    // const buyingChoice = window.prompt("Buying System State\n1=following-order\n2=card-firsts\n3=everything", "3");
+                                    const allowTrade = window.confirm("Allow Trades");
+                                    const allowMortgage = window.confirm("Allow Mortgage");
+                                    const startingCash = window.prompt("Starting Cash", "1500");
+                                    const turnTimer = window.prompt("Turn Timer", "0");
+                                    const v = {
+                                        AllowDeals: allowTrade,
+                                        // BuyingSystem: buyingChoice === "2" ? "card-firsts" : buyingChoice === "3" ? "everything" : "following-order",
+                                        WinningMode:
+                                            winstateChoice === "2" ? "monopols" : winstateChoice === "3" ? "monopols & trains" : "last-standing",
+                                        Name: "Custom Mode",
+                                        mortageAllowed: allowMortgage,
+                                        startingCash: parseInt(startingCash as string) ?? 1500,
+                                        turnTimer: parseInt(turnTimer as string) ?? 0,
+                                    } as MonopolyMode;
+                                    if (server !== undefined)
+                                        socket.emit("ready", {
+                                            mode: v,
+                                        });
                                 }}
                             >
                                 Custom Mode

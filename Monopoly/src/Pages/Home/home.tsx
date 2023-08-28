@@ -404,7 +404,7 @@ export default function Home() {
                     ) : (
                         <>
                             <header>
-                                <p style={{ fontSize: 9 }}>28.8.23 - Trades</p>
+                                <p style={{ fontSize: 9 }}>28.8.23 - Trades & GameModes</p>
                                 Welcome to the <h3>MONOPOLY</h3> Game
                             </header>
                             <JoinScreen

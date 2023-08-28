@@ -25,23 +25,25 @@ export const MonopolyModes = [
     {
         AllowDeals: true,
         WinningMode: "last-standing",
-        BuyingSystem: "Following Order",
+        // BuyingSystem: "following-order",
         Name: "Classic",
         startingCash: 1500,
         mortageAllowed: true,
+        turnTimer: undefined,
     },
     {
-        AllowDeals: true,
-        WinningMode: "monopols",
-        BuyingSystem: "Everything",
+        AllowDeals: false,
+        WinningMode: "monopols & trains",
+        // BuyingSystem: "everything",
         Name: "Monopol",
         startingCash: 1500,
         mortageAllowed: false,
+        turnTimer: undefined,
     },
     {
         AllowDeals: false,
         WinningMode: "last-standing",
-        BuyingSystem: "Card Firsts",
+        // BuyingSystem: "card-firsts",
         Name: "Run-Down",
         startingCash: 1500,
         mortageAllowed: false,
@@ -51,12 +53,12 @@ export const MonopolyModes = [
 
 export interface MonopolyMode {
     WinningMode: "last-standing" | "monopols" | "monopols & trains";
-    BuyingSystem: "Following Order" | "Card Firsts" | "Everything";
+    // BuyingSystem: "following-order" | "card-firsts" | "everything";
     AllowDeals: boolean;
     Name: string;
     startingCash: number;
     mortageAllowed: boolean;
-    turnTimer: undefined | number; // Time in Seconds
+    turnTimer: undefined | number;
 }
 
 export interface PlayerProprety {

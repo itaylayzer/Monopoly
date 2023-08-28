@@ -60,15 +60,16 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 
 ## TODO List:
 
-1. Game Mode System - Custom and Game & Server [Winning State, Turn Timer, Buygin System]
-2. Advanced Server [Event Logs, Player Statistics, Memory and Network Use]
-3. Bots System
-4. Score System
-5. Players LeaderBoard
-6. Search for Player Statistics
-7. Mobile Design
-8. last and least 3D Game Version
-   Only Then this project will be done for good.
+1. Bots System [trying to achive that with Tensorflow.js]
+2. Advanced Server Display [Event Logs, Player Statistics, Memory and Network Use]
+3. Advanced Game Mode - Economic System & Rebuy Street from Owner
+4. Firestore Usage:
+    1. Score System
+    2. Players LeaderBoard
+    3. Search for Player Statistics
+5. Responsive UI:
+    1. Mobile Design
+    2. 3D Game Version
 
 ## Pictures and Videos of the game!
 

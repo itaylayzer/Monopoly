@@ -66,7 +66,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
     const [rotation, SetRotation] = useState<number>(0);
     const [scale, SetScale] = useState<number>(1);
     const [settings, SetSettings] = useState<MonopolySettings>();
-
+    const [timer, SetTimer] = useState<number>(0);
     useEffect(() => {
         const settings_interval = setInterval(() => {
             SetSettings((JSON.parse(document.cookie) as MonopolyCookie).settings);
@@ -423,7 +423,9 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
                     SetSended(true);
                     prop.socket.emit("roll_dice");
                     console.warn("roll after return to normal");
+                    SetTimer(0);
                 };
+                SetTimer(0);
                 SetSended(true);
                 cardElement.onclick = () => {};
                 cardElement.setAttribute("aria-disabled", "true");
@@ -467,6 +469,7 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
                 console.warn("roll when in jail");
                 returnToNormal();
                 SetSended(true);
+                SetTimer(0);
             };
         },
     }));
@@ -683,8 +686,38 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
             SetSended(true);
             prop.socket.emit("roll_dice");
             console.warn("first roll");
+            SetTimer(0);
         };
     }, []);
+
+    useEffect(() => {
+        if (prop.myTurn && !sended) {
+            var l: NodeJS.Timeout | undefined = undefined;
+            if (prop.selectedMode.turnTimer !== undefined && prop.selectedMode.turnTimer > 0) {
+                var x = 0;
+                l = setInterval(() => {
+                    x += 1;
+                    SetTimer(x);
+                    if (prop.selectedMode.turnTimer !== undefined && prop.selectedMode.turnTimer > 0) {
+                        if (x >= prop.selectedMode.turnTimer) {
+                            if (prop.myTurn && !sended) {
+                                const rollElement = document.querySelector(`button[data-button-type="roll"]`) as HTMLButtonElement;
+                                rollElement.click();
+                                SetTimer(0);
+                                clearInterval(l);
+                            }
+                        }
+                    }
+                }, 1000);
+            }
+        }
+
+        return () => {
+            clearInterval(l);
+            SetTimer(0);
+            console.log("stopped");
+        };
+    }, [prop.myTurn, sended, prop.selectedMode]);
     return (
         <>
             <div className="game" style={prop.tradeObj !== undefined ? { translate: "0px -100%" } : {}}>
@@ -1380,6 +1413,16 @@ const MonopolyGame = forwardRef<MonopolyGameRef, MonopolyGameProps>((prop, ref) 
                         </div>
                     </div>
                     <div className="action-bar" style={prop.myTurn && !sended ? {} : { translate: "-50% 20vh" }}>
+                        {prop.selectedMode.turnTimer !== undefined && prop.selectedMode.turnTimer > 0 ? (
+                            <>
+                                <p style={{ display: "inline-block", opacity: 1, color: "rgb(0, 114, 187)", marginRight: 5 }}>
+                                    {prop.selectedMode.turnTimer - timer}{" "}
+                                </p>
+                                <hr style={{ display: "inline", opacity: 0.5 }} />
+                            </>
+                        ) : (
+                            <></>
+                        )}
                         <button data-button-type="roll" aria-disabled={false}>
                             <p>ROLL THE </p>
                             <img style={{ marginLeft: 10 }} src={RollIcon.replace("public/", "")} />

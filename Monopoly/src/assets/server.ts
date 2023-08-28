@@ -233,6 +233,7 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
                         socket.emit("initials", {
                             turn_id: currentId,
                             other_players,
+                            selectedMode,
                         });
                         EmitExcepts(socket.id, "new-player", player.to_json());
 
@@ -252,7 +253,6 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
                             try {
                                 const first = Math.floor(Math.random() * 6) + 1;
                                 const second = Math.floor(Math.random() * 6) + 1;
-
                                 const x = `{${getCurrentTime()}} [${socket.id}] Player "${player.username}" rolled a [${first},${second}].`;
                                 logs_strings.push(x);
                                 server.logFunction(x);
@@ -303,6 +303,7 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
                                     from: socket.id,
                                     turnId: currentId,
                                     pJson: player.to_json(),
+                                    WinningMode: selectedMode.WinningMode,
                                 });
                             } catch (e) {
                                 server.logFunction(e);
@@ -359,6 +360,63 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
                         socket.on("history", (args: historyAction) => {
                             EmitAll("history", args);
                         });
+
+                        socket.on("trade", () => {
+                            if (!selectedMode.AllowDeals) return;
+                            EmitAll("trade", {});
+                        });
+                        socket.on("cancel-trade", () => {
+                            if (!selectedMode.AllowDeals) return;
+                            EmitAll("cancel-trade", {});
+                        });
+                        socket.on("submit-trade", (x: GameTrading) => {
+                            if (!selectedMode.AllowDeals) return;
+                            const turnPlayer = Clients.get(x.turnPlayer.id);
+                            const againstPlayer = Clients.get(x.againstPlayer.id);
+                            if (turnPlayer === undefined || againstPlayer === undefined) return;
+        
+                            // Exclude against
+                            const turnGets = againstPlayer.player.properties.filter((v1) =>
+                                x.againstPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
+                            );
+                            againstPlayer.player.properties = againstPlayer.player.properties.filter(
+                                (v1) => !x.againstPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
+                            );
+        
+                            // Exclude turn
+                            const againsGets = againstPlayer.player.properties.filter((v1) =>
+                                x.turnPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
+                            );
+                            turnPlayer.player.properties = againstPlayer.player.properties.filter(
+                                (v1) => !x.turnPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
+                            );
+        
+                            // Now Balance
+                            againstPlayer.player.balance -= x.againstPlayer.balance;
+                            turnPlayer.player.balance -= x.turnPlayer.balance;
+        
+                            turnPlayer.player.balance += x.againstPlayer.balance;
+                            againstPlayer.player.balance += x.turnPlayer.balance;
+        
+                            // Exclude switch
+                            turnPlayer.player.properties.push(...turnGets);
+                            againstPlayer.player.properties.push(...againsGets);
+        
+                            EmitAll(
+                                "submit-trade",
+        
+                                {
+                                    pJsons: [turnPlayer.player.to_json(), againstPlayer.player.to_json()],
+                                    action: `
+                            ${turnPlayer.player.username} done a trade with ${againstPlayer.player.username}
+                            `,
+                                }
+                            );
+                        });
+                        socket.on("trade-update", (x: GameTrading) => {
+                            if (!selectedMode.AllowDeals) return;
+                            EmitAll("trade-update", x);
+                        });
                     } catch (e) {
                         server.logFunction(e);
                     }
@@ -394,62 +452,7 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
                     }
                 });
 
-                socket.on("trade", () => {
-                    if (!selectedMode.AllowDeals) return;
-                    EmitAll("trade", {});
-                });
-                socket.on("cancel-trade", () => {
-                    if (!selectedMode.AllowDeals) return;
-                    EmitAll("cancel-trade", {});
-                });
-                socket.on("submit-trade", (x: GameTrading) => {
-                    if (!selectedMode.AllowDeals) return;
-                    const turnPlayer = Clients.get(x.turnPlayer.id);
-                    const againstPlayer = Clients.get(x.againstPlayer.id);
-                    if (turnPlayer === undefined || againstPlayer === undefined) return;
-
-                    // Exclude against
-                    const turnGets = againstPlayer.player.properties.filter((v1) =>
-                        x.againstPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
-                    );
-                    againstPlayer.player.properties = againstPlayer.player.properties.filter(
-                        (v1) => !x.againstPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
-                    );
-
-                    // Exclude turn
-                    const againsGets = againstPlayer.player.properties.filter((v1) =>
-                        x.turnPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
-                    );
-                    turnPlayer.player.properties = againstPlayer.player.properties.filter(
-                        (v1) => !x.turnPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
-                    );
-
-                    // Now Balance
-                    againstPlayer.player.balance -= x.againstPlayer.balance;
-                    turnPlayer.player.balance -= x.turnPlayer.balance;
-
-                    turnPlayer.player.balance += x.againstPlayer.balance;
-                    againstPlayer.player.balance += x.turnPlayer.balance;
-
-                    // Exclude switch
-                    turnPlayer.player.properties.push(...turnGets);
-                    againstPlayer.player.properties.push(...againsGets);
-
-                    EmitAll(
-                        "submit-trade",
-
-                        {
-                            pJsons: [turnPlayer.player.to_json(), againstPlayer.player.to_json()],
-                            action: `
-                    ${turnPlayer.player.username} done a trade with ${againstPlayer.player.username}
-                    `,
-                        }
-                    );
-                });
-                socket.on("trade-update", (x: GameTrading) => {
-                    if (!selectedMode.AllowDeals) return;
-                    EmitAll("trade-update", x);
-                });
+                
             } else {
                 socket.disconnect();
             }
