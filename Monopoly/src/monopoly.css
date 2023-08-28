@@ -725,25 +725,25 @@ main nav.content[data-index="1"] input {
     user-select: text;
 }
 
+main nav.content[data-index="3"] {
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+main nav.content[data-index="3"]>div {
+    flex-grow: 1;
+}
+
+
 main nav.content[data-index="4"] {
     overflow-y: hidden;
     display: flex;
     flex-direction: column;
 }
 
-main nav.content[data-index="4"]>div {
-    flex-grow: 1;
-}
 
-
-main nav.content[data-index="5"] {
-    overflow-y: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-
-main nav.content[data-index="5"] div.scroll {
+main nav.content[data-index="4"] div.scroll {
     overflow-y: auto;
     display: block;
     flex-grow: 1;
@@ -813,6 +813,7 @@ main div.game {
     flex-grow: 1;
     justify-content: flex-end;
     position: relative;
+    transition: translate .5s cubic-bezier(.3, 0, 0, 1);
 }
 
 h3 {
@@ -933,85 +934,76 @@ div.board div.street {
     transition: background-color 0.1s ease-out;
 }
 
-div.roll-panel {
+div.action-bar {
     position: absolute;
     bottom: 10%;
-    height: 75px;
+    height: 50spx;
+    width: fit-content;
     left: 50%;
+    background-color: rgba(20, 20, 20, 100);
+    translate: -50% 0px;
+    transition: translate 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
+    border-radius: 10px;
+    padding-inline: 10px;
 }
 
-div.roll-panel button {
-    position: absolute;
-    transform: translateX(-50%);
-    background-color: rgba(20, 20, 20, 100);
+div.action-bar button {
+
+    background-color: rgba(0, 0, 0, 0%);
     color: white;
     border-radius: 7px;
-    font-size: 20px;
+    font-size: 15px;
     text-align: center;
-    height: 70px;
-
-    transition: transform 0.3s cubic-bezier(0.21, 1.57, 0.55, 1),
-        translate 0.3s cubic-bezier(0.21, 1.57, 0.55, 1);
+    height: 50px;
+    display: inline-block;
+    opacity: 0.7;
+    transition: scale 0.3s cubic-bezier(0.21, 1.57, 0.55, 1), opacity 0.5s ease-out;
     pointer-events: all;
-    width: 300px;
+
 }
 
-div.roll-panel button:hover {
-    transform: scale(0.9) translateX(-55%);
+div.action-bar button:hover {
+    scale: 0.9;
     cursor: pointer;
+    opacity: 1;
 }
 
-div.roll-panel button[aria-disabled="true"] {
+div.action-bar button[aria-disabled="true"] {
     cursor: wait;
     filter: grayscale(1) blur(2px);
     animation: spin1 1s cubic-bezier(0.68, 0.05, 0.49, 0.95) infinite;
 }
 
-div.roll-panel button[aria-disabled="true"]:hover {
-    transform: translateX(-50%);
-}
 
-div.roll-panel button * {
+div.action-bar button * {
     display: inline-block;
 }
 
-div.roll-panel button p {
+div.action-bar button p {
     font-family: "Josefin Sans";
-    transform: translateY(5px);
+    margin-block: auto;
 }
 
-div.roll-panel button.roll-button[aria-disabled="false"] {
+div.action-bar button[aria-disabled="false"] {
     box-shadow: 0;
     outline: 0;
     border: 0;
 }
 
-div.roll-panel button.roll-button[aria-disabled="false"]:nth-child(1) {
-    translate: 0px -160px;
+
+div.action-bar button img {
+    height: 20px;
+    scale: 1.5;
+    translate: 0px 3px;
+    margin-inline: 5px;
 }
 
-div.roll-panel button.roll-button[aria-disabled="false"]:nth-child(2) {
-    translate: 0px -80px;
-}
-
-div.roll-panel button.roll-button[aria-disabled="false"] img:nth-child(3) {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%) translateX(0%);
-    width: 50px;
-}
-
-div.roll-panel button.roll-button img:nth-child(1) {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%) translateX(-100%);
-    width: 50px;
-    border: 0;
-}
-
-div.roll-panel button.roll-button[data-button-type][aria-disabled="true"] {
+div.action-bar button[data-button-type][aria-disabled="true"] {
     opacity: 0;
     visibility: hidden;
+    width: 0px;
+    padding: 0;
+    margin: 0;
 }
 
 div.player {
@@ -1472,6 +1464,9 @@ img#moneyAnimations {
     translate: 0 70px;
     filter: "";
     box-shadow: none;
+    border: 0;
+    outline: 0;
+    opacity: 0;
 }
 
 img#moneyAnimations[data-anim="1"] {
@@ -1481,6 +1476,7 @@ img#moneyAnimations[data-anim="1"] {
     background-image: url("/send2.png");
     background-size: 80px;
     background-size: cover;
+    opacity: 1;
 }
 
 img#moneyAnimations[data-anim="2"] {
@@ -1490,6 +1486,7 @@ img#moneyAnimations[data-anim="2"] {
     background-image: url("/recieve2.png");
     background-size: 80px;
     background-position: center;
+    opacity: 1;
 }
 
 @keyframes moneyAnimations1 {
@@ -1635,4 +1632,50 @@ div.history-action p:nth-child(1)::before {
 
 div.history-action p:nth-child(1)::after {
     content: "]"
+}
+
+div.game div.trade-table {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 100%;
+    left: 0%;
+    background-color: rgb(20, 20, 20);
+}
+
+div.game div.trade-table h3 {
+    width: 100%;
+    text-align: center;
+    font-size: 40px;
+}
+
+div.game div.trade-table div.select-players {
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+div.game div.trade-table div.select-players button {
+    display: block;
+    border-radius: 5px;
+    background-color: rgb(30, 30, 30);
+    color: white;
+    font-family: Josefin Sans;
+    border: 0;
+    outline: 0;
+    padding: 5px 10px;
+    text-align: center;
+    width: 100%;
+    transition: scale .3s cubic-bezier(0.21, 1.57, 0.55, 1)
+}
+
+div.game div.trade-table div.select-players button[data-selectable=true] {
+    cursor: pointer;
+
+}
+
+div.game div.trade-table div.select-players button[data-selectable=true]:hover {
+    cursor: pointer;
+    scale: 0.9
 }

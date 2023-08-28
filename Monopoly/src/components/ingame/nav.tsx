@@ -170,17 +170,6 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                         onClick={() => {
                             SetTab(3);
                         }}
-                        data-tooltip-hover="trades"
-                        className="button"
-                    >
-                        <img src="morgage.png" alt="" />
-                    </div>
-                    <div
-                        key={"ingame-nav-header-4"}
-                        data-selected={tabIndex === 4}
-                        onClick={() => {
-                            SetTab(4);
-                        }}
                         data-tooltip-hover="history"
                         className="button"
                     >
@@ -190,7 +179,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                 <div className="lower">
                     {prop.server !== undefined ? (
                         <div
-                            key={"ingame-nav-header-5"}
+                            key={"ingame-nav-header-server"}
                             data-selected={false}
                             onClick={() => prop.callServer()}
                             data-tooltip-hover="server"
@@ -202,9 +191,9 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                         <></>
                     )}
                     <div
-                        key={"ingame-nav-header-6"}
-                        data-selected={tabIndex == 5}
-                        onClick={() => SetTab(5)}
+                        key={"ingame-nav-header-4"}
+                        data-selected={tabIndex == 4}
+                        onClick={() => SetTab(4)}
                         data-tooltip-hover="settings"
                         className="button"
                     >
@@ -224,7 +213,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                 </div>
             </nav>
 
-            <nav className="content" data-index={tabIndex > 5 ? 0 : tabIndex < 0 ? 0 : tabIndex}>
+            <nav className="content" data-index={tabIndex > 4 ? 0 : tabIndex < 0 ? 0 : tabIndex}>
                 {tabIndex == 1 ? (
                     <PropretyTab ref={propretyRef} players={displayPlayers} socket={prop.socket} Morgage={prop.Morgage} />
                 ) : tabIndex == 2 ? (
@@ -254,11 +243,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                             />
                         </div>
                     </>
-                ) : tabIndex === 3 ? (
-                    <>
-                        <h3 style={{ textAlign: "center" }}>Trades</h3>
-                    </>
-                ) : tabIndex == 4 ? (
+                ) : tabIndex == 3 ? (
                     <>
                         <h3 style={{ textAlign: "center" }}>
                             History <h2>{calculateTimeDifference(prop.time, currentTime)}</h2>
@@ -277,7 +262,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                                 ))}
                         </div>
                     </>
-                ) : tabIndex == 5 ? (
+                ) : tabIndex == 4 ? (
                     <SettingsNav />
                 ) : (
                     <PlayersTab

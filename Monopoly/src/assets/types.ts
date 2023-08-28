@@ -73,3 +73,16 @@ export function history(action: string): historyAction {
         time,
     } as historyAction;
 }
+
+export type GameTrading = {
+    turnPlayer: {
+        id: string;
+        balance: number;
+        prop: PlayerProprety[];
+    };
+    againstPlayer: {
+        id: string;
+        balance: number;
+        prop: PlayerProprety[];
+    };
+};

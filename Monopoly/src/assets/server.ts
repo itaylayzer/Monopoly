@@ -2,7 +2,7 @@ import axios from "axios";
 import ENV from "../../env.json";
 import { Socket, Server } from "./websockets";
 import monopolyJSON from "./monopoly.json";
-import { historyAction } from "./types";
+import { GameTrading, historyAction } from "./types";
 class Player {
     public id: string;
     public username: string;
@@ -392,6 +392,19 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
                     } catch (e) {
                         server.logFunction(e);
                     }
+                });
+
+                socket.on("trade", () => {
+                    EmitAll("trade", {});
+                });
+                socket.on("cancel-trade", () => {
+                    EmitAll("cancel-trade", {});
+                });
+                socket.on("submit-trade", () => {
+                    EmitAll("submit-trade", {});
+                });
+                socket.on("trade-update", (x: GameTrading) => {
+                    EmitAll("trade-update", x);
                 });
             } else {
                 socket.disconnect();

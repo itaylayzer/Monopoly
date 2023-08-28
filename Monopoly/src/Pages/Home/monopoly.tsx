@@ -6,7 +6,7 @@ import MonopolyNav, { MonopolyNavRef } from "../../components/ingame/nav.tsx";
 import MonopolyGame, { MonopolyGameRef } from "../../components/ingame/game.tsx";
 import NotifyElement, { NotificatorRef } from "../../components/notificator.tsx";
 import monopolyJSON from "../../assets/monopoly.json";
-import { MonopolySettings, MonopolyModes, historyAction, history } from "../../assets/types.ts";
+import { MonopolySettings, MonopolyModes, historyAction, history, GameTrading } from "../../assets/types.ts";
 function App({ socket, name, server }: { socket: Socket; name: string; server: Server | undefined }) {
     const [clients, SetClients] = useState<Map<string, Player>>(new Map());
     const players = Array.from(clients.values());
@@ -20,6 +20,9 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
     const [mainTheme, SetTheme] = useState(new Audio("./main-theme.mp3"));
     const [startTIme, SetStartTime] = useState<Date>(new Date());
     const [histories, SetHistories] = useState<Array<historyAction>>([]);
+
+    const [currentTrade, setTrade] = useState<GameTrading | boolean | undefined>(undefined);
+
     useEffect(() => {
         if (!gameStartedDisplay) return;
         // Sound Effect
@@ -1218,6 +1221,18 @@ which is ${payment_ammount}
         socket.on("disconnect", socket_networkDisconnect);
         socket.on("player_update", socket_playerUpdate);
         socket.on("history", socket_history);
+
+        // Trade
+        socket.on("trade", () => {
+            setTrade(true);
+        });
+        socket.on("cancel-trade", () => {
+            setTrade(undefined);
+        });
+        socket.on("trade-update", (x: GameTrading) => {
+            setTrade(x);
+        });
+
         var to_emit_name = true;
         //#endregion
         if (to_emit_name) socket.emit("name", name);
@@ -1319,6 +1334,27 @@ which is ${payment_ammount}
                     socket={socket}
                     players={Array.from(clients.values())}
                     myTurn={currentId === socket.id}
+                    tradeObj={currentTrade}
+                    tradeApi={{
+                        onSelectPlayer(pId) {
+                            const xplayer = clients.get(pId);
+                            const localPlayer = clients.get(socket.id);
+                            if (xplayer === undefined || localPlayer === undefined) return;
+                            const x = {
+                                turnPlayer: {
+                                    id: localPlayer.id,
+                                    balance: 0,
+                                    prop: [],
+                                },
+                                againstPlayer: {
+                                    id: xplayer.id,
+                                    balance: 0,
+                                    prop: [],
+                                },
+                            };
+                            socket.emit("trade-update", x);
+                        },
+                    }}
                 />
             </main>
             <NotifyElement ref={notifyRef} />
