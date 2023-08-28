@@ -2,7 +2,7 @@ import axios from "axios";
 import ENV from "../../env.json";
 import { Socket, Server } from "./websockets";
 import monopolyJSON from "./monopoly.json";
-import { GameTrading, historyAction } from "./types";
+import { GameTrading, MonopolyMode, MonopolyModes, historyAction } from "./types";
 class Player {
     public id: string;
     public username: string;
@@ -13,12 +13,12 @@ class Player {
     public isInJail: boolean;
     public jailTurnsRemaining: number;
     public getoutCards: number;
-    constructor(_id: string, _name: string, _icon: number) {
+    constructor(_id: string, _name: string, _icon: number, cash?: number) {
         this.id = _id;
         this.username = _name;
         this.icon = _icon;
         this.position = 0;
-        this.balance = 1500;
+        this.balance = cash ?? 1500;
         this.properties = [];
         this.isInJail = false;
         this.jailTurnsRemaining = 0;
@@ -163,7 +163,7 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
     //#region Game Variables!
     let currentId: string = "";
     let gameStarted: boolean = false;
-    let selectedMode: number = 0;
+    let selectedMode: MonopolyMode = MonopolyModes[0];
 
     //#endregion
     // Io
@@ -212,7 +212,7 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
                 // Handle name event
                 socket.on("name", (name: string) => {
                     try {
-                        const player = new Player(socket.id, name, Array.from(Clients.keys()).length);
+                        const player = new Player(socket.id, name, Array.from(Clients.keys()).length, selectedMode.startingCash);
 
                         // handle current id =>
                         if (currentId === "" || !Array.from(Clients.keys()).includes(currentId)) {
@@ -363,7 +363,7 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
                         server.logFunction(e);
                     }
                 });
-                socket.on("ready", (args: { ready?: boolean; mode?: number }) => {
+                socket.on("ready", (args: { ready?: boolean; mode?: MonopolyMode }) => {
                     try {
                         const client = Clients.get(socket.id);
                         if (client === undefined) return;
@@ -395,15 +395,59 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
                 });
 
                 socket.on("trade", () => {
+                    if (!selectedMode.AllowDeals) return;
                     EmitAll("trade", {});
                 });
                 socket.on("cancel-trade", () => {
+                    if (!selectedMode.AllowDeals) return;
                     EmitAll("cancel-trade", {});
                 });
-                socket.on("submit-trade", () => {
-                    EmitAll("submit-trade", {});
+                socket.on("submit-trade", (x: GameTrading) => {
+                    if (!selectedMode.AllowDeals) return;
+                    const turnPlayer = Clients.get(x.turnPlayer.id);
+                    const againstPlayer = Clients.get(x.againstPlayer.id);
+                    if (turnPlayer === undefined || againstPlayer === undefined) return;
+
+                    // Exclude against
+                    const turnGets = againstPlayer.player.properties.filter((v1) =>
+                        x.againstPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
+                    );
+                    againstPlayer.player.properties = againstPlayer.player.properties.filter(
+                        (v1) => !x.againstPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
+                    );
+
+                    // Exclude turn
+                    const againsGets = againstPlayer.player.properties.filter((v1) =>
+                        x.turnPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
+                    );
+                    turnPlayer.player.properties = againstPlayer.player.properties.filter(
+                        (v1) => !x.turnPlayer.prop.map((v2) => JSON.stringify(v2)).includes(JSON.stringify(v1))
+                    );
+
+                    // Now Balance
+                    againstPlayer.player.balance -= x.againstPlayer.balance;
+                    turnPlayer.player.balance -= x.turnPlayer.balance;
+
+                    turnPlayer.player.balance += x.againstPlayer.balance;
+                    againstPlayer.player.balance += x.turnPlayer.balance;
+
+                    // Exclude switch
+                    turnPlayer.player.properties.push(...turnGets);
+                    againstPlayer.player.properties.push(...againsGets);
+
+                    EmitAll(
+                        "submit-trade",
+
+                        {
+                            pJsons: [turnPlayer.player.to_json(), againstPlayer.player.to_json()],
+                            action: `
+                    ${turnPlayer.player.username} done a trade with ${againstPlayer.player.username}
+                    `,
+                        }
+                    );
                 });
                 socket.on("trade-update", (x: GameTrading) => {
+                    if (!selectedMode.AllowDeals) return;
                     EmitAll("trade-update", x);
                 });
             } else {

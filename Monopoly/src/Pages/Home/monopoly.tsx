@@ -6,7 +6,7 @@ import MonopolyNav, { MonopolyNavRef } from "../../components/ingame/nav.tsx";
 import MonopolyGame, { MonopolyGameRef } from "../../components/ingame/game.tsx";
 import NotifyElement, { NotificatorRef } from "../../components/notificator.tsx";
 import monopolyJSON from "../../assets/monopoly.json";
-import { MonopolySettings, MonopolyModes, historyAction, history, GameTrading } from "../../assets/types.ts";
+import { MonopolySettings, MonopolyModes, historyAction, history, GameTrading, MonopolyMode } from "../../assets/types.ts";
 function App({ socket, name, server }: { socket: Socket; name: string; server: Server | undefined }) {
     const [clients, SetClients] = useState<Map<string, Player>>(new Map());
     const players = Array.from(clients.values());
@@ -15,7 +15,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
     const [gameStarted, SetGameStarted] = useState<boolean>(false);
     const [gameStartedDisplay, SetGameStartedDisplay] = useState<boolean>(false);
     const [imReady, SetReady] = useState<boolean>(false);
-    const [selectedMode, SetMode] = useState<number>(0);
+    const [selectedMode, SetMode] = useState<MonopolyMode>(MonopolyModes[0]);
     const [globalSettings, SetSettings] = useState<MonopolySettings>();
     const [mainTheme, SetTheme] = useState(new Audio("./main-theme.mp3"));
     const [startTIme, SetStartTime] = useState<Date>(new Date());
@@ -229,7 +229,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
             SetClients(new Map(clients.set(args.id, new Player(args.id, args.username).recieveJson(args))));
         };
 
-        const socket_Ready = (args: { id: string; state: boolean; selectedMode: number }) => {
+        const socket_Ready = (args: { id: string; state: boolean; selectedMode: MonopolyMode }) => {
             const x = clients.get(args.id);
             if (x === undefined) return;
             x.ready = args.state;
@@ -507,8 +507,12 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                                         const multy_ = p.properties.filter((v) => v.group === "Utilities").length === 2 ? 10 : 4;
                                                         payment_ammount = prp.rent * multy_;
                                                     } else if (proprety.group === "Railroad") {
-                                                        const count = p.properties.filter((v) => v.group === "Railroad").length;
-                                                        const rents = [25, 50, 100, 200];
+                                                        const count = p.properties
+                                                            .filter((v) => v.group === "Railroad")
+                                                            .filter(
+                                                                (v) => v.morgage === undefined || (v.morgage !== undefined && v.morgage === false)
+                                                            ).length;
+                                                        const rents = [0, 25, 50, 100, 200];
                                                         payment_ammount = rents[count];
                                                     } else if (prp.count === 0) {
                                                         payment_ammount = proprety?.rent ?? 0;
@@ -701,6 +705,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
         }) => {
             for (const x of args.pJson) {
                 const p = clients.get(x.id);
+                x.position = p?.position ?? x.position;
                 p?.recieveJson(x);
             }
 
@@ -1076,8 +1081,14 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
                                                                     },
                                                                 });
                                                             } else if (proprety.group === "Railroad") {
-                                                                const count = p.properties.filter((v) => v.group === "Railroad").length;
-                                                                const rents = [25, 50, 100, 200];
+                                                                const count = p.properties
+                                                                    .filter((v) => v.group === "Railroad")
+                                                                    .filter(
+                                                                        (v) =>
+                                                                            v.morgage === undefined ||
+                                                                            (v.morgage !== undefined && v.morgage === false)
+                                                                    ).length;
+                                                                const rents = [0, 25, 50, 100, 200];
                                                                 payment_ammount = rents[count] * (c.rentmultiplier ?? 1);
 
                                                                 if (settings !== undefined && settings.notifications === true)
@@ -1224,13 +1235,28 @@ which is ${payment_ammount}
 
         // Trade
         socket.on("trade", () => {
+            if (!selectedMode.AllowDeals) return;
             setTrade(true);
         });
         socket.on("cancel-trade", () => {
+            if (!selectedMode.AllowDeals) return;
             setTrade(undefined);
         });
         socket.on("trade-update", (x: GameTrading) => {
+            if (!selectedMode.AllowDeals) return;
             setTrade(x);
+        });
+
+        socket.on("submit-trade", (args: { pJsons: [PlayerJSON, PlayerJSON]; action: string }) => {
+            if (!selectedMode.AllowDeals) return;
+            setTrade(undefined);
+            for (const PJS of args.pJsons) {
+                const client = clients.get(PJS.id);
+                if (client !== undefined) {
+                    client.recieveJson(PJS);
+                }
+            }
+            SetHistories((old) => [...old, history(args.action)]);
         });
 
         var to_emit_name = true;
@@ -1324,6 +1350,7 @@ which is ${payment_ammount}
                     }}
                     history={histories}
                     time={startTIme}
+                    selectedMode={selectedMode}
                 />
 
                 <MonopolyGame
@@ -1355,6 +1382,7 @@ which is ${payment_ammount}
                             socket.emit("trade-update", x);
                         },
                     }}
+                    selectedMode={selectedMode}
                 />
             </main>
             <NotifyElement ref={notifyRef} />
@@ -1437,20 +1465,47 @@ which is ${payment_ammount}
 
                     <div className="modes">
                         <main>
-                            <h3>{MonopolyModes[selectedMode].Name}</h3>
-                            <p>Winning: {MonopolyModes[selectedMode].WinningMode.toUpperCase()}</p>
-                            <p>Deals: {MonopolyModes[selectedMode].AllowDeals ? "Allowed" : "Not-Allowed"}</p>
+                            <h3>{selectedMode.Name}</h3>
+                            <table>
+                                <tr>
+                                    <td> Winning State:</td> <td>{selectedMode.WinningMode.toUpperCase()}</td>
+                                </tr>
+                                <tr>
+                                    <td> Buying System:</td> <td>{selectedMode.BuyingSystem.toUpperCase()}</td>
+                                </tr>
+                                <tr>
+                                    <td>Trades: </td>
+                                    <td>{selectedMode.AllowDeals ? "ALLOWED" : "NOT-ALLOWED"}</td>
+                                </tr>
+                                <tr>
+                                    <td>Mortgage: </td>
+                                    <td>{selectedMode.mortageAllowed ? "ALLOWED" : "NOT-ALLOWED"}</td>
+                                </tr>
+                                <tr>
+                                    <td>Starting Cash: </td>
+                                    <td>{selectedMode.startingCash} M</td>
+                                </tr>
+                                <tr>
+                                    <td>Turn Timer: </td>
+                                    <td>
+                                        {selectedMode.turnTimer === undefined ||
+                                        (typeof selectedMode.turnTimer === "number" && selectedMode.turnTimer === 0)
+                                            ? "No Timer"
+                                            : JSON.stringify(selectedMode.turnTimer) + " Sec"}
+                                    </td>
+                                </tr>
+                            </table>
                         </main>
-                        <div>
+                        <div className="selecting-mde">
                             {MonopolyModes.map((v, k) => {
                                 return (
                                     <p
-                                        data-select={k === selectedMode}
+                                        data-select={JSON.stringify(v) === JSON.stringify(selectedMode)}
                                         key={k}
                                         onClick={() => {
                                             if (server !== undefined)
                                                 socket.emit("ready", {
-                                                    mode: k,
+                                                    mode: v,
                                                 });
                                         }}
                                         data-disabled={server === undefined}
@@ -1459,8 +1514,19 @@ which is ${payment_ammount}
                                     </p>
                                 );
                             })}
+                            <p
+                                data-disabled={server === undefined}
+                                onClick={() => {
+                                    // const v = {} as MonopolyMode;
+                                    // if (server !== undefined)
+                                    //     socket.emit("ready", {
+                                    //         mode: v,
+                                    //     });
+                                }}
+                            >
+                                Custom Mode
+                            </p>
                         </div>
-                        <button>Custom Mode</button>
                     </div>
                 </div>
             </main>

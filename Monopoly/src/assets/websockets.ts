@@ -15,11 +15,19 @@ export function io(uri: string): Promise<Socket> {
             // Once the Peer connection is open, create a data connection.
             const dataConnection = peer.connect(uri, { reliable: true });
 
-            // Create a new Socket instance with the data connection.
-            const sock = new Socket(dataConnection);
-            sock.id = id;
-            // Resolve the Promise with the Socket object.
-            resolve(sock);
+            setTimeout(() => {
+                reject("the server took too long to respond");
+            }, 5000);
+            dataConnection.on("open", () => {
+                // Create a new Socket instance with the data connection.
+                const sock = new Socket(dataConnection);
+                sock.id = id;
+                // Resolve the Promise with the Socket object.
+                resolve(sock);
+            });
+            dataConnection.on("error", (r) => {
+                reject(r.message);
+            });
         });
 
         peer.on("error", (error) => {

@@ -12,7 +12,7 @@ import { Server, Socket } from "../../assets/websockets.ts";
 import PropretyTab, { PropretyTabRef } from "./propretyTab.tsx";
 import PlayersTab, { PlayersTabRef } from "./playersTab.tsx";
 import SettingsNav from "../settingsNav.tsx";
-import { historyAction } from "../../assets/types.ts";
+import { MonopolyMode, historyAction } from "../../assets/types.ts";
 
 interface MonopolyNavProps {
     name: string;
@@ -27,6 +27,7 @@ interface MonopolyNavProps {
     };
     history: Array<historyAction>;
     time: Date;
+    selectedMode: MonopolyMode;
 }
 export interface MonopolyNavRef {
     addMessage: (arg: { from: string; message: string }) => void;
@@ -215,7 +216,13 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
 
             <nav className="content" data-index={tabIndex > 4 ? 0 : tabIndex < 0 ? 0 : tabIndex}>
                 {tabIndex == 1 ? (
-                    <PropretyTab ref={propretyRef} players={displayPlayers} socket={prop.socket} Morgage={prop.Morgage} />
+                    <PropretyTab
+                        ref={propretyRef}
+                        players={displayPlayers}
+                        socket={prop.socket}
+                        Morgage={prop.Morgage}
+                        allowMortgage={prop.selectedMode.mortageAllowed}
+                    />
                 ) : tabIndex == 2 ? (
                     <>
                         <h3 style={{ textAlign: "center" }}>Chat</h3>

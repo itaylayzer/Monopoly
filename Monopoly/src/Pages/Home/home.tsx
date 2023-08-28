@@ -109,7 +109,10 @@ export default function Home() {
         SetDisabled(true);
         const x = await Read();
         if (!Object.keys(x).includes(addr)) {
-            notifyRef.current?.message("code isnt available on systems", "info", 2);
+            notifyRef.current?.message("code isnt available on systems", "info", 2, () => {
+                SetDisabled(false);
+            });
+
             return;
         }
 
@@ -117,47 +120,42 @@ export default function Home() {
         console.log(address);
         var socket: Socket;
         // const address = "localhost"
-        socket = await io(address);
+        try {
+            socket = await io(address);
 
-        socket.on("state", (args: number) => {
-            switch (args) {
-                case 0:
-                    SetSocket(socket);
-                    SetSignedIn(true);
-                    SetDisabled(false);
-                    break;
-                case 1:
-                    notifyRef.current?.message("the game has already begun", "error", 2, () => {
+            socket.on("state", (args: number) => {
+                switch (args) {
+                    case 0:
+                        SetSocket(socket);
+                        SetSignedIn(true);
                         SetDisabled(false);
-                    });
-                    socket.disconnect();
-                    break;
-                case 2:
-                    notifyRef.current?.message("too many players on the server", "error", 2, () => {
-                        SetDisabled(false);
-                    });
-                    socket.disconnect();
-                    break;
-                default:
-                    notifyRef.current?.message("unkown error", "error", 2);
-                    socket.disconnect();
-                    SetDisabled(false);
-                    break;
-            }
-        });
-        socket.on("connect_error", () => {
-            notifyRef.current?.message("the server does not exist or is unreachable", "error", 2, () => {
+                        break;
+                    case 1:
+                        notifyRef.current?.message("the game has already begun", "error", 2, () => {
+                            SetDisabled(false);
+                        });
+                        socket.disconnect();
+                        break;
+                    case 2:
+                        notifyRef.current?.message("too many players on the server", "error", 2, () => {
+                            SetDisabled(false);
+                        });
+                        socket.disconnect();
+                        break;
+                    default:
+                        notifyRef.current?.message("unkown error", "error", 2, () => {
+                            SetDisabled(false);
+                        });
+                        socket.disconnect();
+
+                        break;
+                }
+            });
+        } catch (r) {
+            notifyRef.current?.message(r as string, "error", 2, () => {
                 SetDisabled(false);
             });
-            socket.disconnect();
-        });
-
-        socket.on("connect_timeout", () => {
-            notifyRef.current?.message("the server took too long to respond", "error", 2, () => {
-                SetDisabled(false);
-            });
-            socket.disconnect();
-        });
+        }
     };
 
     useEffect(() => {
@@ -391,7 +389,9 @@ export default function Home() {
                                                     server.code = host;
                                                     SetAddress(host);
                                                     SetServer(server);
-                                                    e.currentTarget.disabled = false;
+                                                    try {
+                                                        e.currentTarget.disabled = false;
+                                                    } catch {}
                                                 });
                                             }}
                                         >
@@ -404,7 +404,7 @@ export default function Home() {
                     ) : (
                         <>
                             <header>
-                                <p style={{ fontSize: 9 }}>25.8.23 - Gallery (2)</p>
+                                <p style={{ fontSize: 9 }}>28.8.23 - Trades</p>
                                 Welcome to the <h3>MONOPOLY</h3> Game
                             </header>
                             <JoinScreen

@@ -972,6 +972,7 @@ div.action-bar button[aria-disabled="true"] {
     cursor: wait;
     filter: grayscale(1) blur(2px);
     animation: spin1 1s cubic-bezier(0.68, 0.05, 0.49, 0.95) infinite;
+    border: 0;
 }
 
 
@@ -1649,6 +1650,13 @@ div.game div.trade-table h3 {
     font-size: 40px;
 }
 
+div.game div.trade-table div.middle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+}
+
 div.game div.trade-table div.select-players {
     width: fit-content;
     display: flex;
@@ -1678,4 +1686,161 @@ div.game div.trade-table div.select-players button[data-selectable=true] {
 div.game div.trade-table div.select-players button[data-selectable=true]:hover {
     cursor: pointer;
     scale: 0.9
+}
+
+div.game div.trade-table div.trade-mission {
+    display: flex;
+    gap: 1px;
+    position: unset;
+    transform: unset;
+    justify-content: center;
+    width: 800px;
+}
+
+div.game div.trade-table div.trade-mission div.flexchild {
+    flex-grow: 1;
+    display: block;
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+div.game div.trade-table div.trade-mission div.player {
+    flex-grow: 1;
+    display: block;
+    position: unset;
+    transform: unset;
+    width: fit-content;
+}
+
+div.game div.trade-table div.trade-mission div.player h5 {
+    text-align: center;
+    margin: 0;
+    font-size: 15px;
+    width: fit-content;
+    display: block;
+    font-weight: 100;
+}
+
+div.game div.trade-table div.trade-mission div.player h5 h2 {
+    text-align: center;
+    margin: 0;
+    font-size: 30px;
+    width: fit-content;
+    display: block;
+    font-family: consolas;
+}
+
+div.game div.trade-table div.trade-mission div.player table {
+    background-color: unset;
+    border-radius: 15px;
+    padding: 10px;
+    filter: unset;
+    box-shadow: none;
+    border: 0;
+    outline: 0;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    margin-top: 10px;
+}
+
+div.game div.trade-table div.trade-mission div.player table tr td:nth-child(1) {
+    font-weight: 200;
+}
+
+div.game div.trade-table div.trade-mission div.trade-craft {
+    background-color: rgb(30, 30, 30);
+    padding-inline: 10px;
+    border-radius: 5px;
+    height: fit-content;
+    padding-bottom: 15px;
+    margin-inline: 10px;
+
+}
+
+div.game div.trade-table div.trade-mission div.flexchild div.trade-craft {
+    min-height: 100px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+div.game div.trade-table div.trade-mission * div.proprety-nav {
+    background-color: rgb(20, 20, 20);
+    border-radius: 5px;
+    padding: 3px 10px;
+    display: flex;
+    gap: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: scale .3s cubic-bezier(0.21, 1.57, 0.55, 1)
+}
+
+div.game div.trade-table div.trade-mission * div.proprety-nav:hover {
+    scale: 0.9;
+}
+
+div.game div.trade-table div.trade-mission * div.proprety-nav[data-actionable=false]:hover {
+    scale: 1;
+    cursor: default;
+}
+
+div.game div.trade-table div.trade-mission * div.proprety-nav i {
+    min-width: 4px;
+    border-radius: 100px;
+    transform: scaleY(0.8);
+}
+
+div.game div.trade-table div.trade-mission * div.proprety-nav h3 {
+    margin: 0;
+    font-size: 20px;
+}
+
+div.game div.trade-table div.trade-mission div.player * div.proprety-nav {
+    background-color: rgb(30, 30, 30);
+    box-shadow: 0;
+    border: 0;
+    box-shadow: unset;
+    outline: 0;
+    filter: drop-shadow(unset);
+    border: 0;
+}
+
+div.game div.trade-table div.trade-craft-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 50px;
+    background-color: rgb(30, 30, 30);
+    width: fit-content;
+    border-radius: 10px;
+    padding: 3px;
+}
+
+div.game div.trade-table div.trade-craft-buttons button {
+    background-color: rgb(30, 30, 30);
+    color: white;
+    font-size: 18px;
+
+    outline: 0;
+    border: 0;
+    padding: 3px 10px;
+    transition: scale .3s cubic-bezier(0.21, 1.57, 0.55, 1)
+}
+
+div.game div.trade-table div.trade-craft-buttons button:hover {
+    scale: 0.9;
+    cursor: pointer;
+}
+
+@keyframes tradepopout {
+    0% {
+        scale: .5 0;
+        height: 0px;
+    }
+
+    100% {
+        scale: 1 1;
+        height: 23px;
+    }
 }

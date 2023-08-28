@@ -13,6 +13,7 @@ interface PropretyTabProps {
         onMort: (a: number, prpName: string) => void;
         onCanc: (a: number, prpName: string) => void;
     };
+    allowMortgage: boolean;
 }
 export interface PropretyTabRef {
     clickedOnBoard: (a: number) => void;
@@ -201,7 +202,7 @@ const propretyTab = forwardRef<PropretyTabRef, PropretyTabProps>((props, ref) =>
                                     SetCardPos(-1);
                                 }}
                             />
-                            {mortgageApi.isRailroad(currentCardPosition) ? (
+                            {mortgageApi.isRailroad(currentCardPosition) && props.allowMortgage ? (
                                 <>
                                     {" "}
                                     <h2>Actions</h2>

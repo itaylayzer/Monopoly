@@ -60,16 +60,14 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 
 ## TODO List:
 
-1. advance gameplay:
-    - trades
-2. Server statistics [Maybe]
-3. Score System
-4. Game Mode System - Custom and Game & Server
-5. Bots System
-6. Players LeaderBoard
-7. Search for Player Statistics
-8. Mobile Design
-9. last and least 3D Game Version
+1. Game Mode System - Custom and Game & Server [Winning State, Turn Timer, Buygin System]
+2. Advanced Server [Event Logs, Player Statistics, Memory and Network Use]
+3. Bots System
+4. Score System
+5. Players LeaderBoard
+6. Search for Player Statistics
+7. Mobile Design
+8. last and least 3D Game Version
    Only Then this project will be done for good.
 
 ## Pictures and Videos of the game!

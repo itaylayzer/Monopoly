@@ -25,6 +25,7 @@ export const MonopolyModes = [
     {
         AllowDeals: true,
         WinningMode: "last-standing",
+        BuyingSystem: "Following Order",
         Name: "Classic",
         startingCash: 1500,
         mortageAllowed: true,
@@ -32,6 +33,7 @@ export const MonopolyModes = [
     {
         AllowDeals: true,
         WinningMode: "monopols",
+        BuyingSystem: "Everything",
         Name: "Monopol",
         startingCash: 1500,
         mortageAllowed: false,
@@ -39,14 +41,17 @@ export const MonopolyModes = [
     {
         AllowDeals: false,
         WinningMode: "last-standing",
+        BuyingSystem: "Card Firsts",
         Name: "Run-Down",
         startingCash: 1500,
         mortageAllowed: false,
+        turnTimer: 30,
     },
 ] as MonopolyMode[];
 
 export interface MonopolyMode {
     WinningMode: "last-standing" | "monopols" | "monopols & trains";
+    BuyingSystem: "Following Order" | "Card Firsts" | "Everything";
     AllowDeals: boolean;
     Name: string;
     startingCash: number;

@@ -320,6 +320,7 @@ p.lobby-players {
     color: white;
     border-radius: 3px;
     width: 100%;
+    animation: lobbypop .3s cubic-bezier(0.21, 1.57, 0.55, 1);
 }
 
 div.entry nav.login {
@@ -466,8 +467,9 @@ div.modes main {
 
 div.modes main h3 {
     margin: 0;
-    margin-block: 20px;
-    width: fit-content;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    text-align: center;
 }
 
 div.modes main p {
@@ -492,13 +494,25 @@ div.modes>button {
     margin-block: 2px;
 }
 
+div.modes div.selecting-mde {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columns */
+    grid-template-rows: repeat(2, 1fr);
+    /* 2 rows */
+    /* You can adjust the gap between items as needed */
+    margin-top: 10px;
+}
+
 div.modes p {
     display: inline-block;
     background-color: rgb(35, 35, 35);
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-    transition: scale .35s cubic-bezier(0, .6, .28, 1.47)
+    transition: scale .35s cubic-bezier(0, .6, .28, 1.47);
+    margin: 0;
+    text-align: center;
 }
 
 div.modes p[data-disabled="true"] {
@@ -520,6 +534,27 @@ div.modes p[data-disabled="false"]:hover {
 
 div.modes p[data-disabled="true"]:hover {
     cursor: default;
+}
+
+div.modes table {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+div.modes table tr td {
+    padding-bottom: 10px;
+}
+
+div.modes table tr td:nth-child(1) {
+    font-weight: 100;
+
+}
+
+div.modes table tr td:nth-child(2) {
+    font-family: consolas;
+    text-align: right;
+    padding-left: 15px;
 }
 
 p#floating-clock {
@@ -571,4 +606,17 @@ div.scoreboardIcon img {
 
 div.scoreboardIcon img:hover {
     scale: 0.8;
+}
+
+
+@keyframes lobbypop {
+    0% {
+        scale: .5 0;
+        height: 0px;
+    }
+
+    100% {
+        scale: 1 1;
+        height: 27px;
+    }
 }
