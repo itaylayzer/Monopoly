@@ -5,12 +5,13 @@ import { Server, Socket, io } from "../../assets/websockets.ts";
 import NotifyElement, { NotificatorRef } from "../../components/notificator.tsx";
 import { MonopolyCookie, User, botInitial } from "../../assets/types.ts";
 import SettingsNav from "../../components/settingsNav.tsx";
-import LoginScreen from "../../components/menu/loginscreen.tsx";
+
+// import LoginScreen from "../../components/menu/loginscreen.tsx";
 import JoinScreen from "../../components/menu/joinScreen.tsx";
 // env
 import ENV from "../../../env.json";
-import { FirebaseApp, initializeApp } from "firebase/app";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+// import { FirebaseApp, initializeApp } from "firebase/app";
+// import { doc, getDoc, getFirestore } from "firebase/firestore";
 
 import { main as onlineServer } from "../../assets/server.ts";
 import { main as botServer } from "../../assets/bot/server.ts";
@@ -39,9 +40,17 @@ export default function Home() {
     const [addr, SetAddress] = useState<string>("");
 
     // Account stuff
-    const [firebase, setFirebase] = useState<FirebaseApp>();
-    const [remember, SetRemember] = useState<boolean>(cookie.login.remember);
-    const [fbUser, SetFbUser] = useState<User>();
+    // const [firebase, setFirebase] = useState<FirebaseApp>();
+    const [
+        remember,
+        // @ts-ignore
+        SetRemember,
+    ] = useState<boolean>(cookie.login.remember);
+    const [
+        fbUser,
+        // @ts-ignore
+        SetFbUser,
+    ] = useState<User>();
 
     const [disabled, SetDisabled] = useState<boolean>(false);
     const [isSignedIn, SetSignedIn] = useState<boolean>(false);
@@ -53,19 +62,19 @@ export default function Home() {
 
     useEffect(() => {
         document.title = "Monopoly";
-        const _firebase = initializeApp(ENV.firebase);
-        setFirebase(_firebase);
+        // const _firebase = initializeApp(ENV.firebase);
+        // setFirebase(_firebase);
         var cookie: MonopolyCookie;
         try {
             const obj = JSON.parse(document.cookie);
             cookie = obj;
             if (cookie.login.remember && cookie.login.id.length > 0) {
-                const db = getFirestore(_firebase);
-                getDoc(doc(db, `Users/${cookie.login.id}`)).then((v) => {
-                    const userData = v.data() as User;
-                    SetFbUser(userData);
-                    SetName(userData.name);
-                });
+                // const db = getFirestore(_firebase);
+                // getDoc(doc(db, `Users/${cookie.login.id}`)).then((v) => {
+                //     const userData = v.data() as User;
+                //     SetFbUser(userData);
+                //     SetName(userData.name);
+                // });
             }
         } catch {}
     }, []);
@@ -175,6 +184,7 @@ export default function Home() {
             }
 
             botServer(async (host, server) => {
+                SetDisabled(true);
                 const socket = await io(host);
                 for (const x of bots) {
                     runBot(host, x);
@@ -245,6 +255,7 @@ export default function Home() {
                         onClick={() => {
                             SetTab(2);
                         }}
+                        disabled={true}
                         data-tooltip-hover="account"
                     >
                         <img src="./human.png" alt="" />
@@ -318,56 +329,57 @@ export default function Home() {
                                 </ol>
                             </div>
                         </>
-                    ) : tabIndex === 2 ? (
-                        <>
-                            <header>
-                                <p style={{ fontSize: 13, marginBottom: 0 }}>Account</p>
-                                <div className="loginPageHeader">
-                                    <h3>Login</h3>
-                                    <div className="scoreboardIcon">
-                                        <img
-                                            onClick={() => {
-                                                document.location.href = "/Monopoly/users";
-                                            }}
-                                            src="scoreboard.png"
-                                        />
-                                    </div>
-                                </div>
-                            </header>
-                            <LoginScreen
-                                admin={firebase}
-                                currentUser={fbUser}
-                                onLogout={() => {
-                                    SetRemember(false);
-                                    SetFbUser(undefined);
-                                    SetName("");
-                                }}
-                                onLogin={(v, b) => {
-                                    SetTab(0);
-                                    SetRemember(b);
-                                    SetFbUser(v);
-                                    SetName(v.name);
-                                    if (!b) return;
-                                    try {
-                                        var cookie = JSON.parse(document.cookie) as MonopolyCookie;
-                                        cookie.login = {
-                                            remember: true,
-                                            id: v.id,
-                                        };
-                                        document.cookie = JSON.stringify(cookie as MonopolyCookie);
-                                    } catch {
-                                        var cookie = {
-                                            login: {
-                                                remember: true,
-                                                id: v.id,
-                                            },
-                                        } as MonopolyCookie;
-                                        document.cookie = JSON.stringify(cookie as MonopolyCookie);
-                                    }
-                                }}
-                            />
-                        </>
-                    ) : tabIndex === 1 ? (
+                    ) : // tabIndex === 2 ? (
+                    //     <>
+                    //         <header>
+                    //             <p style={{ fontSize: 13, marginBottom: 0 }}>Account</p>
+                    //             <div className="loginPageHeader">
+                    //                 <h3>Login</h3>
+                    //                 <div className="scoreboardIcon">
+                    //                     <img
+                    //                         onClick={() => {
+                    //                             document.location.href = "/Monopoly/users";
+                    //                         }}
+                    //                         src="scoreboard.png"
+                    //                     />
+                    //                 </div>
+                    //             </div>
+                    //         </header>
+                    //         <LoginScreen
+                    //             admin={undefined}
+                    //             currentUser={fbUser}
+                    //             onLogout={() => {
+                    //                 SetRemember(false);
+                    //                 SetFbUser(undefined);
+                    //                 SetName("");
+                    //             }}
+                    //             onLogin={(v, b) => {
+                    //                 SetTab(0);
+                    //                 SetRemember(b);
+                    //                 SetFbUser(v);
+                    //                 SetName(v.name);
+                    //                 if (!b) return;
+                    //                 try {
+                    //                     var cookie = JSON.parse(document.cookie) as MonopolyCookie;
+                    //                     cookie.login = {
+                    //                         remember: true,
+                    //                         id: v.id,
+                    //                     };
+                    //                     document.cookie = JSON.stringify(cookie as MonopolyCookie);
+                    //                 } catch {
+                    //                     var cookie = {
+                    //                         login: {
+                    //                             remember: true,
+                    //                             id: v.id,
+                    //                         },
+                    //                     } as MonopolyCookie;
+                    //                     document.cookie = JSON.stringify(cookie as MonopolyCookie);
+                    //                 }
+                    //             }}
+                    //         />
+                    //     </>
+                    // ) :
+                    tabIndex === 1 ? (
                         <>
                             <header>
                                 <p
@@ -454,7 +466,7 @@ export default function Home() {
                     ) : (
                         <>
                             <header>
-                                <p style={{ fontSize: 9 }}>28.8.23 - Trades & GameModes</p>
+                                <p style={{ fontSize: 9 }}>3.9.23</p>
                                 Welcome to the <h3>MONOPOLY</h3> Game
                             </header>
                             <JoinScreen

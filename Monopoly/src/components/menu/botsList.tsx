@@ -4,11 +4,11 @@ import "./botList.css";
 import { botInitial, randomName } from "../../assets/types";
 
 export default function BotsList(props: { OnChange: (array: botInitial[]) => void }) {
-    const options = ["Recruit", "Regular", "Hardened", "Veteran"];
+    const options = ["Randomized"]; //["Recruit", "Regular", "Hardened", "Veteran"];
     const [arr, SetArr] = useState<botInitial[]>([
         {
             name: randomName(),
-            diff: "Regular",
+            diff: "Randomized",
         },
     ]);
     useEffect(() => {
@@ -52,7 +52,7 @@ export default function BotsList(props: { OnChange: (array: botInitial[]) => voi
                                 ...old,
                                 {
                                     name: randomName(),
-                                    diff: "Regular",
+                                    diff: "Randomized",
                                 },
                             ]);
                         }

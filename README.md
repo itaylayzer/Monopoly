@@ -2,6 +2,8 @@
 
 the url of the game https://coder-1t45.github.io/Monopoly/
 
+[3.9.23] Taking A Break so i disabled firebase [accounts and so on, system that are not completed]
+
 Welcome to my Monopoly, a thrilling online multiplayer game developed using React.js, Express.js, and TypeScript. This exciting rendition of the classic Monopoly game incorporates some intriguing rule changes. this Monopoly can only be played in multiplayer mode.
 
 ### Features
