@@ -135,6 +135,7 @@ export default function Home() {
             socket = await io(address);
 
             socket.on("state", (args: number) => {
+                console.log("state")
                 switch (args) {
                     case 0:
                         SetSocket(socket);
@@ -466,7 +467,7 @@ export default function Home() {
                     ) : (
                         <>
                             <header>
-                                <p style={{ fontSize: 9 }}>3.9.23</p>
+                                <p style={{ fontSize: 9 }}>9.9.23</p>
                                 Welcome to the <h3>MONOPOLY</h3> Game
                             </header>
                             <JoinScreen

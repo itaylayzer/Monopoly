@@ -207,6 +207,7 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
         },
         (socket: Socket, server: Server) => {
             // Handle name event
+            socket.emit("state", Clients.size < maxPlayers ?  0 : 2)
             socket.on("name", (name: string) => {
                 try {
                     const player = new Player(socket.id, name, Array.from(Clients.keys()).length, selectedMode.startingCash);
