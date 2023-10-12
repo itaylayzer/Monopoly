@@ -22,7 +22,7 @@ import { CookieManager } from "../../assets/CookieManager.ts";
 export default function Home() {
     var cookie: MonopolyCookie;
     try {
-        const getCookieString =CookieManager.get("monopolySettings");
+        const getCookieString = CookieManager.get("monopolySettings");
         if (getCookieString === null) throw new Error("no cookie");
         const obj = JSON.parse(decodeURIComponent(getCookieString));
         cookie = obj;
@@ -34,7 +34,7 @@ export default function Home() {
             },
         } as MonopolyCookie;
 
-        CookieManager.set("monopolySettings",encodeURIComponent( JSON.stringify(cookie as MonopolyCookie)));
+        CookieManager.set("monopolySettings", encodeURIComponent(JSON.stringify(cookie as MonopolyCookie)));
     }
 
     const notifyRef = useRef<NotificatorRef>(null);
@@ -98,7 +98,7 @@ export default function Home() {
                 remember,
             };
 
-            CookieManager.set("monopolySettings",encodeURIComponent( JSON.stringify(cookie as MonopolyCookie)));
+            CookieManager.set("monopolySettings", encodeURIComponent(JSON.stringify(cookie as MonopolyCookie)));
         } catch {
             const cookie = {
                 login: {
@@ -106,7 +106,7 @@ export default function Home() {
                     remember: false,
                 },
             } as MonopolyCookie;
-            CookieManager.set("monopolySettings",encodeURIComponent( JSON.stringify(cookie as MonopolyCookie)));
+            CookieManager.set("monopolySettings", encodeURIComponent(JSON.stringify(cookie as MonopolyCookie)));
         }
         SetDisabled(true);
 
@@ -117,7 +117,7 @@ export default function Home() {
             socket = await io(address);
 
             socket.on("state", (args: number) => {
-                console.log("state")
+                console.log("state");
                 switch (args) {
                     case 0:
                         SetSocket(socket);
@@ -449,8 +449,16 @@ export default function Home() {
                     ) : (
                         <>
                             <header>
-                                <p style={{ fontSize: 9 }}>9.9.23</p>
-                                Welcome to the <h3>MONOPOLY</h3> Game
+                                Welcome to the <h3>MONOPOLY</h3>{" "}
+                                <p
+                                    style={{ fontSize: 9, cursor: "pointer", opacity: 0.8, width: "fit-content" }}
+                                    onClick={() => {
+                                        document.location.href = "/";
+                                    }}
+                                >
+                                    @coder-1t45 - 10.12.23
+                                </p>{" "}
+                                Game
                             </header>
                             <JoinScreen
                                 disabled={disabled}
