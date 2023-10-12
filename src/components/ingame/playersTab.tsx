@@ -1,5 +1,5 @@
 import { useState, forwardRef, useImperativeHandle, useEffect } from "react";
-import { Socket } from "../../assets/websockets.ts";
+import { Socket } from "../../assets/sockets.ts";
 import { Player } from "../../assets/player.ts";
 import DiceIcon from "../../../public/roll.png";
 import { translateGroup } from "./streetCard.tsx";
@@ -7,6 +7,8 @@ import monopolyJSON from "../../assets/monopoly.json";
 import HouseIcon from "../../../public/h.png";
 import HotelIcon from "../../../public/ho.png";
 import { MonopolyCookie, MonopolySettings } from "../../assets/types.ts";
+// @ts-ignore
+import { CookieManager } from "../../assets/CookieManager.ts";
 interface PlayersTabProps {
     socket: Socket;
     players: Array<Player>;
@@ -28,7 +30,7 @@ const playersTab = forwardRef<PlayersTabRef, PlayersTabProps>((props, ref) => {
     const [current, SetCurrentPlayer] = useState<Player | undefined>();
     const [settings, SetSettings] = useState<MonopolySettings>();
     useEffect(() => {
-        SetSettings((JSON.parse(document.cookie) as MonopolyCookie).settings);
+        SetSettings((JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string)) as MonopolyCookie).settings);
     }, [document.cookie]);
 
     useImperativeHandle(ref, () => ({

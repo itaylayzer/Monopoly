@@ -1,6 +1,4 @@
-import axios from "axios";
-import ENV from "../../env.json";
-import { Socket, Server } from "./websockets";
+import { Socket, Server } from "./sockets";
 import monopolyJSON from "./monopoly.json";
 import { GameTrading, MonopolyMode, MonopolyModes, historyAction } from "./types";
 class Player {
@@ -64,91 +62,8 @@ type PlayerJSON = {
 };
 
 export async function main(playersCount: number, f?: (host: string, Server: Server) => void) {
-    //#region Setup
-    const CodeAPI = () => {
-        async function Read() {
-            try {
-                const response = await axios.get(`${ENV.JSONBin.url}/latest`, {
-                    headers: {
-                        "X-Master-Key": ENV.JSONBin.masterKey,
-                        "X-Access-Key": ENV.JSONBin.accessKey,
-                    },
-                });
-                return response.data.record;
-            } catch (error) {
-                console.error("Error reading data:", error);
-            }
-        }
-
-        async function Write(ob: any) {
-            try {
-                await axios.put(`${ENV.JSONBin.url}`, ob, {
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Master-Key": ENV.JSONBin.masterKey,
-                        "X-Access-Key": ENV.JSONBin.accessKey,
-                    },
-                });
-            } catch (error) {
-                console.error("Error writing data:", error);
-            }
-        }
-        async function Delete(code: string) {
-            const x = await Read();
-            if (Object.keys(x).includes(code)) {
-                delete x[code];
-            }
-            await Write(x);
-        }
-        async function Clear() {
-            await Write({ clear: new Date().toISOString() });
-        }
-
-        async function Generate(addr: string) {
-            function generateRandomCode(length: number) {
-                const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                let code = "";
-
-                for (let i = 0; i < length; i++) {
-                    const randomIndex = Math.floor(Math.random() * charset.length);
-                    code += charset[randomIndex];
-                }
-
-                return code;
-            }
-
-            var code = generateRandomCode(6);
-            const x = await Read();
-
-            while (Object.keys(x).includes(code)) {
-                code = generateRandomCode(6);
-            }
-
-            const value = addr;
-            if (Object.values(x).includes(value)) {
-                for (const a of Object.entries(x)) {
-                    if (a[1] === value) {
-                        delete x[a[0]];
-                    }
-                }
-            }
-            x[code] = value;
-            await Write(x);
-
-            return code;
-        }
-
-        return {
-            Write,
-            Read,
-            Delete,
-            Generate,
-            Clear,
-        };
-    };
 
     const maxPlayers = playersCount > 0 ? Math.min(playersCount, 6) : 6;
-    console.log(`Max Players is ${maxPlayers}...\n`);
 
     interface Client {
         player: Player;
@@ -196,18 +111,13 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
     //#endregion
     //#region Game Logic
     new Server(
-        async (id, server) => {
-            // await CodeAPI().Clear();
-            var _code = await CodeAPI().Generate(id);
-            f?.(_code, server);
-            server.code = _code;
-            return async () => {
-                await CodeAPI().Delete(_code);
-            };
+        (server) => {
+            f?.(server.code, server);
         },
         (socket: Socket, server: Server) => {
             // Handle name event
-            socket.emit("state", Clients.size < maxPlayers ?  0 : 2)
+            console.log("state",Clients.size < maxPlayers && !gameStarted ?  0 : gameStarted ? 1 : 2)
+            socket.emit("state", Clients.size < maxPlayers && !gameStarted ?  0 : gameStarted ? 1 : 2)
             socket.on("name", (name: string) => {
                 try {
                     const player = new Player(socket.id, name, Array.from(Clients.keys()).length, selectedMode.startingCash);
@@ -440,7 +350,6 @@ export async function main(playersCount: number, f?: (host: string, Server: Serv
                     if (!readys.includes(false)) {
                         server.logFunction(`Game has Started, No more Players can join the Server`);
                         gameStarted = true;
-                        server.whenCloseF();
                         EmitAll("start-game", {});
                     }
                 } catch (e) {

@@ -5,8 +5,9 @@ import {
     EngineSettings,
 } from "../assets/types";
 import { useState, useEffect } from "react";
+import { CookieManager } from "../assets/CookieManager";
 export default function settingsNav() {
-    const cookie = JSON.parse(document.cookie) as MonopolyCookie;
+    const cookie = JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string)) as MonopolyCookie;
     const l: {
         gameEngine: [
             EngineSettings,
@@ -44,7 +45,7 @@ export default function settingsNav() {
     };
 
     useEffect(() => {
-        const cookie = JSON.parse(document.cookie) as MonopolyCookie;
+        const cookie = JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string)) as MonopolyCookie;
         const settings = {
             gameEngine: l.gameEngine[0],
             accessibility: [
@@ -58,10 +59,10 @@ export default function settingsNav() {
             notifications: l.booleans[3][0],
         } as MonopolySettings;
 
-        document.cookie = JSON.stringify({
+        CookieManager.set("monopolySettings",encodeURIComponent( JSON.stringify({
             login: cookie.login,
             settings: settings,
-        } as MonopolyCookie);
+        } as MonopolyCookie)))
     }, [
         l.gameEngine[0],
         ...l.numbers.map((v) => v[0]),

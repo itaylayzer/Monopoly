@@ -77,3 +77,10 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 
 for more pictures https://coder-1t45.github.io/Monopoly/gallery
 ![picture of the monopoly game](https://cdn.discordapp.com/attachments/1005211638191890532/1133681326793433138/7.PNG)
+
+
+## Features
+### Keys
+1. [1-9]: Nav Tabs
+2. Mouse Wheel: Rotate the Board
+3. Mouse Wheel + Shift: Scale the Board

@@ -4,7 +4,7 @@ import HotelIcon from "../../../public/ho.png";
 import { translateGroup } from "./streetCard.tsx";
 import CardViewer from "./cardViewer.tsx";
 import monopolyJSON from "../../assets/monopoly.json";
-import { Socket } from "../../assets/websockets.ts";
+import { Socket } from "../../assets/sockets.ts";
 import { Player } from "../../assets/player.ts";
 interface PropretyTabProps {
     socket: Socket;

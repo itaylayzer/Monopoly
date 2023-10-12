@@ -1,4 +1,5 @@
 import Peer, { DataConnection } from "peerjs";
+import { TranslateCode, code } from "./code.env";
 
 export function io(uri: string): Promise<Socket> {
     return new Promise((resolve, reject) => {
@@ -7,7 +8,7 @@ export function io(uri: string): Promise<Socket> {
             // logFunction: (...data: any[]) => {
             //     console.log("client: ", ...data);
             // },
-            secure: false,
+            secure: true,
         });
 
         // Listen for the 'open' event, which indicates that the Peer connection is open.
@@ -31,8 +32,6 @@ export function io(uri: string): Promise<Socket> {
         });
 
         peer.on("error", (error) => {
-            console.error("PeerJS error:", error);
-            // Reject the Promise if there's an error.
             reject(error);
         });
     });
@@ -92,21 +91,35 @@ export class Server {
     public renderFunction: (v: Array<any[]>) => void;
     public logs: Array<any[]> = [];
     public code: string;
-    public whenCloseF: () => void;
-    constructor(idf?: (id: string, thisobj: Server) => Promise<() => void> | undefined, onf?: (s: Socket, server: Server) => void) {
-        this.socket = new Peer({
-            debug: 0,
-        });
-        this.code = "";
+    constructor(idf?: (thisobj: Server) => void, onf?: (s: Socket, server: Server) => void) {
+        var error = true;
+
+        var _code:string = "";
+        var _socket:Peer;
+
+        while (error) {
+            try {
+                _code = code();
+                _socket = new Peer(TranslateCode(_code), {
+                    debug: 0,
+                    secure: true,
+                });
+                error = false;
+            } catch {
+                error = true;
+            }
+        }
+        this.code= _code;
+        // @ts-ignore
+        this.socket = _socket;
         this.logFunction = (...data) => {
             this.logs.push(data);
             this.renderFunction(this.logs);
         };
-        this.whenCloseF = () => {};
         this.renderFunction = () => {};
-        this.socket.on("open", async (id) => {
-            const f = await idf?.(id, this);
-            f !== undefined ? (this.whenCloseF = f) : "";
+        this.socket.on("open", async () => {
+            idf?.(this);
+            
         });
 
         this.socket.on("connection", (dataConnection) => {
@@ -127,6 +140,5 @@ export class Server {
     }
     public stop() {
         this.socket.destroy();
-        this.whenCloseF();
     }
 }

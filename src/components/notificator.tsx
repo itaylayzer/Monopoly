@@ -1,5 +1,6 @@
 import { forwardRef, useImperativeHandle } from "react";
 import { MonopolyCookie } from "../assets/types";
+import { CookieManager } from "../assets/CookieManager";
 
 interface NotificatorProps {}
 export interface NotificatorRef {
@@ -66,7 +67,7 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
 
                 if (sfx === undefined || (sfx !== undefined && sfx === true)) {
                     const _settings = (
-                        JSON.parse(document.cookie) as MonopolyCookie
+                        JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string)) as MonopolyCookie
                     ).settings;
                     let audio = new Audio("./notifications.mp3");
                     audio.volume =
@@ -115,7 +116,7 @@ const NotifyElement = forwardRef<NotificatorRef, NotificatorProps>(
                 }
 
                 const _settings = (
-                    JSON.parse(document.cookie) as MonopolyCookie
+                    JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string)) as MonopolyCookie
                 ).settings;
 
                 switch (soundtrack) {

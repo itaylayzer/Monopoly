@@ -1,4 +1,4 @@
-import { Socket, Server } from "../websockets";
+import { Socket, Server } from "../sockets";
 import monopolyJSON from "../monopoly.json";
 import { GameTrading, MonopolyMode, MonopolyModes, historyAction } from "../types";
 class Player {
@@ -61,7 +61,7 @@ type PlayerJSON = {
     getoutCards: number;
 };
 
-export async function main(f?: (host: string, Server: Server) => void) {
+export async function main(f?: (Server: Server) => void) {
     //#region Setup
 
     const maxPlayers = 6;
@@ -113,9 +113,8 @@ export async function main(f?: (host: string, Server: Server) => void) {
     //#endregion
     //#region Game Logic
     new Server(
-        (id, server) => {
-            server.code = id;
-            f?.(id, server);
+        (server) => {
+            f?.(server);
             return undefined;
         },
         (socket: Socket, server: Server) => {
@@ -357,7 +356,6 @@ export async function main(f?: (host: string, Server: Server) => void) {
                         if (!readys.includes(false)) {
                             server.logFunction(`Game has Started, No more Players can join the Server`);
                             gameStarted = true;
-                            server.whenCloseF();
                             EmitAll("start-game", {});
                         }
                     } catch (e) {

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import Monopoly from "./monopoly.tsx";
 import "../../home.css";
-import { Server, Socket, io } from "../../assets/websockets.ts";
+import { Server, Socket, io } from "../../assets/sockets.ts";
 import NotifyElement, { NotificatorRef } from "../../components/notificator.tsx";
 import { MonopolyCookie, User, botInitial } from "../../assets/types.ts";
 import SettingsNav from "../../components/settingsNav.tsx";
@@ -9,7 +9,6 @@ import SettingsNav from "../../components/settingsNav.tsx";
 // import LoginScreen from "../../components/menu/loginscreen.tsx";
 import JoinScreen from "../../components/menu/joinScreen.tsx";
 // env
-import ENV from "../../../env.json";
 // import { FirebaseApp, initializeApp } from "firebase/app";
 // import { doc, getDoc, getFirestore } from "firebase/firestore";
 
@@ -17,11 +16,15 @@ import { main as onlineServer } from "../../assets/server.ts";
 import { main as botServer } from "../../assets/bot/server.ts";
 import { main as runBot } from "../../assets/bot/bot.ts";
 import Slider from "../../components/utils/slider.tsx";
+import { TranslateCode } from "../../assets/code.env.ts";
+import { CookieManager } from "../../assets/CookieManager.ts";
 
 export default function Home() {
     var cookie: MonopolyCookie;
     try {
-        const obj = JSON.parse(document.cookie);
+        const getCookieString =CookieManager.get("monopolySettings");
+        if (getCookieString === null) throw new Error("no cookie");
+        const obj = JSON.parse(decodeURIComponent(getCookieString));
         cookie = obj;
     } catch {
         cookie = {
@@ -30,7 +33,8 @@ export default function Home() {
                 id: "",
             },
         } as MonopolyCookie;
-        document.cookie = JSON.stringify(cookie as MonopolyCookie);
+
+        CookieManager.set("monopolySettings",encodeURIComponent( JSON.stringify(cookie as MonopolyCookie)));
     }
 
     const notifyRef = useRef<NotificatorRef>(null);
@@ -66,7 +70,7 @@ export default function Home() {
         // setFirebase(_firebase);
         var cookie: MonopolyCookie;
         try {
-            const obj = JSON.parse(document.cookie);
+            const obj = JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string));
             cookie = obj;
             if (cookie.login.remember && cookie.login.id.length > 0) {
                 // const db = getFirestore(_firebase);
@@ -80,34 +84,21 @@ export default function Home() {
     }, []);
 
     const joinButtonClicked = async () => {
-        // Codes API
-        async function Read() {
-            const p = fetch(`${ENV.JSONBin.url}/latest`, {
-                method: "GET",
-                headers: {
-                    "X-Master-Key": ENV.JSONBin.masterKey,
-                    "X-Access-Key": ENV.JSONBin.accessKey,
-                },
-            });
-            const v = await (await p).json();
-            return v.record;
-        }
-
         if (name.replace(" ", "").length === 0) {
             notifyRef.current?.message("please add your name before joining", "info", 2);
             return;
         }
 
         try {
-            const cookie = JSON.parse(document.cookie) as MonopolyCookie;
+            const cookie = JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string)) as MonopolyCookie;
             if (fbUser === undefined) throw Error("undefined");
 
-            console.log(JSON.stringify(fbUser));
             cookie.login = {
                 id: fbUser.id,
                 remember,
             };
-            document.cookie = JSON.stringify(cookie as MonopolyCookie);
+
+            CookieManager.set("monopolySettings",encodeURIComponent( JSON.stringify(cookie as MonopolyCookie)));
         } catch {
             const cookie = {
                 login: {
@@ -115,20 +106,11 @@ export default function Home() {
                     remember: false,
                 },
             } as MonopolyCookie;
-            document.cookie = JSON.stringify(cookie as MonopolyCookie);
+            CookieManager.set("monopolySettings",encodeURIComponent( JSON.stringify(cookie as MonopolyCookie)));
         }
         SetDisabled(true);
-        const x = await Read();
-        if (!Object.keys(x).includes(addr)) {
-            notifyRef.current?.message("code isnt available on systems", "info", 2, () => {
-                SetDisabled(false);
-            });
 
-            return;
-        }
-
-        const address = x[addr] as string;
-        console.log(address);
+        const address = TranslateCode(addr) as string;
         var socket: Socket;
         // const address = "localhost"
         try {
@@ -164,7 +146,7 @@ export default function Home() {
                 }
             });
         } catch (r) {
-            notifyRef.current?.message(r as string, "error", 2, () => {
+            notifyRef.current?.message(`Could not connect to peer ${addr}`, "error", 2, () => {
                 SetDisabled(false);
             });
         }
@@ -184,11 +166,11 @@ export default function Home() {
                 return;
             }
 
-            botServer(async (host, server) => {
+            botServer(async (server) => {
                 SetDisabled(true);
-                const socket = await io(host);
+                const socket = await io(TranslateCode(server.code));
                 for (const x of bots) {
-                    runBot(host, x);
+                    runBot(TranslateCode(server.code), x);
                 }
                 socket.on("state", (args: number) => {
                     switch (args) {
@@ -276,7 +258,7 @@ export default function Home() {
                         onClick={() => {
                             SetTab(4);
                         }}
-                        data-tooltip-hover="settings"
+                        data-tooltip-hover="monopolySettings"
                     >
                         <img src="./settings.png" alt="" />
                     </button>

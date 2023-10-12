@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Server, Socket } from "../../assets/websockets.ts";
+import { Server, Socket } from "../../assets/sockets.ts";
 import { Player, PlayerJSON } from "../../assets/player.ts";
 import "../../monopoly.css";
 import MonopolyNav, { MonopolyNavRef } from "../../components/ingame/nav.tsx";
@@ -7,6 +7,7 @@ import MonopolyGame, { MonopolyGameRef } from "../../components/ingame/game.tsx"
 import NotifyElement, { NotificatorRef } from "../../components/notificator.tsx";
 import monopolyJSON from "../../assets/monopoly.json";
 import { MonopolySettings, MonopolyModes, historyAction, history, GameTrading, MonopolyMode } from "../../assets/types.ts";
+import { CookieManager } from "../../assets/CookieManager.ts";
 function App({ socket, name, server }: { socket: Socket; name: string; server: Server | undefined }) {
     const [clients, SetClients] = useState<Map<string, Player>>(new Map());
     const players = Array.from(clients.values());
@@ -39,7 +40,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
 
     useEffect(() => {
         const settings_interval = setInterval(() => {
-            const parsedCookie = JSON.parse(document.cookie)["settings"];
+            const parsedCookie = JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string))["monopolySettings"];
             SetSettings(parsedCookie);
         }, 1000);
         return () => {
@@ -77,7 +78,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
         let settings: MonopolySettings | undefined = undefined;
 
         const settings_interval = setInterval(() => {
-            settings = JSON.parse(document.cookie)["settings"];
+            settings = JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string))["monopolySettings"];
         }, 1000);
 
         function mouseMove(e: MouseEvent) {
@@ -262,7 +263,7 @@ function App({ socket, name, server }: { socket: Socket; name: string; server: S
             if (clients.size > 2) {
                 const name = clients.get(args.id)?.username ?? "player";
                 notifyRef.current?.message(`${name} disconected`, "error");
-            } else {
+            } else if (clients.has(args.id)) {
                 mainTheme.pause();
                 notifyRef.current?.dialog(
                     (close_func, createButton) => ({
@@ -1410,7 +1411,9 @@ which is ${payment_ammount}
                     server={server}
                     Morgage={{
                         onCanc: (a, prpName: string) => {
-                            var settings = JSON.parse(document.cookie)["settings"] as MonopolySettings;
+                            var settings = JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string))[
+                                "monopolySettings"
+                            ] as MonopolySettings;
                             const localPlayer = clients.get(socket.id);
                             if (localPlayer === undefined) return;
                             if (settings !== undefined && settings.notifications === true)
@@ -1432,7 +1435,9 @@ which is ${payment_ammount}
                             SetClients(new Map(clients.set(socket.id, localPlayer)));
                         },
                         onMort: (a, prpName) => {
-                            var settings = JSON.parse(document.cookie)["settings"] as MonopolySettings;
+                            var settings = JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string))[
+                                "monopolySettings"
+                            ] as MonopolySettings;
                             const localPlayer = clients.get(socket.id);
                             if (localPlayer === undefined) return;
                             if (settings !== undefined && settings.notifications === true)

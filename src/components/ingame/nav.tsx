@@ -8,7 +8,7 @@ import MonopolyIcon from "../../../public/icon.png";
 
 import { forwardRef, useState, useImperativeHandle, useEffect, useRef } from "react";
 import { Player } from "../../assets/player.ts";
-import { Server, Socket } from "../../assets/websockets.ts";
+import { Server, Socket } from "../../assets/sockets.ts";
 import PropretyTab, { PropretyTabRef } from "./propretyTab.tsx";
 import PlayersTab, { PlayersTabRef } from "./playersTab.tsx";
 import SettingsNav from "../settingsNav.tsx";
@@ -195,7 +195,7 @@ const MonopolyNav = forwardRef<MonopolyNavRef, MonopolyNavProps>((prop, ref) => 
                         key={"ingame-nav-header-4"}
                         data-selected={tabIndex == 4}
                         onClick={() => SetTab(4)}
-                        data-tooltip-hover="settings"
+                        data-tooltip-hover="monopolySettings"
                         className="button"
                     >
                         <img src={SettingsIcon.replace("public/", "")} alt="" />
