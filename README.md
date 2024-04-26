@@ -73,7 +73,7 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 
 ## Pictures and Videos of the game!
 
-for more pictures https://coder-1t45.github.io/Monopoly/gallery
+for more pictures https://itaylayzer.github.io/Monopoly/gallery
 ![picture of the monopoly game](https://cdn.discordapp.com/attachments/1005211638191890532/1133681326793433138/7.PNG)
 
 

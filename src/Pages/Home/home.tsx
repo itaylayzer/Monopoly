@@ -456,7 +456,7 @@ export default function Home() {
                                         document.location.href = "/";
                                     }}
                                 >
-                                    @coder-1t45 - 10.12.23
+                                    @itaylayzer - 10.12.23
                                 </p>{" "}
                                 Game
                             </header>
