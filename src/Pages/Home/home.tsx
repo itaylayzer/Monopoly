@@ -16,8 +16,8 @@ import { main as onlineServer } from "../../assets/server.ts";
 import { main as botServer } from "../../assets/bot/server.ts";
 import { main as runBot } from "../../assets/bot/bot.ts";
 import Slider from "../../components/utils/slider.tsx";
-import { TranslateCode } from "../../assets/code.env.ts";
-import { CookieManager } from "../../assets/CookieManager.ts";
+import { TranslateCode } from "../../assets/code.ts";
+import { CookieManager } from "../../assets/cookieManager.ts";
 
 export default function Home() {
     var cookie: MonopolyCookie;

@@ -9,7 +9,7 @@ import monopolyJSON from "../../assets/monopoly.json";
 import ChacneCard, { ChanceDisplayInfo } from "./specialCards.tsx";
 import { MonopolyCookie, MonopolySettings, GameTrading, MonopolyMode } from "../../assets/types.ts";
 import Slider from "../utils/slider.tsx";
-import { CookieManager } from "../../assets/CookieManager.ts";
+import { CookieManager } from "../../assets/cookieManager.ts";
 interface MonopolyGameProps {
     players: Array<Player>;
     myTurn: boolean;

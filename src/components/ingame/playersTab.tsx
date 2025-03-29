@@ -8,7 +8,7 @@ import HouseIcon from "../../../public/h.png";
 import HotelIcon from "../../../public/ho.png";
 import { MonopolyCookie, MonopolySettings } from "../../assets/types.ts";
 // @ts-ignore
-import { CookieManager } from "../../assets/CookieManager.ts";
+import { CookieManager } from "../../assets/cookieManager.ts";
 interface PlayersTabProps {
     socket: Socket;
     players: Array<Player>;

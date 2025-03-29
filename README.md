@@ -16,6 +16,20 @@ Immerse yourself in an interactive gaming experience through the game UI. By cli
 
 Participate in the property-buying process through the intuitive buy-in UI and system, making strategic investments to grow your wealth and secure your victory. The game mechanics are designed to be straightforward, ensuring a user-friendly experience for players of all levels.
 
+## How to run the project
+
+theres `src/config.ts` file that is hidden (inside .gitignore file), that his structure is:
+
+```ts
+export default {
+	CODE_PREFIX: <string> // required,
+	PEER_SERVER_HOST: <string?>, // optional
+	PEER_SERVER_PORT: <number?>, // optional, default 443
+	PEER_SECURE: <boolean?>, // optional, default false
+	PEER_DEBUG_LEVEL: <number?>, // optional, default 0
+};
+```
+
 ## Credits
 
 credit for danielstern for the monopoly.json file which i modified
@@ -76,9 +90,10 @@ As the developer of this Monopoly game project, it is essential to clarify the f
 for more pictures https://itaylayzer.github.io/Monopoly/gallery
 ![picture of the monopoly game](https://cdn.discordapp.com/attachments/1005211638191890532/1133681326793433138/7.PNG)
 
-
 ## Features
+
 ### Keys
+
 1. [1-9]: Nav Tabs
 2. Mouse Wheel: Rotate the Board
 3. Mouse Wheel + Shift: Scale the Board

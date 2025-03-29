@@ -5,7 +5,7 @@ import {
     EngineSettings,
 } from "../assets/types";
 import { useState, useEffect } from "react";
-import { CookieManager } from "../assets/CookieManager";
+import { CookieManager } from "../assets/cookieManager";
 export default function settingsNav() {
     const cookie = JSON.parse(decodeURIComponent(CookieManager.get("monopolySettings") as string)) as MonopolyCookie;
     const l: {

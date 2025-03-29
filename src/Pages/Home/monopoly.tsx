@@ -7,7 +7,7 @@ import MonopolyGame, { MonopolyGameRef } from "../../components/ingame/game.tsx"
 import NotifyElement, { NotificatorRef } from "../../components/notificator.tsx";
 import monopolyJSON from "../../assets/monopoly.json";
 import { MonopolySettings, MonopolyModes, historyAction, history, GameTrading, MonopolyMode } from "../../assets/types.ts";
-import { CookieManager } from "../../assets/CookieManager.ts";
+import { CookieManager } from "../../assets/cookieManager.ts";
 function App({ socket, name, server }: { socket: Socket; name: string; server: Server | undefined }) {
     const [clients, SetClients] = useState<Map<string, Player>>(new Map());
     const players = Array.from(clients.values());
